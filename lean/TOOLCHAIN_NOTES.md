@@ -67,3 +67,33 @@
 - Provide small combinatorial witnesses as closed terms, not tactics: `edge_pq p q r s :=
   Or.inl ⟨rfl, rfl⟩` costs nothing, `by simp [Edge]` costs heartbeats every time it is used.
 - `lake env lean R3/File.lean` remains the fast iteration loop (~1.5 min/file here).
+
+## 2026-09-13 (task 20, rotation 1 — the F(11) generalisation and `link_types`)
+- **`ac_rfl` works for `Nat` xor** and is the right tool for every permutation of an xor
+  expression: `example (A B C D : ℕ) : A ^^^ B ^^^ C ^^^ D = C ^^^ A ^^^ D ^^^ B := by ac_rfl`
+  succeeds.  `Nat.xor_left_comm` does NOT exist (a locally proved `a ^^^ (b ^^^ c) =
+  b ^^^ (a ^^^ c)` added to `simp [Nat.xor_assoc, Nat.xor_comm, _]` also normalises, but
+  `ac_rfl` is shorter).  The idiom for a permuted hypothesis is
+  `have hx' : <permuted> = 0 := by rw [← hxor]; try ac_rfl` — the `try` is needed because on
+  the identity permutation `rw` already closes the goal by `rfl` and a bare `ac_rfl` then
+  errors with "No goals to be solved".
+- `rcases h with rfl | rfl` on a disjunction of equations between two *variables*
+  (`a1 = a2 ∨ a1 = b2`) eliminates whichever variable Lean picks, so later references to the
+  other name fail with "Unknown identifier".  Name the equation (`with he | he`) and use
+  `rw [he]` in each component instead; it is deterministic.
+- `rw [Bool.not_eq_true] at k` fails when `k : e ≠ true` (the `Ne` does not expose the
+  `¬ _ = true` pattern to `rw`).  Use `cases hb : e with | false => rfl | true => exact absurd hb k`.
+- A lemma whose implicit argument appears only in a hypothesis you postpone with `?_` cannot
+  have that implicit inferred: `refine (lemma h1 h2 ?_).elim` fails with "don't know how to
+  synthesize implicit argument".  Pass it: `refine (lemma (a := b) h1 h2 ?_).elim`.
+- `Finset.card_filter` rewrites `card n T` (a filter card) into `∑ i ∈ range n, if _ then 1 else 0`.
+  That turns parity statements into `Finset.dvd_sum` plus a four-way `cases … <;> norm_num`,
+  which is how `card_xor_four_parity` is proved in one short block.  This single lemma
+  ("with xor 0 the four sizes sum to an even number") removes every "odd number of
+  singletons" branch of the L1..L4 classification in one line each.
+- **The gate's laundering scan greps all of `R3/`, including `R3/WIP.lean`, even though
+  `WIP.lean` is not imported.**  A `sorry` parked in WIP will fail `gate.sh` while `lake build`
+  still passes.  Keep WIP free of banned constructs.
+- `lake build` + the axiom audit together take ~25-30 min here (the audit re-elaborates
+  `import Mathlib`), so budget one gate run per lemma group, not per lemma; iterate with
+  `lake env lean R3/WIP.lean` (~1.5 min).

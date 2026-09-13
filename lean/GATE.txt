@@ -1,4 +1,4 @@
-GATE run 2026-09-13T16:02:14Z
+GATE run 2026-09-13T16:40:24Z
 toolchain: leanprover/lean4:v4.23.0   mathlib: leanprover/lean4:v4.23.0
 
 == modules imported by R3.lean ==
@@ -9,14 +9,15 @@ import R3.Link
 import R3.Twelve
 import R3.Cycle
 import R3.Octahedron
+import R3.LinkTypes
 import R3.Final
 
 == lake build ==
-Note: This linter can be disabled with `set_option linter.unusedVariables false`
-warning: R3/Octahedron.lean:113:75: unused variable `hrs`
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+warning: R3/LinkTypes.lean:244:64: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
 
-Note: This linter can be disabled with `set_option linter.unusedVariables false`
-Build completed successfully (7224 jobs).
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+Build completed successfully (7225 jobs).
 ok    lake build exit 0
 
 == laundering scan (sorry/admit/axiom/native_decide/unsafe/implemented_by/extern) ==
@@ -52,6 +53,17 @@ ok    none found
 'R3.link_of_three_faces' depends on axioms: [propext, Classical.choice, Quot.sound]
 'R3.closure_of_links' depends on axioms: [propext, Classical.choice, Quot.sound]
 'R3.octahedron_closure' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.link_cycle' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.link_struct' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.no_triangle_at' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.octahedron_closure_gen' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.card_le_two_cases' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.three_pairs_triangle' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.pair_xor_pair_ne_two_pow' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.card_sum_even' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.linkType_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.linkType_nozero' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.link_types' depends on axioms: [propext, Classical.choice, Quot.sound]
 'R3.no_crossing_split' depends on axioms: [propext, Classical.choice, Quot.sound]
 'R3.F_twelve' depends on axioms: [propext, Classical.choice, Quot.sound]
 ok    all listed theorems use only [propext, Classical.choice, Quot.sound]

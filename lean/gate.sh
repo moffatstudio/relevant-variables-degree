@@ -56,6 +56,17 @@ import R3
 #print axioms R3.link_of_three_faces
 #print axioms R3.closure_of_links
 #print axioms R3.octahedron_closure
+#print axioms R3.link_cycle
+#print axioms R3.link_struct
+#print axioms R3.no_triangle_at
+#print axioms R3.octahedron_closure_gen
+#print axioms R3.card_le_two_cases
+#print axioms R3.three_pairs_triangle
+#print axioms R3.pair_xor_pair_ne_two_pow
+#print axioms R3.card_sum_even
+#print axioms R3.linkType_zero
+#print axioms R3.linkType_nozero
+#print axioms R3.link_types
 #print axioms R3.no_crossing_split
 #print axioms R3.F_twelve
 EOF

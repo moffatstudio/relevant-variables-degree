@@ -103,3 +103,92 @@ Estimate: unknown until route 1 is tried; 15 hours if route 1 works, 30+ if not.
 2. Step 0.2 (generalise the closure chain to `n`) — 3-5 hours.
 3. `link_types` (L1..L4) — 4-6 hours.  With it, delta = 4 falls.
 4. Try route 1 of Step 3 early: it is cheap to test and it decides the shape of the rest.
+
+---
+
+## ANSWER to the Step 3 risk question (task 20, rotation 1, 2026-09-13)
+
+**Question.** Can `octahedron_closure` be weakened so that only *some* (say four) of the six
+vertices of `A` need mass 4, letting the two exceptional vertices of the `delta = 0` case be
+absorbed into `A`?
+
+**Answer: NO, not as route 1 describes it.  Route 1 is aimed at the wrong half of the lemma.**
+
+Route 1 proposes redoing `link_of_three_faces` with one face unknown.  That lemma is about
+*deriving* a link cycle from fewer known faces.  But the obstruction is not in the derivation,
+it is in the **conclusion**, and it is visible without any mathematics:
+
+`closure_of_links` concludes `∀ S, N S ≠ 0 → S ⊆ A ∨ S ∩ A = ∅`.  Take an exceptional vertex
+`w ∈ A` of mass 6 or 8.  The conclusion asserts, in particular, that every support triple
+through `w` lies inside `A`, i.e. that the whole link of `w` (6 or 8 pairs) lives on the five
+other vertices of `A`.  Nothing in "the other four vertices have mass 4" constrains the link of
+`w` at all, so no amount of rework of `link_of_three_faces` can produce that conclusion.  The
+six link hypotheses `Lv … Le` of `closure_of_links` are each used, and each is used exactly to
+exclude triples through that one vertex; drop one and the corresponding triples are unbounded.
+
+Note the conclusion is not *false* for an exceptional `w` — a mass-6 link can sit on five
+vertices (a bowtie has degree sequence 4,2,2,2,2) — it is simply **underdetermined**.  So this
+is a statement-shape obstruction, not a repairable proof gap.
+
+**Consequence for the plan.**  `delta = 0` must go by route 2, or by a genuine pigeonhole.
+Record two facts that make the pigeonhole the better target:
+- When all six of `v, a, b, c, d, e` have mass 4, the closure is *symmetric*: `A(w) = A(v)` for
+  every `w ∈ A(v)`, because each of the six links is the 4-cycle on the other four.  So the
+  mass-4 vertices that admit a full closure are partitioned into 6-sets, and the needed
+  statement is exactly "some 6-set of the partition misses both exceptional vertices".
+- Once such an `A` exists, `no_crossing_split` closes `delta = 0` immediately at `n = 11`:
+  `A` has 6 vertices, the other 5 each have mass ≥ 4, and non-crossing forces every triple
+  through an outside vertex to be wholly outside, which supplies `hT0`.
+
+**Revised estimate.**  `delta = 0` is the expensive case, not the cheap one: 30+ hours, and the
+pigeonhole is still unproved on paper.  **Recommendation: prove `delta = 4` and `delta = 2`
+first and leave `delta = 0` to a dedicated run**, and ask the referee lane for a paper proof of
+the pigeonhole before any more Lean time is spent on it.
+
+
+---
+
+## Progress update (task 20, rotation 1, end of run)
+
+**Done and gated this run:**
+- Step 0.1 `no_crossing_split` — was already done in task 18.
+- **Step 0.2 (generalise the closure chain to `n`) — DONE.**  `R3/Octahedron.lean` now carries
+  `Cubic`, `link_cycle`, `link_struct`, `octahedron_closure_gen`, all general in `n` with
+  explicit `mass n N w = 4` hypotheses; `twelve_link_struct` / `octahedron_closure` are `n = 12`
+  corollaries.
+- **Step 1's prerequisite `link_types` (L1..L4) — DONE**, in the new `R3/LinkTypes.lean`,
+  together with a reusable parity tool `card_sum_even` (xor 0 ⇒ the four sizes sum to an even
+  number) that removes every impossible shape in one line.
+
+**Revised order of work.**  Step 3 route 1 is dead (see the answer above), so:
+1. `delta = 4` (Step 1) — now unblocked; the only fiddly piece left is the `{1,1,1,1}`
+   counting identity.
+2. `delta = 2` (Step 2) — needs the `m = 6` link classification; expect `card_sum_even` and
+   `three_pairs_triangle` to carry much of it.
+3. `delta = 0` (Step 3) — **blocked on mathematics, not on Lean.**  Get a paper proof of the
+   pigeonhole first; do not start it in Lean without one.
+
+## Captain's note on the delta = 0 pigeonhole (2026-09-13 18:00, Fable)
+
+The requested pigeonhole ("some mass-4 vertex has a closure 6-set avoiding both exceptional vertices") is FALSE
+in general and must not be pursued as stated. Witness: the C_4 ∪ C_4 sub-case of R3_equals_10.md, two octahedra
+glued at the mass-8 vertex v. Every mass-4 vertex lies in one of the two octahedra, and both octahedra contain v,
+so every closure 6-set contains the exceptional vertex. The hand proof kills that configuration by a *different*
+argument (the glued-octahedra sign-vector / non-constancy check, referee/check_glued_octahedra.py), not by the
+disjoint-sum lemma.
+
+Correct topology-free shape for delta = 0 (do this, in order):
+ (a) Weak closure at a mass-4 vertex v with link cycle a-b-c-d: `link_types` + `link_cycle` give the 4 triples at v.
+     If a, b, c, d and the sixth vertex x all have mass 4, `octahedron_closure_gen` applies -> `no_crossing_split`
+     -> contradiction (CondIII gives a nonzero coefficient outside the 6-set since 11 > 6). So WLOG every closure
+     attempt from every mass-4 vertex meets an exceptional vertex (mass 6 or 8).
+ (b) That residual situation is a small explicit family: an exceptional vertex of mass 8 with link C_8, C_3∪C_5 or
+     C_4∪C_4 (the hand proof's three sub-cases), or two mass-6 vertices. Each is a finite structure on 11 vertices
+     with all coefficients ±1 (Lemma 2(d): no ±2 at delta = 0). Enumerate the candidate supports as explicit bitmask
+     lists (the referee's round2b_out_structures gives 2 iso classes for the analogous n=11 structures) and kill each
+     by `decide` on the finite check "no sign vector in {±1}^16 makes CondII hold" — or, cheaper, by evaluating the
+     CondII sum at one well-chosen U for each sign pattern. Completeness of the enumeration is the part that must be
+     PROVED in Lean (it follows from (a) + the link classification), never imported from the external search.
+ (c) The C_8 case and the "two mass-6" cases may close by pure counting (masses/pairs), as in the hand proof's
+     Euler-characteristic step recast as: sum over vertices of link edge counts = 3 * (#triples) and every pair lies
+     in 0 or 2 triples. Try the counting first; fall back to (b).
