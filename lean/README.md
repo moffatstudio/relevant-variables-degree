@@ -34,22 +34,21 @@ it is what makes the certificate mean something.
 | `R3/Link.lean` | `card_xor_two_pow`, `mass_four_link` (Lemma 2(a): four distinct link sets of size ≤ 2, xor 0, coefficients ±1 with product 1), `mass_four_even_degree` |
 | `R3/Twelve.lean` | `twelve_mass_four`, `twelve_card_three` (`n = 12`: all masses 4, all terms cubic — Step 1), `twelve_coeff_pm`, `twelve_link_card_two`, `twelve_link` |
 | `R3/Cycle.lean` | `exists_pair_of_card_two`, `four_pairs_cycle`, `twelve_link_cycle` (`n = 12`: every vertex link is a 4-cycle — Step 2) |
+| `R3/Octahedron.lean` | `LinkIs`, edge/cycle combinatorics, `octahedron_closure` (Step 3: closure to two vertex-disjoint octahedra, topology-free) and its per-vertex `CubicAt` corollaries |
+| `R3/Final.lean` | `xor_cancel_left`, **`F_twelve : F 12`** (Step 4: the disjoint-sum contradiction) |
+| `R3/DeltaFour.lean`, `R3/DeltaTwo.lean`, `R3/DeltaZero.lean` | the `n = 11` mass-profile case split: `eleven_delta_four`, `eleven_delta_two`, `eleven_delta_zero` (the `delta = 0` case, via a bookkeeping/closure route — see `../proofs/DELTA0_LEAN_ROUTE.md`, not the original topological one) |
+| `R3/Eleven.lean` | `bookkeeping`, `excess_nonneg`, `cubic_of_excess_le_zero`, **`F_eleven : F 11`**, `F_eleven_and_twelve : F 11 ∧ F 12` |
 
-Top certified theorem: `R3.twelve_link_cycle`. All 23 gated declarations report
-`[propext, Classical.choice, Quot.sound]`; the verbatim output is `AXIOMS.txt` and the dated gate run
-is `GATE.txt`.
+Top certified theorems: **`R3.F_eleven : F 11`** and **`R3.F_twelve : F 12`**. All 158 gated
+declarations report `[propext, Classical.choice, Quot.sound]`; the verbatim output is `AXIOMS.txt`
+and the dated gate run is `GATE.txt`. `CERTIFICATE.md` gives the full proof structure for both.
 
 ## What is not proved
 
-`F(12)` and `F(11)` themselves. Steps 3 and 4 towards `F(12)` (closure of the 4-cycle links to two
-vertex-disjoint octahedra, then the contradiction from `CondII` at `U = S ∪ T`) are **in progress**;
-`PLAN.md` gives the route, the next lemma and the effort estimates, and `HANDOFF.md` the current
-state. `R3/Octahedron.lean` and `R3/WIP.lean` hold that in-progress work: they are **not** imported by
-`R3.lean`, so `lake build` does not build them and the gate does not cover them. Do not read a claim
-into them.
-
-Also not formalised: the reduction from degree-3 Boolean functions to `F(n)` (the `2^{1-d}`
-granularity of the Fourier coefficients), which is the bridge between `F(11)` and `R_3 <= 10`; and the
-general-`d` theorem that the Nisan–Szegedy bound is never tight.
+The reduction from degree-3 Boolean functions to `F(n)` (the `2^{1-d}` granularity of the Fourier
+coefficients), which is the bridge between `F(11)`/`F(12)` and `R_3 <= 10`/`R_3 <= 11` as statements
+about Boolean functions — this is stated in `proofs/FINITE_STATEMENT.md` and is a paper argument, not
+a Lean theorem; and the general-`d` theorem that the Nisan–Szegedy bound is never tight.
+`R3/WIP_delta0.lean` is scratch and is **not** imported by `R3.lean`.
 
 `TOOLCHAIN_NOTES.md` records the toolchain and build environment details.

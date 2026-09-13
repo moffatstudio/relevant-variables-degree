@@ -1,14 +1,14 @@
 {
   "title": "The Nisan-Szegedy bound on relevant variables is never tight, and R_3 = 10: paper, proofs, audited search and Lean certificate",
   "upload_type": "software",
-  "version": "0.9",
+  "version": "1.0.0",
   "creators": [
     {
       "name": "Moffat, Andrew",
       "affiliation": "Moffat Studio, United Kingdom"
     }
   ],
-  "description": "Paper (PDF and LaTeX source), hand proofs, an independent exhaustive search with every raw log, the reports of independent referee rounds, a one-command verification script, and a Lean 4 / Mathlib project (zero sorry, standard axioms only, no native_decide) certifying 23 structural theorems, for the results: for every d >= 3 the Nisan-Szegedy bound R_d <= d 2^(d-1) on the number of relevant variables of a degree-d Boolean function is never attained, and the exact value R_3 = 10 (attained by the Chiarelli-Hatami-Saks style function Xi_3). The exhaustive search confirming the finite statement F(11) has no solution is audited computation; F(11) and F(12) are not yet machine-checked. Produced with Claude (Anthropic) language-model agents under the author's direction; the superseded first search and every referee-caught error are preserved rather than removed.",
+  "description": "Paper (PDF and LaTeX source), hand proofs, an independent exhaustive search with every raw log, the reports of independent referee rounds, a one-command verification script, and a complete Lean 4 / Mathlib certificate (158 theorems, zero sorry, standard axioms only, no native_decide) machine-checking F(11) and F(12), the finite statement behind the results: for every d >= 3 the Nisan-Szegedy bound R_d <= d 2^(d-1) on the number of relevant variables of a degree-d Boolean function is never attained, and the exact value R_3 = 10 (attained by the Chiarelli-Hatami-Saks style function Xi_3). The reduction from degree-3 Boolean functions to the finite statement F(n) remains a paper argument, not machine-checked. Produced with Claude (Anthropic) language-model agents under the author's direction; the superseded first search and every referee-caught error are preserved rather than removed.",
   "license": "MIT",
   "keywords": [
     "Boolean functions",

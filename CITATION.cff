@@ -7,8 +7,8 @@ authors:
     given-names: Andrew
     email: andrewmoffat.business@gmail.com
     affiliation: Moffat Studio, United Kingdom
-date-released: 2026-09-13
-version: "0.9"
+date-released: 2026-09-14
+version: "1.0.0"
 repository-code: https://github.com/moffatstudio/relevant-variables-degree
 license: MIT
 preferred-citation:

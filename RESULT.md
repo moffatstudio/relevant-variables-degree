@@ -1,10 +1,11 @@
 # Relevant variables of degree-3 Boolean functions: R_3 = 10, and NS is never tight
 
-**Status 2026-09-13.** `paper/paper.pdf` is the preprint of record for release `v0.9`. Two results:
+**Status 2026-09-14.** `paper/paper.pdf` is the preprint of record for release `v1.0`. Two results:
 `R_d <= d 2^{d-1} - 1` for every `d >= 3` (the Nisan–Szegedy bound is never attained), and `R_3 = 10`
 exactly. Both hand proofs passed independent referee rounds; the exhaustive search independently
-confirms the finite statement behind `R_3 <= 10`. The Lean project certifies the structural half of
-the argument, not the two headline theorems.
+confirms the finite statement behind `R_3 <= 10`. The Lean project now machine-checks the finite
+statement itself, `F(11)` and `F(12)`, i.e. `R_3 <= 10` given the (paper, not formalised) reduction
+from degree-3 Boolean functions to `F(n)`.
 
 Campaign `opt-c44-relevant-variables-degree`, 12–13 September 2026. The mathematics was developed
 with AI assistance: Claude (Anthropic) agents under the author's direction.
@@ -76,31 +77,33 @@ repository relies on it.
 `lean/R3/Statement.lean` is **frozen**: `IsSol n N` and `F n` transcribe `proofs/FINITE_STATEMENT.md`
 directly, and every theorem is proved about an arbitrary `IsSol n N`.
 
-**[machine-checked in Lean]** 23 theorems, listed verbatim with their axiom output in
-`lean/AXIOMS.txt`, all reporting `[propext, Classical.choice, Quot.sound]` and nothing more. The
-substantial ones: `mass_cases` (for `n >= 11` every vertex mass is 4, 6 or 8 — Lemma 1 of the hand
-proof), `nine_mass_four` (at `n = 11`, at least nine vertices have mass 4), `bookkeeping` (the mass
-identity `e + delta = 48 - 4n`), `mass_four_link` and `mass_four_even_degree` (the link of a mass-4
-vertex), `twelve_link` and `twelve_card_three` (at `n = 12` all masses are 4 and all terms cubic —
-Step 1), and `twelve_link_cycle` (at `n = 12` every vertex link is a 4-cycle — Step 2), which is the
-top certified theorem.
+**[machine-checked in Lean]** `R3.F_eleven : F 11` and `R3.F_twelve : F 12` — the finite statement
+itself has no solution on 11 or 12 variables — plus the 156 structural theorems that build to them,
+158 in total, listed verbatim with their axiom output in `lean/AXIOMS.txt`, all reporting
+`[propext, Classical.choice, Quot.sound]` and nothing more. Route: `mass_cases` (for `n >= 11` every
+vertex mass is 4, 6 or 8 — Lemma 1 of the hand proof), `bookkeeping` (the mass identity
+`e + delta = 48 - 4n`), `mass_four_link`/`mass_four_even_degree` (the link of a mass-4 vertex),
+`twelve_link_cycle` and `octahedron_closure` (at `n = 12`, closure to two vertex-disjoint octahedra)
+feeding `F_twelve`; and at `n = 11`, the mass-profile case split `eleven_delta_four`,
+`eleven_delta_two`, `eleven_delta_zero` feeding `F_eleven`. The `delta = 0` case at `n = 11` — the
+hardest, originally topological — was certified by a simpler bookkeeping/closure route instead; see
+`proofs/DELTA0_LEAN_ROUTE.md`. Full proof structure: `lean/CERTIFICATE.md`.
 
 The gate is `bash lean/gate.sh`: `lake build`, a laundering scan over the sources for `sorry`,
 `admit`, `axiom`, `native_decide`, `unsafe`, `implemented_by` and `@[extern]`, then `#print axioms`
-on all 23 declarations. Last run: GATE PASS (`lean/GATE.txt`). The same gate runs in CI.
+on all 158 declarations. Last run: GATE PASS (`lean/GATE.txt`, run 2026-09-13T23:17:45Z). The same
+gate runs in CI, and `python verify.py --lean` runs it from the repository root.
 
-**[not machine-checked]** `F(12)` and `F(11)` themselves, hence `R_3 <= 11` and `R_3 = 10` as formal
-statements; the reduction from degree-3 Boolean functions to `F(n)` (the `2^{1-d}` granularity of the
-Fourier coefficients), which is stated in `proofs/FINITE_STATEMENT.md` and used as the bridge, not
-formalised; and Theorem A for general `d`. Work on `F(12)` (Steps 3 and 4: closure to two
-vertex-disjoint octahedra, then the contradiction from CondII) is **in progress**; `lean/PLAN.md`
-gives the route and the estimates. `lean/R3/Octahedron.lean` and `lean/R3/WIP.lean` are that
-in-progress work: they are not imported by `R3.lean`, not built by `lake build`, and not covered by
-the gate.
+**[not machine-checked]** The reduction from degree-3 Boolean functions to `F(n)` (the `2^{1-d}`
+granularity of the Fourier coefficients), which is stated in `proofs/FINITE_STATEMENT.md` and used as
+the bridge from `F(11)`/`F(12)` to `R_3 <= 10`/`R_3 <= 11` as statements about Boolean functions, not
+formalised; and Theorem A for general `d`. This is the sole remaining trust gap in the Lean route to
+`R_3 = 10`.
 
 ## 4. What remains open
 
-- A machine-checked `F(11)`, and with it a fully formal `R_3 = 10`.
+- Formalising the Fourier-granularity reduction from degree-3 Boolean functions to `F(n)`, which
+  would turn the machine-checked `F(11)` into a fully formal `R_3 = 10`.
 - A second, independent implementation of the `n = 11` search, to close the false-negative caveat.
 - `R_4`: the Nisan–Szegedy bound gives 32 and Theorem A gives 31; no matching construction is known.
   Branching architectures give exactly `3·2^{d-1} - 2` relevant variables, which is 22 at `d = 4`
