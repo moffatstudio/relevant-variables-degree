@@ -1,0 +1,5 @@
+m=2 g=3 wlog=False: tested 1136 instances, 112 valid q's, 0 violating Lemma A, 0.0s
+m=2 g=4 wlog=False: tested 29152 instances, 1120 valid q's, 0 violating Lemma A, 0.2s
+m=3 g=4 wlog=False: tested 3994080 instances, 480 valid q's, 0 violating Lemma A, 3.9s
+m=3 g=5 wlog=True: tested 339102862 instances, 1240 valid q's, 0 violating Lemma A, 425.4s
+LEMMA A CHECK: PASS

@@ -1,0 +1,3 @@
+n=5: degree<=3 Boolean functions with f(0)=+1: 403990  (x2 = 807980 total); with all 5 relevant: 373024 (x2 = 746048 labelled)
+n=6: labelled degree<=3 Boolean functions with all 6 relevant: 12091128   (155865 key-groups, largest 552)
+time 34.1s

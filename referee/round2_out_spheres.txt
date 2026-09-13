@@ -1,0 +1,22 @@
+n=6: 195 labelled triangulated spheres (closed, connected, chi=2); degree sequences:
+    (5, 5, 4, 4, 3, 3)  x180
+    (4, 4, 4, 4, 4, 4)  x15
+   target (5, 4, 4, 4, 4, 3): absent (proof claim confirmed)
+n=7: 5712 labelled triangulated spheres (closed, connected, chi=2); degree sequences:
+    (6, 6, 4, 4, 4, 3, 3)  x1260
+    (6, 5, 5, 5, 3, 3, 3)  x840
+    (6, 5, 5, 4, 4, 3, 3)  x2520
+    (5, 5, 5, 4, 4, 4, 3)  x840
+    (5, 5, 4, 4, 4, 4, 4)  x252
+   target (6, 4, 4, 4, 4, 4, 4): absent (proof claim confirmed)
+
+cross-check: maximal planar graphs (3n-6 edges, planar) via networkx
+n=6: degree sequences of maximal planar graphs:
+    (5, 5, 4, 4, 3, 3)  x180
+    (4, 4, 4, 4, 4, 4)  x15
+n=7: degree sequences of maximal planar graphs:
+    (6, 6, 4, 4, 4, 3, 3)  x1260
+    (6, 5, 5, 5, 3, 3, 3)  x840
+    (6, 5, 5, 4, 4, 3, 3)  x2520
+    (5, 5, 5, 4, 4, 4, 3)  x840
+    (5, 5, 4, 4, 4, 4, 4)  x252

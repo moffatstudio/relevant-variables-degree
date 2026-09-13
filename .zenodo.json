@@ -1,0 +1,41 @@
+{
+  "title": "The Nisan-Szegedy bound on relevant variables is never tight, and R_3 = 10: paper, proofs, audited search and Lean certificate",
+  "upload_type": "software",
+  "version": "0.9",
+  "creators": [
+    {
+      "name": "Moffat, Andrew",
+      "affiliation": "Moffat Studio, United Kingdom"
+    }
+  ],
+  "description": "Paper (PDF and LaTeX source), hand proofs, an independent exhaustive search with every raw log, the reports of independent referee rounds, a one-command verification script, and a Lean 4 / Mathlib project (zero sorry, standard axioms only, no native_decide) certifying 23 structural theorems, for the results: for every d >= 3 the Nisan-Szegedy bound R_d <= d 2^(d-1) on the number of relevant variables of a degree-d Boolean function is never attained, and the exact value R_3 = 10 (attained by the Chiarelli-Hatami-Saks style function Xi_3). The exhaustive search confirming the finite statement F(11) has no solution is audited computation; F(11) and F(12) are not yet machine-checked. Produced with Claude (Anthropic) language-model agents under the author's direction; the superseded first search and every referee-caught error are preserved rather than removed.",
+  "license": "MIT",
+  "keywords": [
+    "Boolean functions",
+    "relevant variables",
+    "Nisan-Szegedy",
+    "polynomial degree",
+    "Fourier analysis of Boolean functions",
+    "computer-assisted proof",
+    "exhaustive search",
+    "AI-assisted mathematics",
+    "Lean 4",
+    "Mathlib",
+    "formal verification"
+  ],
+  "subjects": [
+    {
+      "term": "Combinatorics",
+      "identifier": "https://id.loc.gov/authorities/subjects/sh85028802",
+      "scheme": "url"
+    }
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/moffatstudio/relevant-variables-degree",
+      "relation": "isSupplementTo",
+      "scheme": "url"
+    }
+  ],
+  "notes": "Mathematics Subject Classification 2020: 06E30 (primary), 68Q06, 05D05. Paper, proofs and reports are CC BY 4.0; code, logs and solution files are MIT (see LICENSE)."
+}

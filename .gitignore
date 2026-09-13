@@ -1,0 +1,21 @@
+__pycache__/
+*.pyc
+*.exe
+*.o
+*.stackdump
+
+# LaTeX build artefacts (the published PDFs are tracked)
+paper/*.aux
+paper/*.log
+paper/*.out
+paper/*.toc
+paper/*.bbl
+paper/*.blg
+paper/*.synctex.gz
+paper/tectonic.log
+
+# Lean build artefacts and dependency checkouts
+lean/.lake/
+lean/build.log
+lean/axiom_check.lean
+search/_verify_out/

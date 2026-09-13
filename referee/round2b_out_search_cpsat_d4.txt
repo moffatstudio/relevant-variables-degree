@@ -1,0 +1,5 @@
+d0=4 r=2: CP-SAT 0 (4s)  pysat 0 (9s)  identical sets: True
+d0=4 r=3: CP-SAT 420 (394s)  pysat 420 (6s)  identical sets: True
+d0=4 r=4: CP-SAT 585 (298s)  pysat 585 (9s)  identical sets: True
+d0=4 r=5: CP-SAT 0 (0s)  pysat 0 (0s)  identical sets: True
+d0=4 r=6: CP-SAT 0 (0s)  pysat 0 (0s)  identical sets: True

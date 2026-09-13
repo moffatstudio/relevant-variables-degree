@@ -1,0 +1,11 @@
+V=6: 195 labelled maximal planar graphs; degree sequences:
+    (4, 4, 4, 4, 4, 4) (x15 labelled)
+    (5, 5, 4, 4, 3, 3) (x180 labelled)
+   target (5, 4, 4, 4, 4, 3): absent (as the proof claims)
+V=7: 5712 labelled maximal planar graphs; degree sequences:
+    (5, 5, 4, 4, 4, 4, 4) (x252 labelled)
+    (5, 5, 5, 4, 4, 4, 3) (x840 labelled)
+    (6, 5, 5, 4, 4, 3, 3) (x2520 labelled)
+    (6, 5, 5, 5, 3, 3, 3) (x840 labelled)
+    (6, 6, 4, 4, 4, 3, 3) (x1260 labelled)
+   target (6, 4, 4, 4, 4, 4, 4): absent (as the proof claims)

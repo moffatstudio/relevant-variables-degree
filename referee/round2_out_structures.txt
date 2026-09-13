@@ -1,0 +1,4 @@
+glued octahedra (C4+C4, different octahedra): sign vectors giving a Boolean f: 0 of 65536
+delta=4 {2,2} L4 structure + octahedron: sign vectors giving a Boolean f: 0 of 65536
+delta=4 {1,1,1,1} |N|=4 structure + octahedron: sign vectors giving a Boolean f: 0 of 65536
+positive control (9-variable branching function): Boolean = True ; sign vectors accepted over all 65536: 128 (expected > 0)

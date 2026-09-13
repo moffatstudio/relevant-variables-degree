@@ -1,0 +1,16 @@
+E=4: 1 even simple graphs up to isomorphism
+    C_4
+E=5: 1 even simple graphs up to isomorphism
+    C_5
+E=6: 3 even simple graphs up to isomorphism
+    (5 vertices, 6 edges, degrees [4, 2, 2, 2, 2])
+    C_3 + C_3
+    C_6
+E=8: 7 even simple graphs up to isomorphism
+    (6 vertices, 8 edges, degrees [4, 4, 2, 2, 2, 2])
+    (7 vertices, 8 edges, degrees [4, 2, 2, 2, 2, 2, 2])
+    (6 vertices, 8 edges, degrees [4, 4, 2, 2, 2, 2])
+    (7 vertices, 8 edges, degrees [4, 2, 2, 2, 2, 2, 2])
+    C_3 + C_5
+    C_4 + C_4
+    C_8

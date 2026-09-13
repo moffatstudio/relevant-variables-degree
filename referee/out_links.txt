@@ -1,0 +1,34 @@
+=== (1) families with empty symmetric difference ===
+k=4: 4 shapes up to relabelling
+   {} {a} {a,b} {b}
+   {} {a,b} {a,c} {b,c}
+   {a} {a,b} {b,c} {c}
+   {a,b} {a,c} {b,d} {c,d}
+k=5: 4 shapes up to relabelling
+   {} {a} {a,b} {b,c} {c}
+   {} {a,b} {a,c} {b,d} {c,d}
+   {a} {a,b} {b,c} {c,d} {d}
+   {a,b} {a,c} {b,d} {c,e} {d,e}
+k=6: 9 shapes up to relabelling
+   {} {a} {a,b} {b,c} {c,d} {d}
+   {a} {a,b} {a,c} {a,d} {b} {c,d}
+   {a} {a,b} {b} {c} {c,d} {d}
+   {} {a,b} {a,c} {b,d} {c,e} {d,e}
+   {a} {a,b} {b} {c,d} {c,e} {d,e}
+   {a} {a,b} {b,c} {c,d} {d,e} {e}
+   {a,b} {a,c} {a,d} {a,e} {b,c} {d,e}
+   {a,b} {a,c} {b,c} {d,e} {d,f} {e,f}
+   {a,b} {a,c} {b,d} {c,e} {d,f} {e,f}
+
+=== (2) which weight patterns admit a {0,+-4}-valued link (brute force, ground set 6) ===
+m=4 pattern (2,): impossible
+m=4 pattern (1, 1, 1, 1): REALISABLE e.g. [[], [0], [1], [0, 1]] signs (1, -1, -1, 1)
+m=5 pattern (2, 1): impossible
+m=5 pattern (1, 1, 1, 1, 1): impossible
+m=6 pattern (2, 1, 1): impossible
+m=6 pattern (1, 1, 1, 1, 1, 1): REALISABLE e.g. [[], [0], [1], [0, 2], [1, 3], [2, 3]] signs (1, -1, -1, -1, -1, -1)
+m=7 pattern (2, 1, 1, 1): impossible
+m=7 pattern (1, 1, 1, 1, 1, 1, 1): skipped brute force (parity argument: odd number of odd terms -> odd value; 8 units handled in (1)/even-graph script)
+m=8 pattern (2, 2): REALISABLE e.g. [[], [0]] signs (1, -1)
+m=8 pattern (2, 1, 1, 1, 1): REALISABLE e.g. [[], [0], [1], [0, 2], [1, 2]] signs (1, -1, -1, -1, 1)
+m=8 pattern (1, 1, 1, 1, 1, 1, 1, 1): skipped brute force (parity argument: odd number of odd terms -> odd value; 8 units handled in (1)/even-graph script)

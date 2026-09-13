@@ -1,0 +1,3 @@
+n=10: solutions=0 leaves=2 links_done=1244476 nodes=5795508 canon_rejects=244782 time=326.39s
+accepted links per step: 91 22484 45865 8421 976 400 21 9 4 4
+EXIT 0

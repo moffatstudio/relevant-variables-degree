@@ -1,0 +1,20 @@
+C:\Users\moffa\Desktop\Research\campaigns\opt-c44-relevant-variables-degree\referee\round2b_search.py:1: SyntaxWarning: invalid escape sequence '\ '
+  """Round-2b referee: independent exhaustive search of 11-variable term STRUCTURES (pysat, CDCL + blocking clauses).
+solver: pysat/CaDiCaL
+c found falsified original clause
+  d0=4 |N(0)|= 0: structures=    0 new iso classes=0 boolean sign vectors=0  (0.1s)
+c found falsified original clause
+  d0=4 |N(0)|= 1: structures=    0 new iso classes=0 boolean sign vectors=0  (0.1s)
+  d0=4 |N(0)|= 2: structures=    0 new iso classes=0 boolean sign vectors=0  (4.9s)
+  d0=4 |N(0)|= 3: structures=  420 new iso classes=2 boolean sign vectors=0  (511.8s)
+  d0=4 |N(0)|= 4: structures=  585 new iso classes=0 boolean sign vectors=0  (708.4s)
+  d0=4 |N(0)|= 5: structures=    0 new iso classes=0 boolean sign vectors=0  (0.1s)
+  d0=4 |N(0)|= 6: structures=    0 new iso classes=0 boolean sign vectors=0  (0.1s)
+  d0=4 |N(0)|= 7: structures=    0 new iso classes=0 boolean sign vectors=0  (0.1s)
+  d0=4 |N(0)|= 8: structures=    0 new iso classes=0 boolean sign vectors=0  (0.1s)
+c found falsified original clause
+  d0=6 |N(0)|= 0: structures=    0 new iso classes=0 boolean sign vectors=0  (0.1s)
+  d0=6 |N(0)|= 1: structures=    0 new iso classes=0 boolean sign vectors=0  (0.1s)
+  d0=6 |N(0)|= 2: structures=    0 new iso classes=0 boolean sign vectors=0  (0.1s)
+  d0=6 |N(0)|= 3: structures=    0 new iso classes=0 boolean sign vectors=0  (0.1s)
+  d0=6 |N(0)|= 4: structures=    0 new iso classes=0 boolean sign vectors=0  (956.9s)

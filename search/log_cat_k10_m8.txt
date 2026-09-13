@@ -1,0 +1,2 @@
+catalogue K=10 M=8: 65 canonical links, 238909 link-leaves, 2580754 nodes, 105067 canon-rejects, 188.01s
+EXIT 0

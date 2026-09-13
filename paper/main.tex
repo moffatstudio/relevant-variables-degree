@@ -1,0 +1,1415 @@
+\documentclass[11pt,reqno]{amsart}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{mathtools}
+\usepackage[margin=1.15in]{geometry}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+
+%%% theorem environments
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{fact}[theorem]{Fact}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{question}[theorem]{Question}
+
+\numberwithin{theorem}{section}
+
+%%% macros
+\newcommand{\cube}{\{-1,1\}}
+\newcommand{\bits}{\{-1,0,1\}}
+\newcommand{\Inf}{\mathbf{Inf}}
+\newcommand{\Ex}{\mathbf{E}}
+\newcommand{\Prb}{\mathbf{Pr}}
+\newcommand{\sd}{\mathbin{\triangle}}
+\newcommand{\lk}{\operatorname{lk}}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\bbF}{\mathbb{F}}
+\newcommand{\bbZ}{\mathbb{Z}}
+\newcommand{\bbR}{\mathbb{R}}
+\newcommand{\nn}{n}
+\newcommand{\Fhat}[1]{\widehat{#1}}
+\newcommand{\XiC}{\Xi}
+\newcommand{\todo}[1]{\textup{\textbf{[\,todo: #1\,]}}}
+\DeclareMathOperator{\Deg}{deg}
+
+\begin{document}
+
+\title[The Nisan--Szegedy bound is never tight, and $R_3=10$]
+{The Nisan--Szegedy bound on relevant variables\\ is never tight, and $R_3 = 10$}
+
+\author{Andrew Moffat}
+\thanks{The mathematics in this paper was developed with AI assistance (Claude).
+All statements have been independently refereed inside the project and, where indicated,
+verified by computer; responsibility for any remaining error is the author's.}
+
+\date{\today}
+
+\subjclass[2020]{06E30, 68Q06, 05E99}
+\keywords{Boolean functions, Fourier degree, relevant variables, juntas, Nisan--Szegedy bound}
+
+\begin{abstract}
+Nisan and Szegedy proved in 1994 that a Boolean function whose real multilinear degree is at
+most $d$ depends on at most $d\,2^{d-1}$ variables. Writing $R_d$ for the maximum number of
+relevant variables of a degree-$d$ Boolean function, this says $R_d \le d\,2^{d-1}$, and the
+bound is attained for $d = 1$ and $d = 2$. We prove two results.
+First, the Nisan--Szegedy bound is never attained for $d \ge 3$: $R_d \le d\,2^{d-1} - 1$ for
+every $d \ge 3$. The proof shows that in a hypothetical extremal function every derivative is
+a character times the indicator of an affine subspace, that every vertex link is the facet
+complex of a cross-polytope, and that the resulting term hypergraph splits into at least two
+cross-polytope boundaries on disjoint variable sets, which no Boolean function admits.
+Second, we determine $R_3$ exactly: $R_3 = 10$, attained by the Chiarelli--Hatami--Saks
+function $\XiC_3$. Consequently $R_1 = 1$, $R_2 = 4$, $R_3 = 10$, and $22 \le R_4 \le 31$.
+The value $R_3 = 10$ is confirmed independently by an exhaustive canonical-form search over
+a finite reformulation of the problem, and the first structural steps of the argument have
+been formalised in Lean~4.
+\end{abstract}
+
+\maketitle
+
+\section{Introduction}\label{sec:intro}
+
+\subsection{The problem}
+Let $f \colon \cube^n \to \cube$ be a Boolean function, written in the $\pm 1$ convention, and
+let
+\[
+  f = \sum_{S \subseteq [n]} \Fhat{f}(S)\, \chi_S,
+  \qquad \chi_S(x) = \prod_{i \in S} x_i,
+\]
+be its Fourier (real multilinear) expansion. The \emph{degree} $\Deg f$ is the largest $|S|$
+with $\Fhat{f}(S) \ne 0$. A variable $x_i$ is \emph{relevant} if $f$ depends on it, that is,
+if $f(x) \ne f(x^{\oplus i})$ for some $x$, where $x^{\oplus i}$ flips the $i$-th coordinate;
+equivalently, if $\Fhat{f}(S) \ne 0$ for some $S \ni i$.
+
+Set
+\[
+  R_d := \sup \{\, n : \text{some } f \colon \cube^n \to \cube \text{ with } \Deg f \le d
+  \text{ has all } n \text{ variables relevant} \,\}.
+\]
+That $R_d$ is finite is the theorem of Nisan and Szegedy \cite{NS94}: a degree-$d$ Boolean
+function is a $d\,2^{d-1}$-junta, so
+\begin{equation}\label{eq:ns}
+  R_d \;\le\; d\,2^{d-1}.
+\end{equation}
+Chiarelli, Hatami and Saks \cite{CHS20} showed that the truth is exponential rather than
+$d\,2^{d-1}$: there is an absolute constant $C \le 6.614$ with $R_d \le C\, 2^d$, and they
+gave, for each $d$, an explicit degree-$d$ function $\XiC_d$ with
+\begin{equation}\label{eq:chslower}
+  3 \cdot 2^{d-1} - 2 \quad \text{relevant variables},
+\end{equation}
+so that $R_d \ge 3 \cdot 2^{d-1} - 2$. Wellens \cite{Wel22} improved the constant to $4.394$.
+Writing
+\[
+  C_{44} := \sup_{d \ge 1} \frac{R_d}{2^d},
+\]
+the current state of the art is $3/2 \le C_{44} \le 4.394$; this is entry~44a on Tao's
+optimisation problems page \cite{TaoOP44a}.
+
+The improved constants of \cite{CHS20,Wel22} are asymptotic. For small $d$ they are worse than
+\eqref{eq:ns}: the Chiarelli--Hatami--Saks optimisation attains its minimum at $d = 12$, and
+Wellens' bound beats $d\,2^{d-1}$ only from roughly $d \ge 9$ on. For $d \le 8$, therefore,
+\eqref{eq:ns} is still the best published upper bound, and the exact values of $R_d$ have not
+been recorded anywhere for any $d \ge 3$: the problem page \cite{TaoOP44a} lists
+$10 \le R_3 \le 12$ and states that exact values are not known.
+
+\subsection{Results}
+We settle the tightness of \eqref{eq:ns} for every $d$, and determine $R_3$.
+
+\begin{theorem}\label{thm:main-ns}
+For every $d \ge 3$, no Boolean function of degree $d$ has $d\,2^{d-1}$ relevant variables.
+Hence
+\[
+  R_d \;\le\; d\,2^{d-1} - 1 \qquad (d \ge 3).
+\]
+\end{theorem}
+
+\begin{theorem}\label{thm:main-r3}
+$R_3 = 10$. That is, a Boolean function of degree $3$ has at most $10$ relevant variables, and
+$10$ is attained by the Chiarelli--Hatami--Saks function $\XiC_3$.
+\end{theorem}
+
+Theorem~\ref{thm:main-ns} is sharp in the sense that $d \ge 3$ cannot be weakened: for $d = 1$
+the function $f(x) = x_1$ has $1 = 1 \cdot 2^0$ relevant variable, and for $d = 2$ the function
+\begin{equation}\label{eq:degree2extremal}
+  f(x_1,x_2,x_3,x_4) = \tfrac12\left( x_1x_2 + x_1x_3 + x_2x_4 - x_3x_4 \right)
+\end{equation}
+is Boolean of degree $2$ with $4 = 2 \cdot 2^1$ relevant variables. So the Nisan--Szegedy bound
+is attained exactly for $d \in \{1,2\}$.
+
+Combining the two theorems with \eqref{eq:chslower} and \eqref{eq:ns}, the exact state of
+knowledge for small $d$ is now
+\[
+  R_1 = 1, \qquad R_2 = 4, \qquad R_3 = 10, \qquad 22 \le R_4 \le 31,
+\]
+the upper bound $31$ for $d = 4$ being $4 \cdot 2^3 - 1$ from Theorem~\ref{thm:main-ns}.
+
+\subsection{Method}
+Both theorems run on the same structural device, which we call the \emph{link of a derivative}.
+If $f$ has degree $d$ and $x_i$ is relevant, then the discrete derivative
+\[
+  D_i f(x) := \frac{f(x^{i \to 1}) - f(x^{i \to -1})}{2}
+  = \sum_{S \ni i} \Fhat{f}(S)\, \chi_{S \setminus i}
+\]
+is a nonzero $\bits$-valued function of degree at most $d - 1$, and by granularity all of its
+Fourier coefficients are integer multiples of $2^{1-d}$. Being $\bits$-valued is a very rigid
+constraint on a sparse, granular Fourier expansion. Lemma~\ref{lem:A} makes this precise at the
+extreme end: if the Fourier mass of $D_i f$ is as small as it can possibly be, then the support
+of $D_i f$ is an affine subspace of $\bbF_2^n$ and all its coefficients are $\pm 2^{1-d}$, i.e.\
+$D_i f$ is a character times the indicator of an affine subspace of codimension $d-1$. A
+counting argument (Lemma~\ref{lem:B}) turns the affine subspace into the facet family of a
+cross-polytope when all the support sets have the same size, and a closure argument propagates
+the cross-polytope from one vertex to its neighbours until the whole term hypergraph is a
+disjoint union of $2^{d-2}$ cross-polytope boundaries. For $d \ge 3$ there are at least two of
+them, and a sum of two non-constant functions on disjoint variable sets is never $\pm1$-valued
+(Lemma~\ref{lem:C}). That is Theorem~\ref{thm:main-ns}.
+
+For Theorem~\ref{thm:main-r3} the same device is pushed through a finer case analysis. Part~I
+($R_3 \le 11$, Section~\ref{sec:partI}) is the specialisation of the above to $d = 3$, where
+the cross-polytope is an octahedron and the term hypergraph is a closed triangulated surface
+with all vertex degrees $4$. Part~II ($R_3 \le 10$, Section~\ref{sec:partII} and
+Appendix~\ref{app:cases}) has an extra unit of slack in the influence budget, which allows the
+function to carry terms of degree below the top level and allows two vertices to have larger
+derivative mass. The slack is accounted for by a single identity (Section~\ref{sec:bookkeep}),
+and the resulting finitely many configurations are eliminated one by one.
+
+\subsection{Verification}
+The main theorems are proved by hand. Independently of the proofs, we reformulate
+``no degree-$3$ Boolean function has $n$ relevant variables'' as a purely finite arithmetic
+statement $F(n)$ about integer vectors (Section~\ref{sec:finite}), and run an exhaustive
+orderly search over canonical forms. The search finds no solution for $n = 11$ and exactly one
+orbit for $n = 10$, namely $\XiC_3$. A separate SAT-based structure search by an independent
+referee finds the same short list of candidate term structures and no Boolean sign vector on
+any of them. Finally, the first structural steps of Part~I have been formalised in Lean~4 and
+kernel-checked on the standard axioms; we are explicit in Section~\ref{sec:lean} about what is
+and what is not machine-checked (the finite statements $F(11)$ and $F(12)$ are \emph{not}).
+
+\subsection{Related work and novelty}
+Nisan and Szegedy \cite{NS94} do not discuss whether \eqref{eq:ns} is tight for $d \ge 3$.
+Chiarelli--Hatami--Saks \cite{CHS20} and Wellens \cite{Wel19,Wel22} beat $d\,2^{d-1}$ only for
+large $d$, and neither states an exact value of $R_3$ or $R_4$ nor addresses tightness at small
+$d$; Wellens' Table~1 tabulates linear-programming bounds on block sensitivity, not on the
+number of relevant variables. A literature sweep carried out for this project found no paper,
+preprint, thesis or problem-tracker entry recording an exact value of $R_d$ for any $d \ge 3$.
+The acknowledgements of \cite{CHS20} thank Avishay Tal for sharing exhaustive-search code for
+Boolean functions on few variables, but no results of such a search are reported there. To the
+best of our knowledge, Theorems~\ref{thm:main-ns} and \ref{thm:main-r3} are new.
+
+\subsection{Organisation}
+Section~\ref{sec:prelim} fixes notation and collects the standard facts we use.
+Section~\ref{sec:ns} proves Theorem~\ref{thm:main-ns}. Section~\ref{sec:partI} proves
+$R_3 \le 11$, Section~\ref{sec:partII} sets up the eleven-variable analysis and
+Appendix~\ref{app:cases} carries it out in full, completing Theorem~\ref{thm:main-r3}.
+Section~\ref{sec:comput} describes the computational verification. Section~\ref{sec:open}
+collects open problems.
+
+\section{Preliminaries}\label{sec:prelim}
+
+\subsection{Fourier analysis on the cube}
+We use the $\pm 1$ convention throughout: a Boolean function is a map
+$f \colon \cube^n \to \cube$, and every $g \colon \cube^n \to \bbR$ has a unique multilinear
+expansion $g = \sum_{S \subseteq [n]} \Fhat{g}(S) \chi_S$ with $\chi_S(x) = \prod_{i \in S}x_i$.
+We identify a subset $S \subseteq [n]$ with its indicator vector in $\bbF_2^n$, so that
+$\chi_S \chi_T = \chi_{S \sd T}$, where $\sd$ is symmetric difference, i.e.\ addition in
+$\bbF_2^n$. Expectations $\Ex$ and probabilities $\Prb$ are with respect to the uniform measure
+on $\cube^n$, and Parseval reads $\Ex[g^2] = \sum_S \Fhat{g}(S)^2$; in particular
+$\sum_S \Fhat{f}(S)^2 = 1$ for Boolean $f$.
+
+\subsection{Granularity}
+\begin{fact}[Granularity; {\cite[Ex.~1.11]{ODbook}}, \cite{NS94}]\label{fact:gran}
+If $f \colon \cube^n \to \cube$ has $\Deg f \le d$, then every Fourier coefficient
+$\Fhat{f}(S)$ is an integer multiple of $2^{1-d}$.
+\end{fact}
+\todo{confirm the exercise number in O'Donnell's book; the statement itself is standard and is
+already implicit in \cite{NS94}.}
+
+Granularity is what makes the whole argument finite: for $\Deg f \le d$ the rescaled
+coefficients $n_S := 2^{d-1}\Fhat{f}(S)$ are integers with $\sum_S n_S^2 = 4^{d-1}$, and the
+problem becomes one about integer vectors.
+
+\subsection{Derivatives, influences, links}
+For $i \in [n]$ put
+\[
+  D_i f(x) := \frac{f(x^{i \to 1}) - f(x^{i \to -1})}{2}
+  = \sum_{S \ni i} \Fhat{f}(S)\,\chi_{S \setminus i},
+\]
+where $x^{i \to b}$ is $x$ with the $i$-th coordinate set to $b$. If $f$ is Boolean then $D_i f$
+is $\bits$-valued, and $\Deg D_i f \le \Deg f - 1$. The \emph{influence} of $i$ is
+\[
+  \Inf_i(f) = \Prb\left[ f(x) \ne f(x^{\oplus i}) \right] = \Prb[D_i f \ne 0]
+  = \sum_{S \ni i} \Fhat{f}(S)^2 ,
+\]
+and the variable $x_i$ is relevant exactly when $\Inf_i(f) > 0$.
+
+\begin{fact}[Support bound; {\cite{NS94}}]\label{fact:support}
+A nonzero function $g \colon \cube^n \to \bbR$ of degree at most $k$ is nonzero on at least a
+$2^{-k}$ fraction of the cube.
+\end{fact}
+
+\begin{proof}
+Restrict to a subcube on which a top-degree monomial of $g$ survives and induct on $k$; this is
+the Schwartz--Zippel-type bound used in \cite{NS94}.
+\end{proof}
+
+\begin{corollary}\label{cor:minfluence}
+If $\Deg f \le d$ and $x_i$ is relevant, then $\Inf_i(f) \ge 2^{1-d}$.
+\end{corollary}
+
+\begin{proof}
+$D_i f$ is nonzero, $\bits$-valued and of degree at most $d - 1$, so by Fact~\ref{fact:support}
+$\Prb[D_i f \ne 0] \ge 2^{1-d}$.
+\end{proof}
+
+\begin{fact}[Total influence]\label{fact:totalinf}
+$\sum_{i=1}^n \Inf_i(f) = \sum_S |S|\,\Fhat{f}(S)^2 \le \Deg f$ for Boolean $f$.
+\end{fact}
+
+Corollary~\ref{cor:minfluence} and Fact~\ref{fact:totalinf} give \eqref{eq:ns} at once:
+$d \ge \sum_i \Inf_i \ge n\,2^{1-d}$, so $n \le d\,2^{d-1}$. Everything below is an analysis of
+the near-equality case.
+
+\begin{definition}[Mass, support hypergraph, link]\label{def:link}
+Let $f \colon \cube^n \to \cube$ have $\Deg f \le d$ and put $n_S := 2^{d-1}\Fhat{f}(S)
+\in \bbZ$. The \emph{support} of $f$ is $\mathcal{F} := \{S : n_S \ne 0\}$, regarded as a
+hypergraph on the vertex set $[n]$; when all its members have size $d$ we call it
+\emph{$d$-uniform}. For a vertex $i$ we write
+\[
+  m_i := \sum_{S \ni i} n_S^2 = 4^{d-1}\,\Inf_i(f)
+\]
+for the \emph{mass at $i$}, and we call the signed family
+\[
+  \lk(i) := \left\{\, (S \setminus i,\, n_S) \;:\; S \in \mathcal{F},\ S \ni i \,\right\}
+\]
+the \emph{link} of $i$. We often abuse notation and call the underlying set family
+$\{S \setminus i : S \in \mathcal{F},\, S \ni i\}$ the link as well; when $\mathcal{F}$ is
+$d$-uniform the link is a family of $(d-1)$-sets and, for $d = 3$, a graph.
+\end{definition}
+
+By definition $2^{d-1}D_i f = \sum_{S \ni i} n_S \chi_{S \setminus i}$ is
+$\{0, \pm 2^{d-1}\}$-valued with $\sum_{S \ni i} n_S^2 = m_i$. The entire paper consists of
+extracting structure from that one sentence.
+
+\subsection{The Chiarelli--Hatami--Saks lower bound}
+For completeness we record the construction from \cite[\S3]{CHS20} at $d = 2, 3$. Put
+\[
+  \XiC_2(a,b,u,w) := \frac{a+b}{2}\,u + \frac{a-b}{2}\,w
+  = \frac{au + bu + aw - bw}{2},
+\]
+which is the degree-$2$ Boolean function \eqref{eq:degree2extremal} on $4$ variables, and
+\[
+  \XiC_3(s,t,x,y) := \frac{s+t}{2}\,\XiC_2(x) + \frac{s-t}{2}\,\XiC_2(y),
+\]
+where $x = (x_a,x_b,x_u,x_w)$ and $y = (y_a,y_b,y_u,y_w)$ are disjoint $4$-tuples of variables.
+Expanding,
+\[
+  \XiC_3 = \frac14\Big[ (s+t)\big(x_ax_u + x_bx_u + x_ax_w - x_bx_w\big)
+        + (s-t)\big(y_ay_u + y_by_u + y_ay_w - y_by_w\big) \Big],
+\]
+a homogeneous cubic with $16$ terms of coefficient $\pm\frac14$ on
+$2 + 4 + 4 = 10$ relevant variables. Thus $R_3 \ge 10$. In general
+$\XiC_d$ has $3 \cdot 2^{d-1} - 2$ relevant variables, giving \eqref{eq:chslower}.
+
+\section{The Nisan--Szegedy bound is never attained for \texorpdfstring{$d \ge 3$}{d >= 3}}
+\label{sec:ns}
+
+Throughout this section $f \colon \cube^n \to \cube$ has $\Deg f \le d$ with all $n$ variables
+relevant, and we write
+\[
+  m := d - 1, \qquad N := 2^m = 2^{d-1}.
+\]
+
+\subsection{Minimal mass forces an affine cube of unit terms}
+
+\begin{lemma}[Minimal support forces an affine cube of unit terms]\label{lem:A}
+Let
+\[
+  q = 2^{-m} \sum_{j=1}^{J} n_j \chi_{T_j}
+\]
+with the $T_j \subseteq [n]$ distinct, the $n_j$ nonzero integers, and $\sum_{j} n_j^2 = N$.
+Suppose $q$ is $\bits$-valued and not identically $0$. Then all $n_j = \pm 1$, $J = N$, the
+family $\{T_j\}$ is an affine subspace of dimension $m$ of $\bbF_2^n$, and
+\[
+  n_j n_k n_l n_r = +1 \qquad \text{whenever} \qquad T_j \sd T_k \sd T_l \sd T_r = \emptyset .
+\]
+\end{lemma}
+
+\begin{proof}
+Put $s := 2^m q = \sum_j n_j \chi_{T_j}$, so $s$ takes values in $\{0, \pm N\}$ and, by
+Parseval, $\Ex[s^2] = \sum_j n_j^2 = N$; hence $\Prb[s \ne 0] = 1/N$ and
+$\Ex[s^4] = N^2\,\Ex[s^2] = N^3$. Expanding the fourth power and using
+$\Ex[\chi_{T_j}\chi_{T_k}\chi_{T_l}\chi_{T_r}] = \mathbf{1}\{T_j \sd T_k \sd T_l \sd T_r =
+\emptyset\}$,
+\[
+  \Ex[s^4] = \sum_{\substack{(j,k,l,r) \\ T_j \sd T_k \sd T_l \sd T_r = \emptyset}}
+  n_j n_k n_l n_r .
+\]
+For each ordered triple $(j,k,l)$ there is \emph{at most one} index $r$ with
+$T_r = T_j \sd T_k \sd T_l$, because the $T$'s are distinct; call the set of triples possessing
+such an $r$ the \emph{dominant} set $\mathrm{Dom}$, and write $r(j,k,l)$ for that index. Then
+\begin{align}
+  N^3 = \Ex[s^4]
+  &\le \sum_{(j,k,l) \in \mathrm{Dom}} |n_j n_k n_l|\,|n_{r(j,k,l)}| \notag \\
+  &\le \sum_{(j,k,l) \in \mathrm{Dom}} n_j^2 n_k^2\, |n_l|\,|n_{r(j,k,l)}|
+    \label{eq:Astep2} \\
+  &\le \Big( \sum_{\mathrm{Dom}} n_j^2 n_k^2 n_l^2 \Big)^{1/2}
+       \Big( \sum_{\mathrm{Dom}} n_j^2 n_k^2 n_{r(j,k,l)}^2 \Big)^{1/2}
+    \label{eq:ACS} \\
+  &\le \big( N^3 \big)^{1/2}\big( N^3 \big)^{1/2} = N^3 . \notag
+\end{align}
+Line \eqref{eq:Astep2} uses $|n| \le n^2$ for nonzero integers $n$, applied to the factors
+$n_j$ and $n_k$; line \eqref{eq:ACS} is Cauchy--Schwarz. The final bound uses
+$\sum_{\mathrm{Dom}} n_j^2 n_k^2 n_l^2 \le \big(\sum_j n_j^2\big)^3 = N^3$ and, for the second
+factor, that for fixed $(j,k)$ the map $l \mapsto r(j,k,l)$ is injective on $\mathrm{Dom}$
+(since $l$ is recovered from $r$ by $T_l = T_j \sd T_k \sd T_r$), so that
+$\sum_l n_{r(j,k,l)}^2 \le \sum_j n_j^2 = N$ and the whole sum is at most
+$\big(\sum n_j^2\big)^2 \cdot N = N^3$.
+
+Equality throughout forces the following.
+\begin{enumerate}[label=(\roman*)]
+  \item $\mathrm{Dom}$ is the set of \emph{all} triples: the family $\{T_j\}$ is closed under
+  $(x,y,z) \mapsto x \sd y \sd z$, hence is an affine subspace of $\bbF_2^n$, of some dimension
+  $k$, and $J = 2^k$.
+  \item Equality in \eqref{eq:Astep2} forces $|n_j n_k| = 1$ whenever the triple contributes,
+  and equality in Cauchy--Schwarz gives $|n_{r(j,k,l)}| = \lambda |n_l|$ for all $j,k,l$ and
+  some $\lambda > 0$; taking $j = k$ gives $r = l$ and $\lambda = 1$, and for fixed $k,l$ the
+  map $j \mapsto r(j,k,l)$ is onto, so all $|n_j|$ equal a common value $c$. (In fact $c = 1$
+  already follows from \eqref{eq:Astep2}; the argument is kept because it also delivers the
+  count $J$.)
+  \item All products $n_j n_k n_l n_{r(j,k,l)}$ are positive.
+\end{enumerate}
+From (ii), $2^k c^2 = N = 2^m$, so $c = 2^t$ with $k = m - 2t$. If $t \ge 1$ then
+$|s| \le c\,2^k = 2^{m-t} < N$ pointwise, so $s \in \{0,\pm N\}$ forces $s \equiv 0$,
+contradicting $q \ne 0$. Hence $c = 1$, $k = m$ and $J = N$.
+\end{proof}
+
+\begin{remark}\label{rem:A}
+Item (iii) says that $\eps_j := n_j$ is an affine character on the affine subspace $\{T_j\}$:
+writing $\{T_j\} = T_0 \sd L$ for a linear subspace $L$ of dimension $m$, we have
+$\eps_{T_0 \sd A} = \eps_0\, \psi(A)$ for a homomorphism $\psi \colon L \to \{\pm 1\}$.
+Consequently, for any basis $D_1, \dots, D_m$ of $L$,
+\[
+  q = \pm\, \chi_{T_0} \prod_{i=1}^{m} \frac{1 + \psi(D_i)\,\chi_{D_i}}{2},
+\]
+that is: a minimal-mass derivative is a character times the indicator of an affine subspace of
+codimension $m = d - 1$. The converse also holds, every such product being $\bits$-valued.
+Note that Lemma~\ref{lem:A} uses no degree hypothesis at all; it is a statement about sparse,
+granular, $\bits$-valued functions, and it applies to any variable of minimal influence
+$2^{1-d}$ in any degree-$d$ Boolean function, homogeneous or not.
+\end{remark}
+
+\subsection{Equal sizes force a cross-polytope}
+
+\begin{lemma}[Equal sizes force a cross-polytope]\label{lem:B}
+Let $\{T_p\} = T_0 \sd L$ be an affine subspace of dimension $m$ of subsets of $[n]$, all of
+whose members have size exactly $m$. Then there are $m$ pairwise disjoint pairs
+$\{t_i, t_i'\}$, $i = 1, \dots, m$, with $T_0 = \{t_1, \dots, t_m\}$ and
+\[
+  \{T_p\} = \big\{\, \{u_1, \dots, u_m\} \;:\; u_i \in \{t_i, t_i'\} \,\big\},
+\]
+that is, $\{T_p\}$ is the facet family of an $m$-dimensional cross-polytope on the $2m$
+vertices $t_1, t_1', \dots, t_m, t_m'$.
+\end{lemma}
+
+\begin{proof}
+For $A \in L \setminus \{\emptyset\}$ and any $p$, the equality $|T_p \sd A| = m = |T_p|$ gives
+$|A| = 2\,|A \cap T_p|$. Applying this with $T_p = T_0 \sd B$ for $B \in L$,
+\[
+  \frac{|A|}{2} = |(T_0 \sd B) \cap A| = |T_0 \cap A| + |B \cap A| - 2\,|T_0 \cap A \cap B| ,
+\]
+and since $|A|/2 = |T_0 \cap A|$ we obtain
+\[
+  |A \cap B| = 2\,|T_0 \cap A \cap B| \qquad \text{for all } A, B \in L.
+\]
+The $\bbF_2$-linear map $L \to 2^{T_0}$, $A \mapsto A \cap T_0$, is injective (if
+$A \cap T_0 = \emptyset$ then $|A| = 2|A \cap T_0| = 0$), and both spaces have dimension $m$, so
+it is a bijection. For $t \in T_0$ let $A_t \in L$ be the element with $A_t \cap T_0 = \{t\}$;
+then $|A_t| = 2$, say $A_t = \{t, t'\}$ with $t' \notin T_0$. For $t \ne s$ in $T_0$,
+$|A_t \cap A_s| = 2\,|T_0 \cap A_t \cap A_s| = 0$, so the elements $t'$ are distinct and the
+pairs $\{t,t'\}$ are disjoint. The $A_t$ form a basis of $L$, and for $P \subseteq T_0$,
+\[
+  T_0 \sd \Big( \mathop{\triangle}\limits_{t \in P} A_t \Big)
+  = (T_0 \setminus P) \cup \{ t' : t \in P \},
+\]
+which is exactly the asserted description.
+\end{proof}
+
+\begin{fact}[Antipodal pairs are readable from the facets]\label{fact:antipodal}
+The facet family of an $m$-dimensional cross-polytope determines its antipodal pairs: two
+vertices are antipodal if and only if they never occur in a common facet, every non-antipodal
+pair lying in a common facet.
+\end{fact}
+
+We use Fact~\ref{fact:antipodal} to read off the pairs of a link from its facets.
+
+\subsection{Disjoint sums}
+
+\begin{lemma}[Disjoint sums]\label{lem:C}
+Let $g$ and $h$ be real functions of disjoint sets of variables with $g(x) + h(y) \in \{\pm1\}$
+for all $x, y$. If $g$ is not constant then $h$ is constant.
+\end{lemma}
+
+\begin{proof}
+Let $u \ne u'$ be two values of $g$. Then $h(y) \in \{1-u, -1-u\} \cap \{1-u', -1-u'\}$ for
+every $y$, and two distinct two-element sets meet in at most one point, so $h$ is constant.
+\end{proof}
+
+In particular a sum $f_1(x) + f_2(y)$ of two non-constant functions of disjoint variable sets is
+never $\pm1$-valued, since by Lemma~\ref{lem:C} one of them must be constant. We use this
+repeatedly, always in the following form: if the support of a Boolean $f$ splits into two
+nonempty parts on disjoint variable sets, each carrying positive Fourier weight on
+non-constant characters, we have a contradiction.
+
+\subsection{Proof of Theorem~\ref{thm:main-ns}}
+
+\begin{proof}[Proof of Theorem~\ref{thm:main-ns}]
+Let $d \ge 3$ and suppose $f \colon \cube^n \to \cube$ has $\Deg f \le d$ and
+$n = d\,2^{d-1}$ relevant variables.
+
+\smallskip\noindent\textbf{Step 1: the extremal shape.}
+By Corollary~\ref{cor:minfluence} and Fact~\ref{fact:totalinf},
+\[
+  d \;\ge\; \Deg f \;\ge\; \sum_{i} \Inf_i(f) \;\ge\; n\,2^{1-d} = d,
+\]
+so equality holds everywhere: $\Deg f = d$ exactly, every $\Inf_i(f) = 2^{1-d}$, and
+$\sum_S |S|\Fhat{f}(S)^2 = d = d\sum_S \Fhat{f}(S)^2$, which forces all Fourier weight onto
+level $d$. Thus $f$ is a homogeneous degree-$d$ multilinear polynomial,
+$f = \sum_{|S| = d} c_S \chi_S$.
+
+\smallskip\noindent\textbf{Step 2: every link is a cross-polytope.}
+Fix a relevant variable $i$ and write $D_i f = 2^{-m}\sum_{S \ni i} n_S \chi_{S \setminus i}$
+with $n_S := 2^m c_S \in \bbZ$ by Fact~\ref{fact:gran}. Then
+$\sum_{S \ni i} n_S^2 = 2^{2m}\Inf_i(f) = 2^m = N$, the function $D_i f$ is $\bits$-valued and
+nonzero, and the sets $S \setminus i$ (with $i$ fixed) are distinct. Lemma~\ref{lem:A} applies
+and gives: every $n_S$ with $S \ni i$ equals $\pm 1$, so every coefficient of $f$ is
+$\pm 2^{-m}$ and, by Parseval, $f$ has exactly $2^{2m}$ terms, forming a $d$-uniform hypergraph
+$\mathcal{F}$ in which every vertex lies in exactly $N = 2^{d-1}$ terms; and the link
+$\lk(i) = \{S \setminus i : S \in \mathcal{F},\, S \ni i\}$ is an affine subspace of dimension
+$m$ consisting of $m$-sets. By Lemma~\ref{lem:B}, $\lk(i)$ is the facet family of an
+$m$-dimensional cross-polytope: there are $m$ disjoint pairs
+$P_1(i), \dots, P_m(i)$ of vertices (the \emph{antipodal pairs at $i$}), and the terms at $i$
+are exactly the sets $\{i\} \cup \{ \text{one vertex from each } P_k(i)\}$. In particular two
+vertices antipodal at $i$ never lie in a common term with $i$, and $i$ has exactly $2m$
+neighbours.
+
+\smallskip\noindent\textbf{Step 3: closure.}
+Fix a vertex $v$ with pairs $P_k = \{t_k, t_k'\}$, $k = 1, \dots, m$; note $m \ge 2$ because
+$d \ge 3$. Put $a := t_1$. The terms at $v$ containing $a$ are the sets
+$\{v,a\} \cup (\text{one from each } P_2, \dots, P_m)$; removing $a$, these are $2^{m-1}$ facets
+of the cross-polytope $\lk(a)$, all containing $v$. By Fact~\ref{fact:antipodal} the pairs of
+$\lk(a)$ are therefore $P_2, \dots, P_m$ together with one further pair $\{v, w\}$ for a unique
+vertex $w$, the \emph{antipode of $v$ at $a$}. Clearly
+$w \notin \{v\} \cup P_2 \cup \dots \cup P_m$. Also $w \ne t_1'$: otherwise the term
+$\{a, t_1', t_2 \text{ or } t_2', \dots\}$ exists, and removing $t_2$ from it exhibits a facet
+of $\lk(t_2)$ containing both $a = t_1$ and $t_1'$ --- but $P_1$ is a pair of $\lk(t_2)$ (as the
+terms at $v$ containing $t_2$ show), so $t_1$ and $t_1'$ are antipodal at $t_2$, and
+Fact~\ref{fact:antipodal} forbids their lying in a common facet. So $w$ is a new vertex.
+
+The terms at $a$ are therefore $\{a\} \cup \{v \text{ or } w\} \cup
+(\text{one from each } P_2, \dots, P_m)$. In particular
+$\{a, w, t_2, u_3, \dots, u_m\}$ is a term for suitable $u_k \in P_k$, so removing $t_2$ gives a
+facet of $\lk(t_2)$ containing $a$ and $w$. The pairs of $\lk(t_2)$ are
+$P_1, P_3, \dots, P_m$ together with $\{v, w_2\}$, where $w_2$ is the antipode of $v$ at $t_2$;
+since $w$ appears in a facet of $\lk(t_2)$ and is none of the vertices of
+$P_1, P_3, \dots, P_m$, we get $w = w_2$. Symmetrically the antipode of $v$ at every $t_k$ and
+every $t_k'$ equals $w$. Hence $w$ is adjacent to all $2m$ vertices of
+$P_1 \cup \dots \cup P_m$; these exhaust the $2m$ neighbours of $w$, and the terms at $w$ are
+exactly $\{w\} \cup (\text{one from each } P_k)$.
+
+Therefore the connected component of $v$ in $\mathcal{F}$ is exactly the boundary complex of the
+$d$-dimensional cross-polytope on the $2d$ vertices $\{v, w\} \cup P_1 \cup \dots \cup P_m$:
+it has $2d$ vertices and $2^d$ facets, and no other term of $f$ touches these vertices, since
+every one of them already lies in its full quota of $2^{d-1}$ terms.
+
+\smallskip\noindent\textbf{Step 4: at least two components, and the contradiction.}
+By Step 2, $\mathcal{F}$ has $2^{2m} = 4^{d-1}$ terms, and by Step 3 it is a disjoint union of
+cross-polytope boundaries, each with $2^d$ terms on its own $2d$ vertices. Hence there are
+exactly
+\[
+  \frac{2^{2m}}{2^{d}} = 2^{d-2} \;\ge\; 2 \qquad (d \ge 3)
+\]
+components, on pairwise disjoint variable sets. Writing $f = f_1 + g$, where $f_1$ collects the
+$2^d$ terms of the first component (on its $2d$ variables) and $g$ the rest, both $f_1$ and $g$
+are non-constant, since each carries positive Fourier weight on non-constant characters. This
+contradicts Lemma~\ref{lem:C}. Therefore no degree-$d$ Boolean function has $d\,2^{d-1}$
+relevant variables, and $R_d \le d\,2^{d-1} - 1$ for $d \ge 3$.
+\end{proof}
+
+\begin{remark}
+The exponent $2^{d-2} \ge 2$ in Step 4 is exactly where $d \ge 3$ is used, and it is the only
+place. For $d = 2$ one has $2^{d-2} = 1$: the single component is the boundary of the
+$2$-dimensional cross-polytope, i.e.\ a square, and the four edges with signs $(+,+,+,-)$ give
+the Boolean function \eqref{eq:degree2extremal} with $4 = 2 \cdot 2^1$ relevant variables.
+Step 3 also needs $m \ge 2$, i.e.\ $d \ge 3$, for the vertex $t_2$ to exist. So the proof
+correctly fails at $d = 2$, as it must.
+\end{remark}
+
+\section{Part I: no degree-3 Boolean function has 12 relevant variables}\label{sec:partI}
+
+This section proves the case $d = 3$ of Theorem~\ref{thm:main-ns} in a self-contained form,
+which is also the first half of Theorem~\ref{thm:main-r3}. The reader who has read
+Section~\ref{sec:ns} may skip to Section~\ref{sec:partII}; we keep the $d=3$ argument because it
+runs through a closed-surface classification that is used again, in a more delicate form, in
+Part~II.
+
+\begin{theorem}\label{thm:no12}
+No Boolean function of degree $3$ has $12$ relevant variables. Hence $R_3 \le 11$.
+\end{theorem}
+
+\begin{proof}
+\textbf{Step 1: twelve relevant variables force a homogeneous cubic with $16$ terms $\pm\frac14$,
+$4$-regular.}
+With $12$ relevant variables, Corollary~\ref{cor:minfluence} and Fact~\ref{fact:totalinf} give
+$3 \ge \sum_i \Inf_i \ge 12 \cdot \frac14 = 3$. Hence every $\Inf_i = \frac14$ exactly, and
+$\sum_S |S| \Fhat{f}(S)^2 = 3 = 3\sum_S \Fhat{f}(S)^2$, so all Fourier weight sits on level
+$3$: $f = \sum_{|S| = 3} c_S \chi_S$. By Fact~\ref{fact:gran}, $n_S := 4 c_S$ is an integer,
+$\sum_S n_S^2 = 16$ by Parseval, and $\Inf_i = \sum_{S \ni i} c_S^2 = \frac14$ gives
+$m_i = \sum_{S \ni i} n_S^2 = 4$ for every vertex $i$. So at each vertex there is either one
+term with $|n_S| = 2$, or four terms with $|n_S| = 1$.
+
+Suppose some $S$ had $|n_S| = 2$. Then the three vertices of $S$ lie in no other term, so
+$f = \pm\frac12 \chi_S + g$ with $g$ a function of the other $9$ variables. Then
+$f^2 = \frac14 + g^2 \pm \chi_S g = 1$; the monomials of $\chi_S g$ all contain $S$ while those
+of $\frac34 - g^2$ avoid $S$, so $\chi_S g = 0$, i.e.\ $g = 0$, contradicting
+$\sum \Fhat{g}(\cdot)^2 = \frac34$. Hence all $n_S = \pm 1$:
+\[
+  f = \frac14 \sum_{S \in \mathcal{F}} \eps_S \chi_S,
+\]
+with $\mathcal{F}$ a $3$-uniform hypergraph on the $12$ vertices, $|\mathcal{F}| = 16$, and
+every vertex in exactly $4$ triples.
+
+\smallskip\noindent\textbf{Step 2: every vertex link is a $4$-cycle.}
+Fix a vertex $i$. Then
+$D_i f = \sum_{S \ni i} c_S \chi_{S \setminus i} = \frac14\sum_{j=1}^4 \eps_j \chi_{T_j}$, where
+$T_j = S_j \setminus \{i\}$ are four distinct pairs. Since $D_i f$ is $\bits$-valued, writing
+$u_j = \eps_j \chi_{T_j}(x) \in \{\pm1\}$ we need $\sum_j u_j \in \{0, \pm 4\}$ for every $x$,
+i.e.\ never $\pm 2$, i.e.\ the number of $j$ with $u_j = -1$ is always even, i.e.\
+$\prod_j u_j \equiv 1$. That is,
+$\big(\prod_j \eps_j\big)\chi_{T_1 \sd T_2 \sd T_3 \sd T_4} \equiv 1$, so
+\[
+  T_1 \sd T_2 \sd T_3 \sd T_4 = \emptyset \qquad \text{and} \qquad \prod_j \eps_j = +1 .
+\]
+Four distinct pairs with empty symmetric difference: every vertex lies in an even number of
+them, there are $8$ incidences, and a vertex lying in all four would leave the other four
+endpoints in one pair each (impossible, as those pairs would then have odd degrees). So exactly
+four vertices lie in exactly two pairs each, i.e.\ the pairs form the unique $2$-regular simple
+graph on $4$ vertices, a $4$-cycle $a$--$b$--$c$--$d$--$a$. Consequently the four triples at $i$
+are $\{i,a,b\}, \{i,b,c\}, \{i,c,d\}, \{i,d,a\}$: the link of $i$ in $\mathcal{F}$ is $C_4$, and
+every pair $\{i,x\}$ lies in exactly $2$ triples (for $x \in \{a,b,c,d\}$) or in none.
+
+\smallskip\noindent\textbf{Step 3: $\mathcal{F}$ is a closed triangulated surface with all
+vertex degrees $4$, hence two disjoint octahedra.}
+By Step 2 the pure $2$-dimensional complex $|\mathcal{F}|$ has every edge in exactly two
+triangles and every vertex link a single cycle $C_4$, so it is a closed $2$-manifold (possibly
+disconnected), triangulated with $V = 12$ vertices, $F = 16$ faces and
+$E = (3 \cdot 16)/2 = 24$ edges. Its Euler characteristic is $V - E + F = 12 - 24 + 16 = 4$. A
+connected closed surface has $\chi \le 2$, so there are at least two components. Each component
+is a closed surface all of whose vertices have degree $4$, so with $V'$ vertices it has
+$E' = 2V'$ and $F' = 4V'/3$, whence $\chi' = V' - 2V' + 4V'/3 = V'/3 \in \{1, 2\}$. The value
+$\chi' = 1$ would need $V' = 3$, impossible for a complex with a degree-$4$ vertex (and a
+triangulated projective plane needs at least $6$ vertices in any case). So $\chi' = 2$ and
+$V' = 6$: the component is the octahedron, which is the unique $4$-regular triangulated sphere
+(the complement of a $4$-regular graph on $6$ vertices is a perfect matching, so the graph is
+$K_{2,2,2}$ and all $8$ faces are then forced).
+
+There is also a topology-free route to the same conclusion: if $\lk(i) = a$--$b$--$c$--$d$ then
+$\lk(a) = b$--$i$--$d$--$x$ for some $x \ne c$ (were $x = c$, the link of $b$ would contain a
+$3$-cycle, impossible inside a $C_4$), and the closure forces the octahedron on
+$\{i,a,b,c,d,x\}$; this was checked exhaustively by an independent referee.
+
+Two octahedra use all $12$ vertices. Hence $\mathcal{F}$ is the set of faces of two
+vertex-disjoint octahedra and
+\[
+  f = f_1(x_1,\dots,x_6) + f_2(x_7,\dots,x_{12}),
+\]
+with $f_1, f_2$ each carrying $8$ terms $\pm\frac14$ on disjoint variable sets, neither
+constant.
+
+\smallskip\noindent\textbf{Step 4: a sum of two non-constant functions on disjoint variable sets
+is never Boolean.}
+This is Lemma~\ref{lem:C}: if $f_1(x) + f_2(y) \in \{\pm1\}$ for all $x, y$ and $f_1$ takes two
+values $u \ne u'$, then $f_2(y) \in \{1-u,-1-u\} \cap \{1-u',-1-u'\}$ for all $y$, an
+intersection with at most one element, so $f_2$ is constant --- contradicting that $f_2$ has
+Fourier weight $\frac12$ on non-constant characters.
+
+Equivalently and more directly: for disjoint triples $S$ in the first octahedron and $T$ in the
+second, the coefficient of $\chi_{S \cup T}$ in $f^2$ is $2\eps_S\eps_T/16 \ne 0$, since no
+other pair of triples of $\mathcal{F}$ has union $S \cup T$; but $f^2 \equiv 1$, so every
+non-constant coefficient of $f^2$ vanishes. Contradiction.
+\end{proof}
+
+\section{Part II: the eleven-variable case}\label{sec:partII}
+
+Throughout this section $f \colon \cube^{11} \to \cube$ has $\Deg f \le 3$ and all $11$
+variables relevant; we derive a contradiction. Write $f = \sum_S c_S \chi_S$ and
+$n_S := 4 c_S \in \bbZ$ by Fact~\ref{fact:gran}, so that $\sum_S n_S^2 = 16$ by Parseval, and
+for a vertex $i$ put
+\[
+  m_i := \sum_{S \ni i} n_S^2 = 16\,\Inf_i(f) = 16\,\Prb[D_i f \ne 0].
+\]
+
+Compared with Part~I there is one unit of slack in the influence budget: eleven variables need
+total influence at least $11/4$, while $3$ is available. The two lemmas below say exactly how
+that slack can be spent, and the bookkeeping identity of Section~\ref{sec:bookkeep} turns it
+into a finite list of configurations, which Appendix~\ref{app:cases} eliminates.
+
+\subsection{The masses}
+
+\begin{lemma}[Values of $m_i$]\label{lem:masses}
+$m_i \in \{4, 6, 8\}$ for every $i$, and $\sum_i m_i = \sum_S |S|\,n_S^2 \le 48$.
+\end{lemma}
+
+\begin{proof}
+The derivative $D_i f = \sum_{S \ni i} (n_S/4)\chi_{S \setminus i}$ is $\bits$-valued (because
+$f$ is Boolean) and of degree at most $2$, so
+$4 D_i f = \sum_j n_j \chi_{T_j}$ takes values in $\{0, \pm 4\}$, where the $T_j$ are distinct
+sets of size at most $2$ and $\sum_j n_j^2 = m_i$. A relevant variable has
+$\Inf_i \ge \frac14$ by Corollary~\ref{cor:minfluence}, so $m_i \ge 4$. Also
+$\sum_i m_i = \sum_S |S| n_S^2 \le 3\sum_S n_S^2 = 48$, so with $11$ vertices each of mass at
+least $4$ we get $m_i \le 48 - 40 = 8$ for every $i$.
+
+It remains to exclude $m_i = 5$ and $m_i = 7$.
+\begin{itemize}[leftmargin=1.4em]
+  \item Any pattern with an odd number of odd $n_j$ has odd value $\sum_j n_j \chi_{T_j}(x)$ at
+  every point, hence never lies in $\{0, \pm4\}$. This kills five $\pm1$'s, seven $\pm1$'s,
+  $\{\pm2,\pm1\}$ and $\{\pm2,\pm1,\pm1,\pm1\}$.
+  \item The pattern $\{\pm2,\pm1,\pm1\}$ (mass $6$): $2u_0 + u_1 + u_2 \in \{0,\pm4\}$ with
+  $u_k \in \{\pm1\}$ forces $u_1 = u_2$ for every $x$, i.e.\
+  $\chi_{T_1} \equiv \pm \chi_{T_2}$, impossible for distinct $T_1 \ne T_2$. So mass $6$ occurs
+  only as six terms $\pm1$.
+\end{itemize}
+Since $m_i \le 8$ forces $|n_j| \le 2$ throughout, the listed patterns are all the ones that
+occur, and $m_i \in \{4,6,8\}$.
+\end{proof}
+
+\begin{remark}
+A shorter route to the parity part: $4D_i f$ is $\{0,\pm4\}$-valued and
+$\sum_j n_j \equiv \sum_j n_j^2 = m_i \pmod 2$, so $m_i$ is even.
+\end{remark}
+
+\subsection{The link shapes}
+
+\begin{lemma}[Link structure]\label{lem:links}
+With the link of $i$ as in Definition~\ref{def:link}, written
+$\{T_j\} = \{S \setminus i : n_S \ne 0,\, S \ni i\}$ with signs $\eps_j$:
+\begin{enumerate}[label=\textup{(\alph*)}]
+  \item \textbf{$m_i = 4$}: four terms $\pm1$; the condition is necessary and sufficient that
+  $T_1 \sd T_2 \sd T_3 \sd T_4 = \emptyset$ and $\prod_j \eps_j = +1$ (a sum of four $\pm1$'s
+  avoids $\pm2$ iff the number of $-1$'s is even iff $\prod_j u_j \equiv 1$). Four distinct
+  sets of size at most $2$ in which every element lies in an even number of members are exactly:
+  \begin{itemize}[leftmargin=1.4em]
+    \item[(L1)] a $4$-cycle of pairs on $4$ vertices;
+    \item[(L2)] $\{\emptyset, \{a\}, \{b\}, \{a,b\}\}$;
+    \item[(L3)] $\{\{a\}, \{b\}, \{a,c\}, \{b,c\}\}$;
+    \item[(L4)] $\{\emptyset, \{a,b\}, \{b,c\}, \{a,c\}\}$.
+  \end{itemize}
+  (Enumeration, verified by computer: without $\emptyset$, four pairs with all degrees even form
+  a $C_4$; singletons come in pairs $\{a\},\{b\}$ needing $\{a,b\}$ plus a fourth set ---
+  $\emptyset$ gives (L2) --- or $\{a,c\},\{b,c\}$ giving (L3); with $\emptyset$ present the other
+  three sets have symmetric difference $\emptyset$, so they are three pairs forming a triangle,
+  giving (L4), or $\{a\},\{b\},\{a,b\}$, giving (L2) again.)
+  In terms of $f$: (L1) means $i$ lies in four cubic terms only; (L2) means a linear term
+  $\{i\}$, quadratics $\{i,a\},\{i,b\}$ and a cubic $\{i,a,b\}$; (L3) means quadratics
+  $\{i,a\},\{i,b\}$ and cubics $\{i,a,c\},\{i,b,c\}$; (L4) means a linear term $\{i\}$ and
+  cubics $\{i,a,b\},\{i,b,c\},\{i,a,c\}$. In particular: a link containing a singleton is (L2)
+  or (L3); a link containing $\emptyset$ is (L2) or (L4); a link containing a triangle of pairs
+  is (L4), a $C_4$ having no triangle.
+  \item \textbf{$m_i = 6$}: six terms $\pm1$ with $T_1 \sd \dots \sd T_6 = \emptyset$ and
+  $\prod_j \eps_j = -1$ (six $\pm1$'s avoid $\pm2$ and $\pm6$ iff the number of $-1$'s is odd).
+  \item \textbf{$m_i = 8$}: either two terms $\pm2$ (on any two distinct sets), or one $\pm2$ and
+  four $\pm1$'s whose sets have symmetric difference $\emptyset$ and sign product $-1$, or eight
+  terms $\pm1$ with symmetric difference $\emptyset$, sign product $+1$, and never all eight
+  values agreeing.
+  \item A vertex whose only term has $|n_S| = 2$ is impossible, since then
+  $D_i f = \pm\frac12\chi_{S \setminus i}$ is not $\bits$-valued. Consequently a term with
+  $|n_S| = 2$ forces every vertex of $S$ to have mass $8$ (mass $6$ cannot contain a $\pm2$, by
+  the proof of Lemma~\ref{lem:masses}).
+  \item In a link consisting of pairs only (no lower-order term at $i$), the multiplicity
+  $\lambda_{ix} := \#\{S \in \mathcal{F} : S \ni i, x\}$ equals the degree of $x$ in the link
+  graph; for (L1) it is $2$ for the four link vertices and $0$ otherwise.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+Each part is the value-set analysis of $4D_i f = \sum_j n_j \chi_{T_j}$ carried out as in
+Lemma~\ref{lem:masses} and Step 2 of Theorem~\ref{thm:no12}: the sum of $k$ terms $\pm1$ lies in
+$\{0,\pm4\}$ at every point iff the symmetric difference of the $T_j$ is empty with the stated
+sign product, and the enumeration of admissible set families of size $4$ is the elementary
+parity argument displayed in (a). Part (d) is immediate, and its consequence follows from
+Lemma~\ref{lem:masses}. Part (e) is a restatement of the definition.
+\end{proof}
+
+\subsection{Bookkeeping}\label{sec:bookkeep}
+Put
+\[
+  \delta := \sum_S (3 - |S|)\, n_S^2 \qquad\text{(the Fourier weight below the top level,
+  weighted by codegree)}, \qquad e := \sum_{i} (m_i - 4).
+\]
+Then $\sum_i m_i = \sum_S |S| n_S^2 = 48 - \delta$ and $\sum_i m_i = 44 + e$, so
+\begin{equation}\label{eq:bookkeeping}
+  e + \delta = 48 - 44 = 4, \qquad e \ge 0, \quad \delta \ge 0 .
+\end{equation}
+The contributions to $\delta$ are: a quadratic term with $|n_S| = 1$ contributes $1$; a
+quadratic with $|n_S| = 2$ contributes $4$; a linear term $\pm1$ contributes $2$; the constant
+term $\pm1$ contributes $3$. A linear or constant term with $|n_S| = 2$ would contribute $8$ or
+$12 > 4$ and is therefore impossible.
+
+By Lemma~\ref{lem:masses}, $e \in \{0, 2, 4\}$, with $e = 0$ meaning all $m_i = 4$, $e = 2$
+meaning exactly one vertex of mass $6$, and $e = 4$ meaning either two vertices of mass $6$ or
+one of mass $8$. Correspondingly $\delta \in \{4, 2, 0\}$.
+
+\subsection{A surface fact}
+
+\begin{fact}[Surfaces of non-positive Euler characteristic]\label{fact:T}
+In a closed connected triangulated surface with $V'$ vertices, $E'$ edges, $F'$ faces and Euler
+characteristic $\chi'$, the relations $3F' = 2E'$ and $V' - E' + F' = \chi'$ give the degree sum
+$2E' = 6V' - 6\chi'$. Hence $\chi' \le 0$ forces average degree at least $6$. In every complex
+arising below, all degrees are $4$ except at most two vertices of degree at most $8$, so the
+average degree is at most $4 + 8/V' < 6$ as soon as $V' \ge 5$; and $V' \ge 5$ holds because
+some vertex has degree at least $4$ (a closed triangulated surface has no vertex of degree less
+than $3$, and $V' \ge \deg + 1$). Therefore every component occurring below is a sphere (degree
+sum $6V' - 12$) or a projective plane (degree sum $6V' - 6$, requiring at least $6$ vertices, by
+Step~3 of Theorem~\ref{thm:no12}).
+\end{fact}
+
+Fact~\ref{fact:T} was checked by computer: for every degree pattern used in
+Appendix~\ref{app:cases}, the relation $V' = 3\chi' + c/2$ (with $c$ the excess degree) was
+tabulated, and every row with $\chi' \le 0$ gives $V' \le 2$.
+
+\subsection{Statement and proof of Part II}
+
+\begin{theorem}\label{thm:no11}
+No Boolean function of degree $3$ has $11$ relevant variables.
+\end{theorem}
+
+\begin{proof}
+By \eqref{eq:bookkeeping} we have $\delta \in \{4, 2, 0\}$. The three cases are eliminated in
+Appendix~\ref{app:cases}: $\delta = 4$ in Section~\ref{app:delta4}, $\delta = 2$ in
+Section~\ref{app:delta2}, and $\delta = 0$ in Section~\ref{app:delta0}. Since the three cases
+are exhaustive, no such $f$ exists.
+\end{proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:main-r3}]
+The function $\XiC_3$ of Section~\ref{sec:prelim} is Boolean of degree $3$ with $10$ relevant
+variables, so $R_3 \ge 10$. Theorem~\ref{thm:no12} rules out $12$ relevant variables and
+Theorem~\ref{thm:no11} rules out $11$. If some degree-$3$ Boolean function had
+$n \ge 12$ relevant variables then $n \le 12$ by \eqref{eq:ns}, so $n = 12$, contradicting
+Theorem~\ref{thm:no12}. Hence $R_3 = 10$.
+\end{proof}
+
+\section{Computational verification}\label{sec:comput}
+
+The proofs above are complete as mathematics. Because the case analysis of
+Appendix~\ref{app:cases} is long, we also verified the conclusion $R_3 = 10$ by three
+independent computational routes: an exhaustive search over a finite reformulation, an
+independent SAT-based structure search performed by a referee, and a partial formalisation in
+Lean~4. This section states precisely what each covers.
+
+\subsection{A finite reformulation}\label{sec:finite}
+Let $n \ge 1$. A \emph{coefficient vector} is an integer-valued map
+$N \colon \{S \subseteq [n] : |S| \le 3\} \to \bbZ$; write $n_S := N(S)$ and
+\[
+  f_N(x) := \frac14 \sum_{S} n_S \chi_S(x), \qquad x \in \cube^n .
+\]
+
+\begin{definition}[The statement $F(n)$]
+$F(n)$ asserts that there is \emph{no} coefficient vector $N$ with
+\begin{enumerate}[label=\textup{(\roman*)}]
+  \item $\sum_S n_S^2 = 16$;
+  \item for every nonempty $U \subseteq [n]$,
+  $\displaystyle\sum_{\substack{(S,T)\ \text{ordered} \\ S \sd T = U}} n_S n_T = 0$;
+  \item every $i \in [n]$ lies in some $S$ with $n_S \ne 0$.
+\end{enumerate}
+\end{definition}
+
+Conditions (i) and (ii) together say exactly that $f_N^2 \equiv 1$, i.e.\ that $f_N$ is
+$\cube$-valued of degree at most $3$: since $\chi_S\chi_T = \chi_{S \sd T}$, the expansion
+$f_N^2 = \frac1{16}\sum_{S,T} n_S n_T \chi_{S \sd T}$ is identically $1$ iff its $U = \emptyset$
+coefficient is $16$ and all others vanish. Condition (iii) says all $n$ variables are relevant
+(a variable is relevant exactly when it appears in the Fourier support). Conversely, if
+$f \colon \cube^n \to \cube$ has degree at most $3$ then Fact~\ref{fact:gran} makes
+$N := 4\Fhat{f}$ a coefficient vector with $f = f_N$, and (i)--(iii) hold. Hence:
+\[
+  F(n) \ \Longrightarrow\ \text{no degree-3 Boolean function has } n \text{ relevant variables}.
+\]
+In particular $F(11)$ implies $R_3 \le 10$, and with $\XiC_3$ (which witnesses that $F(10)$ is
+false) it gives $R_3 = 10$.
+
+The search below is allowed to use only the following elementary consequences of $f_N^2 \equiv
+1$, each provable in two lines and each independent of the hand proof:
+\begin{itemize}[leftmargin=1.4em]
+  \item[(E1)] For each $i$, $D_i f_N = \frac14\sum_{S \ni i} n_S \chi_{S \setminus i}$ is
+  $\bits$-valued, so $4 D_i f_N$ takes values in $\{0, \pm4\}$ at every point.
+  \item[(E2)] Parseval: $\sum_{S \ni i} n_S^2 = 16\,\Prb[D_i f_N \ne 0]$ is an integer in
+  $[4,16]$ for relevant $i$, and $\sum_i \sum_{S \ni i} n_S^2 = \sum_S |S| n_S^2 \le 48$.
+  \item[(E3)] Symmetries preserving (i)--(iii): permutations of $[n]$; negation of a variable
+  $i$ (which flips $n_S$ for $S \ni i$); and the global sign $N \mapsto -N$.
+\end{itemize}
+Nothing beyond (E1)--(E3) --- in particular no link classification from
+Section~\ref{sec:partII} --- is assumed by the search.
+
+\subsection{Exhaustive canonical search}
+The search program processes vertices one at a time; processing $v$ fixes every coefficient
+$n_S$ with $v \in S$, that is, it chooses the link
+$L_v = 4 D_v f_N = \sum_{S \ni v} n_S \chi_{S \setminus v}$, a degree-at-most-$2$ polynomial in
+the other variables. Four pruning rules are used, each a necessary condition implied by
+(E1)--(E3) on any genuine solution, so that discarding a branch violating one of them can never
+lose a solution:
+\begin{itemize}[leftmargin=1.4em]
+  \item[(P1)] \emph{Budget}: the accumulated $\sum n_S^2$ never exceeds $16$, and $m_v \le 16$;
+  this is (i).
+  \item[(P2)] \emph{Bounded conditional values}: for a partial assignment of a subset $A$ of the
+  link's variables, the terms confined to $A$ must keep the partial value of $L_v$ inside
+  $[-4,4]$; this is (E1) evaluated at every completion.
+  \item[(P3)] \emph{Weighted degree}: for a link variable $w$, $\sum_{T \ni w} |c_T| \le 4$;
+  this is (E1) applied one derivative further, $D_w L_v \in \{0,\pm2,\pm4\}$, so
+  $|a - b|, |a+b| \le 4$ forces $|a| + |b| \le 4$.
+  \item[(P4)] \emph{Needs}: $\sum_{u \text{ unprocessed}} \max(0, 4 - m_u) \le 3\,(16 -
+  \text{used})$, since each unprocessed vertex needs mass at least $4$ by (E2) and any future
+  coefficient contributes its square to at most $3$ vertices.
+\end{itemize}
+Symmetry is broken by a canonical-form test using only (E3): the global sign is fixed once at
+the top; fresh variables are introduced in increasing label order; and among all images of the
+current partial solution under the group generated by permutations of the fresh used variables,
+negations of fresh variables, and (when the fixed part of the link vanishes) global negation of
+the link, only the lexicographically minimal image is kept. Every genuine solution has some
+image satisfying all of these simultaneously, so rejecting non-canonical images discards only
+redundant representatives of an orbit. Consequently the raw solution counts below are already
+\emph{orbit} counts. Condition (ii) is never pruned: at the last vertex the program evaluates
+$4 f_N(x)$ at all $2^n$ points and requires the value to lie in $\{+4,-4\}$; this full, unpruned
+check is the only place a branch is accepted.
+
+The $n = 11$ run was split into six shards by the residue of the index of the canonical
+top-level link modulo $6$. Every shard enumerates the same full list of $368$ canonical
+top-level links and recurses only on its own residue class, so the six shards partition the
+search exhaustively and disjointly; the enumeration order is deterministic because the program
+is single-threaded and depends only on $n$.
+
+\begin{table}[ht]
+\caption{Exhaustive canonical search for $F(n)$. ``Solutions'' are orbit counts under the
+symmetry reduction described above.}\label{tab:search}
+\centering
+\begin{tabular}{rrrrrl}
+\toprule
+$n$ & solutions (orbits) & leaves & nodes & canonical rejects & time \\
+\midrule
+$3$  & $14$   & $26$     & $1{,}887$      & $176$        & $0.00$\,s \\
+$4$  & $102$  & $225$    & $24{,}373$     & $2{,}755$    & $0.01$\,s \\
+$5$  & $809$  & $2{,}329$ & $280{,}282$   & $31{,}155$   & $0.15$\,s \\
+$6$  & $1{,}773$ & $6{,}538$ & $2{,}986{,}948$ & $187{,}681$ & $2.44$\,s \\
+$7$  & $1{,}060$ & $11{,}786$ & $23{,}632{,}808$ & $530{,}408$ & $33.20$\,s \\
+$8$  & $213$  & $4{,}015$ & $77{,}313{,}447$ & $1{,}288{,}595$ & $171.77$\,s \\
+$10$ & $\mathbf{1}$ & $120$ & $44{,}447{,}494$ & $1{,}063{,}032$ & $824.60$\,s \\
+$11$ (6 shards) & $\mathbf{0}$ & $16$ & $96{,}822{,}409$ & $3{,}747{,}449$ & $\approx 2.1$\,CPU-h \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:search} records the results. The case $n = 9$ was not run: it is not needed for
+the $F(10)$ and $F(11)$ claims. The value $n = 10$ giving exactly one orbit matches the known
+truth, and the recovered solution is $16$ terms of coefficient $\pm1$, i.e.\ exactly $\XiC_3$ up
+to the symmetry group; this is a strong sanity check on the canonical-form machinery, which is
+the most intricate part of the program. The value $n = 11$ giving $0$ across all six disjoint
+shards is the search's verdict that $R_3 \le 10$.
+
+Every emitted solution at $n = 6, 7, 8, 10$ was re-checked by a from-scratch independent
+verifier which parses the solution, evaluates $f_N$ by brute force at all $2^n$ points, and
+tests (i), (ii) and genuine relevance (two points differing only in coordinate $i$ with
+different values of $f_N$, rather than mere appearance in the support): $3047$ solutions
+checked, $0$ failures. So no false positives are reported. We note the residual caveat
+explicitly: the soundness argument above shows the \emph{pruning rules} cannot lose a solution,
+but it is not a line-by-line proof that the C implementation is correct, and a false negative at
+$n = 11$ caused by an implementation bug cannot be excluded by rerunning the same binary. An
+earlier version of the program had a genuine bug of exactly this kind (scratch buffers indexed
+by recursion depth only, hence aliased across vertex steps); it reported $0$ solutions and $2$
+leaves at $n = 10$, where the corrected program reports $1$ solution and $120$ leaves. All
+figures reported here are from the corrected program, and the $n = 10$ agreement with $\XiC_3$
+is the check that detects that failure mode.
+
+\subsection{Independent structure search}
+Independently of both the hand proof and the search above, a referee ran a CDCL SAT search
+(CaDiCaL via \texttt{pysat}) with blocking clauses over the \emph{term structures} of an
+eleven-variable solution: the supports satisfying the link-consistency conditions, enumerated up
+to isomorphism, with the Boolean sign vectors on each enumerated afterwards. The complete run
+found exactly three isomorphism classes of link-consistent $16$-term supports on $11$ vertices
+and \emph{zero} Boolean sign vectors on them:
+\begin{itemize}[leftmargin=1.4em]
+  \item degree sequence $4^{11}$, four quadratic and twelve cubic terms --- the $\delta = 4$
+  case with weight partition $\{2,2\}$ and an (L4) link, plus an octahedron;
+  \item degree sequence $4^{11}$, two linear and fourteen cubic terms --- the $\delta = 4$ case
+  with weight partition $\{1,1,1,1\}$ and $|N| = 4$, plus an octahedron;
+  \item degree sequence $(8, 4^{10})$, sixteen cubic terms --- the $\delta = 0$ case with link
+  $C_4 \cup C_4$, i.e.\ two octahedra glued at a vertex.
+\end{itemize}
+These are precisely the three branches that the hand proof closes with the disjoint-sum lemma
+(Lemma~\ref{lem:C}); every other branch is closed at the link level in
+Appendix~\ref{app:cases} and is reported infeasible by the search. A later rerun restricted to
+the branch where the distinguished vertex has mass $4$ reports $420 + 585$ labelled structures,
+$2$ isomorphism classes and $0$ Boolean sign vectors, consistent with the above; that rerun's
+log ends inside the mass-$6$ branch without a totals line, so we quote the complete run for the
+totals.
+
+\subsection{Partial formalisation in Lean 4}\label{sec:lean}
+The finite statement $F(n)$ was transcribed into Lean~4 (toolchain
+\texttt{leanprover/lean4:v4.23.0}) as a frozen definition, and the first structural steps toward
+$F(12)$ were proved against it. The following is the exact status.
+
+\emph{What is machine-checked.} Twenty-three theorems are proved and kernel-checked, with no
+\texttt{sorry}, no \texttt{admit}, no \texttt{native\_decide}, no user axioms and no
+\texttt{unsafe}/\texttt{implemented\_by}/\texttt{extern} escape hatches; an automated gate runs
+\texttt{lake build}, greps for all of those, and runs \texttt{\#print axioms} on every listed
+theorem. Every one of the twenty-three depends only on the three standard Lean axioms
+\texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}. They cover:
+\begin{itemize}[leftmargin=1.4em]
+  \item the basic identities ($f_N^2 = 16$ in integer form, the pointwise membership (E1),
+  divisibility and lower bounds on the mass, $\sum_i m_i \le 48$);
+  \item Lemma~\ref{lem:masses} for $n \ge 11$ (mass in $\{4,6,8\}$), and that at least nine of
+  the eleven vertices have mass $4$;
+  \item the bookkeeping identity \eqref{eq:bookkeeping} in the form $e + \delta = 48 - 4n$;
+  \item the first half of Lemma~\ref{lem:links}(a): four distinct link sets of size at most $2$,
+  coefficients $\pm1$, symmetric difference empty, sign product $+1$, and every vertex in an
+  even number of the four sets;
+  \item Step 1 of Theorem~\ref{thm:no12} for $n = 12$ (all masses $4$, all terms cubic, all
+  coefficients $\pm1$, all link sets of size $2$);
+  \item Step 2 of Theorem~\ref{thm:no12}: four distinct pairs with empty symmetric difference
+  form a $4$-cycle, hence for $n = 12$ every vertex link is a $4$-cycle.
+\end{itemize}
+The strongest certified statement is: in any $12$-variable solution of the frozen $F$, at every
+vertex $v$ there are four distinct vertices $p,q,r,s$ such that every support set at $v$, with
+$v$ removed, is one of the pairs $pq, qr, rs, sp$.
+
+\emph{What is not machine-checked.} Neither $F(12)$ nor $F(11)$ is formalised. The remaining
+steps for $F(12)$ are the octahedral closure (Step 3 of Theorem~\ref{thm:no12}) and the
+disjoint-sum contradiction (Step 4); for $F(11)$, the whole of Appendix~\ref{app:cases}. Mathlib
+has no classification of closed surfaces, so the closure arguments would have to be replaced by
+their topology-free finite versions, and the exhaustive search of the previous subsection is far
+beyond kernel \texttt{decide}. Theorem~\ref{thm:main-ns} is not formalised at all.
+
+\section{Concluding remarks and open problems}\label{sec:open}
+
+\subsection{The state of the small-degree values}
+We now know
+\[
+  R_1 = 1, \qquad R_2 = 4, \qquad R_3 = 10, \qquad 22 \le R_4 \le 31,
+\]
+where $R_4 \ge 22 = 3 \cdot 2^3 - 2$ comes from $\XiC_4$ and $R_4 \le 31 = 4 \cdot 2^3 - 1$ from
+Theorem~\ref{thm:main-ns}. Determining $R_4$ is the obvious next question. The gap is wide, and
+the hypergraph in question has $64$ terms rather than $16$, so a direct repetition of
+Appendix~\ref{app:cases} is not realistic; a new structural input is needed.
+
+\begin{question}
+What is $R_4$? Is it $22$?
+\end{question}
+
+\subsection{The extremality conjecture}
+Since $R_2 = 4 = 3 \cdot 2^1 - 2$ and $R_3 = 10 = 3 \cdot 2^2 - 2$, both equal to the size of
+the Chiarelli--Hatami--Saks construction, it is natural to conjecture that the construction is
+always extremal.
+
+\begin{conjecture}\label{conj:chs}
+$R_d = 3 \cdot 2^{d-1} - 2$ for every $d \ge 2$; equivalently, $C_{44} = 3/2$.
+\end{conjecture}
+
+Conjecture~\ref{conj:chs} would close entry~44a of \cite{TaoOP44a} completely. We stress that
+\cite{CHS20} supply the construction but do not state this conjecture; the evidence for it is
+the two exact values above, and it is far from the known upper bound $4.394 \cdot 2^d$.
+
+One natural line of attack is the recursion behind the construction: $\XiC_d$ is built from two
+copies of $\XiC_{d-1}$ and two new selector variables, giving
+$R_d \ge 2 R_{d-1} + 2$. A matching upper bound
+\begin{equation}\label{eq:recursion}
+  R_d \;\le\; 2 R_{d-1} + 2
+\end{equation}
+would prove Conjecture~\ref{conj:chs} by induction from $R_2 = 4$. The link structure of
+Section~\ref{sec:ns} is the natural tool: Remark~\ref{rem:A} says that the derivative at any
+variable of minimal influence $2^{1-d}$ is a character times the indicator of an affine subspace
+of codimension $d-1$, \emph{without} any homogeneity hypothesis. What is missing is the
+corresponding structure for variables of the next influence levels $2^{2-d}, 2^{3-d}, \dots$ ---
+in $\XiC_d$ these are exactly the selector variables, and they are the variables that
+\eqref{eq:recursion} would have to control.
+
+\begin{question}
+Describe the derivatives $D_i f$ of a degree-$d$ Boolean function at variables of influence
+$2^{2-d}$. Does a structure theorem at the first few influence levels imply
+\eqref{eq:recursion}?
+\end{question}
+
+\subsection{Uniqueness of the extremal degree-3 function}
+The exhaustive search of Section~\ref{sec:comput} found exactly one orbit at $n = 10$, namely
+$\XiC_3$, under the group generated by permutations of variables, negation of variables and the
+global sign. So, computationally, the extremal degree-$3$ function is unique up to those
+symmetries. We have no proof of this by hand.
+
+\begin{question}
+Prove without computer search that $\XiC_3$ is, up to permutation and negation of variables and
+global sign, the unique degree-$3$ Boolean function with $10$ relevant variables. More
+generally, is the extremal function unique at every $d$?
+\end{question}
+
+\subsection{On the method}
+The reusable content of this paper is Lemma~\ref{lem:A} together with Remark~\ref{rem:A}: a
+$\bits$-valued function whose Fourier mass is as small as granularity permits is forced to be a
+character times an affine-subspace indicator. This is a statement about sparse granular
+functions, with no degree hypothesis, and it is what converts an influence-counting argument
+into a rigid combinatorial one. At $d = 3$ the resulting objects are closed triangulated
+surfaces, which is why a complete classification is possible; for general $d$ the same device
+yields cross-polytopes and a clean disjointness contradiction, which is exactly enough to strip
+one variable off the Nisan--Szegedy bound, but not obviously more.
+
+\section*{Acknowledgements}
+The mathematics was developed with AI assistance (Claude). Every claim in
+Sections~\ref{sec:ns}--\ref{sec:partII} and Appendix~\ref{app:cases} was reviewed by an
+independent referee instance which supplied the corrections now incorporated, in particular the
+fourth four-set link shape (L4) of Lemma~\ref{lem:links}(a) and the Euler-characteristic
+Fact~\ref{fact:T}.
+
+\appendix
+
+\section{The eleven-variable case analysis}\label{app:cases}
+
+This appendix proves Theorem~\ref{thm:no11}. Notation is that of Section~\ref{sec:partII}:
+$f \colon \cube^{11} \to \cube$ has degree at most $3$ with all $11$ variables relevant,
+$n_S = 4\Fhat{f}(S) \in \bbZ$, $\sum_S n_S^2 = 16$, $m_i = \sum_{S \ni i} n_S^2$, and by
+\eqref{eq:bookkeeping} we have $e + \delta = 4$ with $\delta \in \{4,2,0\}$. We write ``$m = 4$
+vertex'' for a vertex of mass $4$, and use the link shapes (L1)--(L4) of
+Lemma~\ref{lem:links}(a) throughout. We refer to a term $S$ with $|S| = 3$ as a \emph{cubic},
+$|S| = 2$ as a \emph{quadratic}, $|S| = 1$ as a \emph{linear} term.
+
+\subsection{The case \texorpdfstring{$\delta = 4$}{delta = 4}: all masses are 4}
+\label{app:delta4}
+
+Here every $m_i = 4$, so every link is (L1), (L2), (L3) or (L4). The lower-order weight $4$ is
+partitioned as one of $\{1,1,1,1\}$, $\{4\}$, $\{2,1,1\}$, $\{2,2\}$, $\{3,1\}$, with
+contributions as listed in Section~\ref{sec:bookkeep}.
+
+\subsubsection*{Partition $\{4\}$} A quadratic term with $|n_S| = 2$. By
+Lemma~\ref{lem:links}(d) its endpoints would need mass $8$, contradicting $m_i = 4$.
+\hfill$\times$
+
+\subsubsection*{Partition $\{2,2\}$} Two linear terms $\{i\}$ and $\{j\}$, and no quadratics.
+The link of $i$ contains $\emptyset$, and there are no quadratics, so it is (L4): the cubics at
+$i$ are $\{i,a,b\}, \{i,b,c\}, \{i,a,c\}$. Likewise $j$ has an (L4) link.
+
+If $j \in \{a,b,c\}$, say $j = a$, then the link of $a$ consists of $\emptyset$ together with a
+triangle containing the pairs $\{i,b\}$ and $\{i,c\}$, which forces the cubic $\{a,b,c\}$. But
+then the link of $b$ contains $\{i,a\}, \{i,c\}, \{a,c\}$, a triangle, although $b$ has no
+lower-order term and $m_b = 4$, so the link of $b$ must be a $C_4$ --- and a $C_4$ contains no
+triangle. \hfill$\times$
+
+Hence $j \notin \{a,b,c\}$, and $a, b, c$ have (L1) links. The link of $a$ contains
+$\{i,b\}$ and $\{i,c\}$, which completes to the $4$-cycle $i$--$b$--$w$--$c$, giving the cubics
+$\{a,b,w\}$ and $\{a,c,w\}$; the same argument at $b$ gives $\{a,b,w'\}, \{b,c,w'\}$ and at $c$
+gives $\{a,c,w''\}, \{b,c,w''\}$, and the shared cubics force $w = w' = w''$. Then the link of
+$w$ contains the triangle $\{a,b\},\{a,c\},\{b,c\}$, so $w$ is (L4), so $w = j$ (the only other
+vertex with a linear term). The terms
+\[
+  \{i\},\ \{j\},\ \{i,a,b\},\ \{i,b,c\},\ \{i,a,c\},\ \{j,a,b\},\ \{j,b,c\},\ \{j,a,c\}
+\]
+exhaust the vertices $i, j, a, b, c$ (each of mass $4$) and carry weight $8$; the remaining
+weight $8$ lives on the other $6$ variables. So $f$ is a sum of two non-constant functions on
+disjoint variable sets, impossible by Lemma~\ref{lem:C}. \hfill$\times$
+
+\subsubsection*{Partition $\{3,1\}$} A constant term and one quadratic $\{i,a\}$. The link of
+$i$ contains the singleton $\{a\}$, so it is (L2) or (L3) by
+Lemma~\ref{lem:links}(a); but (L2) needs a linear term at $i$, and there is none (the weight is
+spent on the constant and the quadratic), while (L3) needs two quadratics at $i$, and there is
+only one quadratic in total. \hfill$\times$
+
+\subsubsection*{Partition $\{2,1,1\}$} One linear term $\{i\}$ and two quadratics. The link of
+$i$ contains $\emptyset$, so it is (L2) or (L4).
+
+\emph{If it is} (L2) $= \{\emptyset, \{a\},\{b\},\{a,b\}\}$: the two quadratics are $\{i,a\}$
+and $\{i,b\}$, and $\{i,a,b\}$ is a cubic. The link of $a$ contains the singleton $\{i\}$ (from
+the quadratic $\{i,a\}$), so $a$ is (L2) or (L3). It cannot be (L2), which would need a linear
+term $\{a\}$, while the only linear term is $\{i\}$. So it is (L3), of the form
+$\{\{p\},\{q\},\{p,r\},\{q,r\}\}$ with $\{i\} = \{p\}$; the pair $\{i,b\}$ (coming from the cubic
+$\{i,a,b\}$) must be $\{p,r\}$, so $r = b$, and then the fourth member $\{q,r\}$ requires a
+quadratic $\{a,q\}$ with $q \ne i$. But the only quadratics are $\{i,a\}$ and $\{i,b\}$.
+\hfill$\times$
+
+\emph{If it is} (L4): no quadratic touches $i$. So every endpoint $u$ of a quadratic has
+$u \ne i$, has a singleton in its link, and has no linear term of its own; hence $u$ is (L3) and
+therefore lies on exactly two quadratics. The two quadratics would then form a $2$-regular
+graph with $2$ edges, which does not exist. \hfill$\times$
+
+\subsubsection*{Partition $\{1,1,1,1\}$} Four unit quadratics forming a graph $Q$, with no
+linear and no constant term. Every endpoint $u$ of a quadratic has a singleton in its link,
+hence is (L3) (it cannot be (L2), which needs a linear term), hence lies on exactly two
+quadratics. So $Q$ is a $2$-regular graph with $4$ edges, i.e.\ a $4$-cycle
+$i$--$a$--$j$--$b$--$i$. By (L3) at each of $i,a,j,b$, the two cubics at $i$ are
+$\{i,a,c_i\}, \{i,b,c_i\}$ for some $c_i$, and similarly at $a$, $j$, $b$.
+
+Let $S_0 = \{i,a,j,b\}$ and let $N$ be the set of cubics meeting $S_0$. Each member of $N$ meets
+$S_0$ in $2$ or $3$ vertices, since it contains one of $i,a,j,b$ together with a $Q$-neighbour of
+that vertex. Each of $i,a,j,b$ lies in exactly two cubics, so
+$\sum_{T \in N} |T \cap S_0| = 8$. The seven vertices outside $S_0$ all have mass $4$, hence
+\[
+  28 = \sum_{T \in N} |T \setminus S_0| + 3M ,
+\]
+where $M$ is the number of cubics disjoint from $S_0$, while counting all $16$ terms gives
+$16 = 4 + |N| + M$. Writing $k := \#\{T \in N : |T \setminus S_0| = 1\}$ (the others have
+$|T \setminus S_0| = 0$), we get $3(12 - |N|) = 28 - k$, so
+\[
+  k = 3|N| - 8 \le |N| ,
+\]
+which forces $|N| \in \{3,4\}$.
+
+\smallskip\noindent\emph{Sub-case $|N| = 4$.} All four cubics of $N$ have exactly two vertices in
+$S_0$ and one outside. Take $\{i,a,c\} \in N$. The vertex $c$ has an (L1) link containing the
+pair $\{i,a\}$, so the $4$-cycle in $\lk(c)$ is $i$--$a$--$y$--$z$--$i$, giving cubics
+$\{c,a,y\}, \{c,y,z\}, \{c,z,i\}$. Now $a$'s only other cubic is $\{a,j,c_a\}$, so $y = j$ and
+$c_a = c$; and $i$'s only other cubic is $\{i,b,c_i\}$, so $z = b$ and $c_i = c$; and
+$\{c,j,b\}$ is a cubic. Thus
+\[
+  N = \big\{ \{c,a,i\},\ \{c,a,j\},\ \{c,j,b\},\ \{c,b,i\} \big\},
+\]
+$m_c = 4$ is exhausted, and $i, a, j, b$ are exhausted too (two quadratics and two cubics each).
+Hence no other term meets $\{i,a,j,b,c\}$, and
+$f = g(x_i,x_a,x_j,x_b,x_c) + h(\text{the other } 6 \text{ variables})$ with both parts
+non-constant, impossible by Lemma~\ref{lem:C}. \hfill$\times$
+
+\smallskip\noindent\emph{Sub-case $|N| = 3$.} Then $k = 1$: two cubics lie inside $S_0$ and one
+meets it in an edge. Two $3$-subsets of the $4$-cycle's vertex set share two vertices, so up to
+the symmetry of the $4$-cycle they are $\{i,a,j\}, \{i,a,b\}$ (sharing the $Q$-edge $\{i,a\}$) or
+$\{i,a,j\}, \{j,b,i\}$ (sharing the diagonal $\{i,j\}$).
+\begin{itemize}[leftmargin=1.4em]
+  \item First: $\lk(i) = \{\{a\},\{b\},\{a,j\},\{a,b\}\}$, which is not of the form
+  $\{\{p\},\{q\},\{p,r\},\{q,r\}\}$ required by (L3). \hfill$\times$
+  \item Second: $\lk(a)$ contains the pair $\{i,j\}$ (from the cubic $\{i,j,a\}$); but an (L3)
+  link at $a$ has the form $\{\{p\},\{q\},\{p,r\},\{q,r\}\}$ with $\{p,q\} = \{i,j\}$ and
+  $r \notin \{i,j\}$, so $\{i,j\}$ would have to be $\{i,r\}$, forcing $r = j$.
+  \hfill$\times$
+\end{itemize}
+
+So $\delta = 4$ is impossible.
+
+\subsection{The case \texorpdfstring{$\delta = 2$}{delta = 2}: one vertex of mass 6}
+\label{app:delta2}
+
+Here exactly one vertex $v$ has $m_v = 6$ and the other ten have mass $4$. The lower-order
+weight $2$ is either one linear term $\pm1$ or two unit quadratics.
+
+\subsubsection*{One linear term $\{l\}$}
+The link of $l$ contains $\emptyset$. There are no quadratics, so every vertex other than $l$
+has a link made of pairs only: a $C_4$ if its mass is $4$, and (for mass $6$) a simple graph
+with $6$ edges and all degrees even, i.e.\ $C_6$, two disjoint triangles, or a bowtie (two
+triangles sharing a vertex).
+
+\emph{Suppose $m_l = 4$.} Then $\lk(l)$ is (L4), giving cubics
+$\{l,a,b\}, \{l,b,c\}, \{l,a,c\}$.
+
+Assume first $v \notin \{a,b,c\}$, so $a,b,c$ have $C_4$ links. The link of $a$ contains
+$\{l,b\}$ and $\{l,c\}$, which completes to $l$--$b$--$w$--$c$, giving cubics
+$\{a,b,w\}, \{a,c,w\}$; similarly at $b$ and at $c$, and the shared cubics force a common $w$,
+so the cubics $\{a,b,w\}, \{a,c,w\}, \{b,c,w\}$ all exist. Then $\lk(w)$ contains the triangle
+$abc$, so it is not a $C_4$; hence $w = v$ (and $w \ne l$, since $l$'s link is already
+exhausted). So $\lk(v)$ contains the triangle $abc$ and $m_v = 6$: thus $\lk(v)$ is two
+triangles $abc \cup xyz$, or a bowtie. A bowtie containing $abc$ has its centre in
+$\{a,b,c\}$, say $a$, giving $\lambda_{va} = 4$ and hence a vertex of degree $4$ in $\lk(a)$,
+which is not a $C_4$ --- contradiction. So $\lk(v) = abc \cup xyz$, with cubics
+$\{v,x,y\}, \{v,y,z\}, \{v,x,z\}$. Now $x, y, z$ have $C_4$ links, and the same completion
+argument yields cubics $\{x,y,t\}, \{x,z,t\}, \{y,z,t\}$ for a common $t$, so $\lk(t)$ contains
+a triangle; but $t \notin \{v, l\}$ (both of those links are already exhausted), so $t$ has a
+$C_4$ link containing a triangle. \hfill$\times$
+
+Assume now $v \in \{a,b,c\}$, say $v = a$. Then $b$ and $c$ have $C_4$ links. The link of $b$
+contains $\{l,a\}$ and $\{l,c\}$, giving cubics $\{a,b,w\}, \{b,c,w\}$; the link of $c$ contains
+$\{l,a\}$ and $\{l,b\}$, giving $\{a,c,w'\}, \{b,c,w'\}$; the shared cubic $\{b,c,\cdot\}$ forces
+$w = w'$. So $\lk(w)$ contains the triangle $abc$. Here $w \notin \{l, a\}$ (taking $w = l$ would
+repeat the term $\{l,a,b\}$, and $w = a$ is not allowed since $\{a,a,b\}$ is not a set), so $w$
+has a $C_4$ link containing a triangle. \hfill$\times$
+
+\emph{Hence $m_l = 6$, i.e.\ $l = v$.} Then $\lk(v)$ is $\emptyset$ together with five pairs
+having all degrees even, i.e.\ a $5$-cycle $a_1 a_2 a_3 a_4 a_5$, with cubics
+$\{v, a_k, a_{k+1}\}$ (indices mod $5$). Each $a_k$ has an (L1) link containing
+$\{v, a_{k-1}\}$ and $\{v, a_{k+1}\}$, which completes to a $4$-cycle
+$v$--$a_{k+1}$--$w_k$--$a_{k-1}$--$v$, giving cubics $\{a_k, a_{k\pm1}, w_k\}$. If $w_k$ were
+another $a_p$, some $a$'s link would contain a triangle (for instance $w_1 = a_3$ makes $\lk(a_2)$
+contain $\{v,a_1\}, \{v,a_3\}, \{a_1,a_3\}$), impossible inside a $C_4$. So $w_k$ lies outside
+$\{v, a_1, \dots, a_5\}$. The cubic $\{a_k, a_{k+1}, w_k\}$ is one of $a_{k+1}$'s two non-$v$
+cubics, so $w_{k+1} = w_k$; hence all $w_k$ are equal to a single vertex $w$, which then lies in
+five cubics, i.e.\ $m_w = 5$, contradicting Lemma~\ref{lem:masses}. \hfill$\times$
+
+\subsubsection*{Two quadratics}
+An endpoint $u$ of a quadratic with $m_u = 4$ has a singleton in its link, so its link is (L2) or
+(L3); (L2) needs a linear term, and there is none, so it is (L3), which needs two quadratics at
+$u$: say $\{u,p\}$ and $\{u,q\}$ with $p \ne q$. If $p \ne v$ then $p$ is a mass-$4$ endpoint too
+and would need two quadratics at $p$, but both quadratics already meet $u$ and there are only
+two in total --- so $p = v$, and likewise $q = v$, contradicting $p \ne q$. So no mass-$4$ vertex
+is an endpoint of a quadratic, which means each quadratic has both endpoints equal to $v$, absurd.
+\hfill$\times$
+
+So $\delta = 2$ is impossible.
+
+\subsection{The case \texorpdfstring{$\delta = 0$}{delta = 0}: a homogeneous cubic}
+\label{app:delta0}
+
+Now $f = \frac14\sum_S n_S \chi_S$ is supported on triples, with $\sum_S n_S^2 = 16$, and the
+degree sequence $(m_i)$ is either $(8, 4^{10})$ or $(6,6,4^9)$. No $|n_S| = 2$ occurs: by
+Lemma~\ref{lem:links}(d) all three vertices of such a term would need mass $8$, and there is at
+most one vertex of mass $8$. So $\mathcal{F}$ is a $3$-uniform hypergraph with $16$ triples.
+Links are: a $C_4$ when $m = 4$ (Lemma~\ref{lem:links}(a)); for $m = 6$, a simple graph with $6$
+edges and all degrees even, i.e.\ $C_6$, two disjoint triangles, or a bowtie; for $m = 8$, a
+simple graph with $8$ edges and all degrees even.
+
+\subsubsection{Sub-case $(8, 4^{10})$}
+Let $v$ be the vertex with $m_v = 8$. If some $x$ had $\lambda_{vx} = 4$, then $v$ would have
+degree $4$ in $\lk(x)$, so $\lk(x)$ would not be a $C_4$, contradicting $m_x = 4$ (and
+$x \ne v$, since $x$ is a vertex of $\lk(v)$). Hence $\lk(v)$ is $2$-regular: $C_8$,
+$C_3 \cup C_5$, or $C_4 \cup C_4$; and every pair lies in $0$ or $2$ triples, so $|\mathcal{F}|$
+is a closed pseudo-manifold, with all links single cycles except possibly at $v$.
+
+\paragraph{$\lk(v) = C_8$.} Then $|\mathcal{F}|$ is a closed surface with $V = 11$, $E = 24$,
+$F = 16$, so $\chi = 3$. Consider its components. A closed surface with all degrees $4$ except
+at most one vertex of degree $8$ has degree sum $4V' + 4\cdot\mathbf{1}\{v \in \text{it}\}$. A
+sphere needs degree sum $6V' - 12$, giving either $V' = 6$ (the octahedron, not containing $v$)
+or $6V' - 12 = 4V' + 4$, i.e.\ $V' = 8$ --- a sphere on $8$ vertices with degrees $(8, 4^7)$,
+which is impossible since $v$ would need $8$ neighbours among $7$ other vertices. A projective
+plane needs $6V' - 6$, giving $V' = 3$ or $V' = 5$, both below the minimum of $6$ vertices. And
+$\chi' \le 0$ is excluded by Fact~\ref{fact:T}. So $\chi = 3$ cannot be realised as a sum of
+component characteristics. \hfill$\times$
+
+\paragraph{$\lk(v) = C_4 \cup C_4$.} Split $v$ into two vertices $v_1, v_2$, each of degree $4$.
+The result is a closed surface with $12$ vertices all of degree $4$, so $\chi = 12 - 24 + 16 = 4$
+and, exactly as in Step 3 of Theorem~\ref{thm:no12}, it is two octahedra. If $v_1$ and $v_2$ lay
+in the same octahedron --- this sub-case is in fact empty, since the two $C_4$'s of $\lk(v)$ are
+vertex-disjoint while two vertices of an octahedron share two or four neighbours --- the other
+octahedron would use $6$ variables disjoint from everything else and $f$ would be a disjoint
+sum, impossible by Lemma~\ref{lem:C}. Otherwise the two octahedra are glued at the identified
+vertex $v$. Write
+\[
+  f = g_1(x_v, y) + g_2(x_v, z), \qquad y, z \text{ disjoint } 5\text{-tuples}.
+\]
+Fixing $x_v = 1$ gives $g_1(1,y) + g_2(1,z) \in \{\pm1\}$ for all $y, z$, so by
+Lemma~\ref{lem:C} one of them is constant. But $g_1(1,y)$ is $\frac14$ times the sum of the eight
+face-characters of the first octahedron with $x_v = 1$ substituted, which are eight distinct
+non-constant monomials in $y$ (four quadratic and four cubic), so $g_1(1,\cdot)$ is not constant;
+and the same holds for $g_2(1,\cdot)$. \hfill$\times$
+
+\paragraph{$\lk(v) = C_3 \cup C_5$.} Split $v$ into $v_1$ of degree $3$ and $v_2$ of degree $5$:
+a closed surface with $12$ vertices, degrees $(3,5,4^{10})$, and $\chi = 4$. Components with
+$\chi' \le 1$ are excluded: $\chi' \le 0$ by Fact~\ref{fact:T}; and a projective plane needs
+degree sum $6V' - 6$, which with all degrees at most $5$ forces $V' \le 6$ (and a triangulated
+projective plane has at least $6$ vertices, by Step 3 of Theorem~\ref{thm:no12}), while the only
+$6$-vertex projective plane has all six degrees equal to $5$, whereas we have a single degree-$5$
+vertex. Hence both components are spheres, with degree sum $6V' - 12$ and degrees drawn from
+$\{3,4,5\}$:
+\begin{itemize}[leftmargin=1.4em]
+  \item containing both the $3$ and the $5$: $8 + 4a = 6(a+2) - 12$ gives $a = 4$, a $6$-vertex
+  sphere with degrees $(5,4,4,4,4,3)$. The degree-$5$ vertex is adjacent to all the others, its
+  link is a $5$-cycle, and the remaining $3$ faces triangulate that pentagon with two diagonals;
+  any two diagonals of a pentagon share a vertex or cross, so some vertex receives diagonal
+  degree $2$ or the triangulation is invalid, and the required degree pattern
+  $(4,4,4,4,3)$ on the rim, i.e.\ diagonal degrees $(1,1,1,1,0)$, cannot occur.
+  \item containing the $3$ but not the $5$: $3 + 4a = 6(a+1) - 12$ gives $a = 4.5$, not an
+  integer.
+  \item containing the $5$ but not the $3$: $5 + 4a = 6(a+1) - 12$ gives $a = 5.5$, not an
+  integer.
+\end{itemize}
+\hfill$\times$
+
+\subsubsection{Sub-case $(6,6,4^9)$}
+Let $v$ and $v'$ be the two vertices of mass $6$.
+
+\paragraph{Some link is a bowtie.} Say $\lk(v)$ is a bowtie with centre $w$. Then
+$\lambda_{vw} = 4$, so $v$ has degree $4$ in $\lk(w)$, which forces $m_w = 6$ and $\lk(w)$ a
+bowtie too, so $w = v'$ and, symmetrically, $\lk(v')$ is a bowtie centred at $v$. The four common
+triples are $\{v,v',a_k\}$, $k = 1,\dots,4$. The bowtie at $v$ adds two further triples
+$\{v,a_1,a_2\}, \{v,a_3,a_4\}$ (for some pairing of the $a_k$), and the one at $v'$ adds
+$\{v',a_i,a_j\}, \{v',a_k,a_l\}$ for some pairing.
+If the two pairings coincide, then $\lk(a_1)$ contains $\{v,v'\}, \{v,a_2\}, \{v',a_2\}$, a
+triangle, hence is not a $C_4$. Otherwise, say $v$ pairs $(a_1a_2)(a_3a_4)$ while $v'$ pairs
+$(a_1a_3)(a_2a_4)$: then $\lk(a_1)$ contains $\{v,v'\}, \{v,a_2\}, \{v',a_3\}$, and being a $C_4$
+it forces the fourth triple $\{a_1,a_2,a_3\}$; but then
+$\lk(a_2) = \{\{v,v'\},\{v,a_1\},\{v',a_4\},\{a_1,a_3\}\}$ has $a_3$ and $a_4$ of degree $1$, so
+it is not a $C_4$. \hfill$\times$
+
+\paragraph{No link is a bowtie.} Then every pair lies in $0$ or $2$ triples and $|\mathcal{F}|$
+is a closed pseudo-manifold, singular only at $v$ or $v'$ and only when the link there is two
+triangles.
+
+\emph{If both links are cycles}, $|\mathcal{F}|$ is a closed surface with
+$\chi = 11 - 24 + 16 = 3$. Component degree sums are
+$4V' + 2\cdot\mathbf{1}\{v\} + 2\cdot\mathbf{1}\{v'\}$.
+Spheres: $V' = 6$ (containing neither $v$ nor $v'$, the octahedron); or, containing exactly one
+of them, $4V' + 2 = 6V' - 12$, i.e.\ $V' = 7$ with degrees $(6,4^6)$ --- here the degree-$6$
+vertex is adjacent to all $6$ others, its link is a hexagon, and the remaining $4$ faces
+triangulate the hexagon with $3$ diagonals, so the six rim vertices have degrees $3 + d_i$ with
+$\sum_i d_i = 6$; all degrees equal to $4$ needs $d_i = 1$ for every $i$, a perfect matching of
+the hexagon by pairwise non-crossing diagonals, which does not exist (every hexagon
+triangulation has an ear). Containing both $v$ and $v'$: $4V' + 4 = 6V' - 12$, i.e.\ $V' = 8$
+with degree sum $36$, two degree-$6$ vertices and six degree-$4$ vertices --- this is not
+immediately absurd, but then the remaining components would have to be octahedra on the
+remaining $3$ vertices, which is impossible; and $V' = 11$ as a single component gives
+$\chi = 3 \ne 2$. Projective planes: $6V' - 6 = 4V' + 2s$ with $s \in \{0,1,2\}$ gives
+$V' = 3, 4, 5$, all below $6$. And $\chi' \le 0$ is excluded by Fact~\ref{fact:T}. So $\chi = 3$
+is not realisable. \hfill$\times$
+
+\emph{If $\lk(v)$ is two triangles}, split $v$ into $v_1, v_2$ of degree $3$ each. If $\lk(v')$
+is a cycle we obtain $12$ vertices with degrees $(3,3,6,4^9)$ and $\chi = 4$; both components
+are then spheres, since $\chi' \le 0$ is excluded by Fact~\ref{fact:T} and a projective plane
+would need $6V' - 6 \le 6 + 4(V'-1)$, i.e.\ $V' \le 4 < 6$. The sphere containing $v'$ satisfies
+$6 + 3a + 4b = 6(1 + a + b) - 12$, i.e.\ $3a + 2b = 12$ with $a \le 2$: the solution
+$(a,b) = (2,3)$ gives a $6$-vertex sphere with $v'$ of degree $6$, impossible as there are only
+$5$ other vertices; and $(a,b) = (0,6)$ gives the $(6,4^6)$ sphere excluded above. \hfill$\times$
+
+If $\lk(v')$ is also two triangles, both split, giving degrees $(3,3,3,3,4^9)$ with $\chi = 5$:
+odd, hence impossible as a sum of sphere characteristics; projective planes with all degrees at
+most $4$ need $6V' - 6 \le 4V'$, i.e.\ $V' \le 3 < 6$; and $\chi' \le 0$ is excluded by
+Fact~\ref{fact:T}. \hfill$\times$
+
+\medskip
+So $\delta = 0$ is impossible, and with Sections~\ref{app:delta4} and \ref{app:delta2} all cases
+are exhausted. This proves Theorem~\ref{thm:no11}. \hfill$\square$
+
+\begin{thebibliography}{99}
+
+\bibitem{CHS20}
+J.~Chiarelli, P.~Hatami and M.~Saks,
+\emph{An asymptotically tight bound on the number of relevant variables in a bounded degree
+Boolean function},
+Combinatorica \textbf{40} (2020), 237--244.
+\texttt{arXiv:1801.08564}.
+
+\bibitem{NS94}
+N.~Nisan and M.~Szegedy,
+\emph{On the degree of Boolean functions as real polynomials},
+Computational Complexity \textbf{4} (1994), 301--313.
+\todo{page range not independently re-verified in this project.}
+
+\bibitem{ODbook}
+R.~O'Donnell,
+\emph{Analysis of Boolean Functions},
+Cambridge University Press, 2014.
+
+\bibitem{TaoOP44a}
+T.~Tao et al.,
+\emph{Optimization problems}, entry 44a (relevant variables in bounded-degree Boolean
+functions).
+\url{https://teorth.github.io/optimizationproblems/constants/44a.html}.
+Accessed 2026-09-09.
+
+\bibitem{Wel19}
+J.~Wellens,
+\emph{Relationships between the number of inputs and other complexity measures of Boolean
+functions},
+preprint, \texttt{arXiv:1903.08214} (2019). Superseded by \cite{Wel22}.
+
+\bibitem{Wel22}
+J.~Wellens,
+\emph{Relationships between the number of inputs and other complexity measures of Boolean
+functions},
+Discrete Analysis \textbf{2022}:19.
+\texttt{arXiv:2005.00566}.
+
+\end{thebibliography}
+
+\end{document}

@@ -1,0 +1,62 @@
+C:\Users\moffa\Desktop\Research\campaigns\opt-c44-relevant-variables-degree\referee\round2_search.py:1: SyntaxWarning: invalid escape sequence '\i'
+  """Round-2 referee: independent exhaustive search for the 11-variable case, at the level of term STRUCTURES.
+=== vertex 0 of maximum degree d0 = 4: 4 link shapes ===
+  link(0) = {1,2} {1,3} {2,4} {3,4}                                 status=OPTIMAL    structures=   195 new iso classes=2 boolean sign vectors=0
+  link(0) = {1} {2} {1,3} {2,3}                                     status=OPTIMAL    structures=   105 new iso classes=0 boolean sign vectors=0
+  link(0) = {} {1,2} {1,3} {2,3}                                    status=OPTIMAL    structures=   105 new iso classes=0 boolean sign vectors=0
+  link(0) = {} {1} {2} {1,2}                                        status=INFEASIBLE structures=     0 new iso classes=0 boolean sign vectors=0
+=== vertex 0 of maximum degree d0 = 6: 9 link shapes ===
+  link(0) = {1,2} {1,3} {1,4} {1,5} {2,3} {4,5}                     status=INFEASIBLE structures=     0 new iso classes=0 boolean sign vectors=0
+  link(0) = {1} {2} {3} {4} {1,2} {3,4}                             status=INFEASIBLE structures=     0 new iso classes=0 boolean sign vectors=0
+  link(0) = {1} {2} {1,2} {1,3} {1,4} {3,4}                         status=INFEASIBLE structures=     0 new iso classes=0 boolean sign vectors=0
+  link(0) = {1,2} {1,3} {2,3} {4,5} {4,6} {5,6}                     status=INFEASIBLE structures=     0 new iso classes=0 boolean sign vectors=0
+  link(0) = {1} {2} {1,2} {3,4} {3,5} {4,5}                         status=INFEASIBLE structures=     0 new iso classes=0 boolean sign vectors=0
+  link(0) = {1,2} {1,3} {2,4} {3,5} {4,6} {5,6}                     status=INFEASIBLE structures=     0 new iso classes=0 boolean sign vectors=0
+  link(0) = {1} {2} {1,3} {2,4} {3,5} {4,5}                         status=INFEASIBLE structures=     0 new iso classes=0 boolean sign vectors=0
+  link(0) = {} {1,2} {1,3} {2,4} {3,5} {4,5}                        status=INFEASIBLE structures=     0 new iso classes=0 boolean sign vectors=0
+  link(0) = {} {1} {2} {1,3} {2,4} {3,4}                            status=INFEASIBLE structures=     0 new iso classes=0 boolean sign vectors=0
+=== vertex 0 of maximum degree d0 = 8: 36 link shapes ===
+  link(0) = {1,2} {1,3} {1,4} {1,5} {2,3} {2,4} {2,6} {5,6}         status=INFEASIBLE structures=     0 new iso classes=0 boolean sign vectors=0
+  link(0) = {1} {2} {3} {4} {1,2} {1,3} {1,5} {4,5}                 status=INFEASIBLE structures=     0 new iso classes=0 boolean sign vectors=0
+  link(0) = {1} {2} {1,2} {1,3} {1,4} {2,3} {2,5} {4,5}             status=INFEASIBLE structures=     0 new iso classes=0 boolean sign vectors=0
+  link(0) = {1} {5} {1,2} {1,3} {1,4} {2,3} {2,4} {2,5}             status=INFEASIBLE structures=     0 new iso classes=0 boolean sign vectors=0
+  link(0) = {1,2} {1,3} {1,4} {1,5} {2,3} {4,6} {5,7} {6,7}         status=INFEASIBLE structures=     0 new iso classes=0 boolean sign vectors=0
+  link(0) = {1} {2} {3} {4} {1,2} {3,5} {4,6} {5,6}                 status=INFEASIBLE structures=     0 new iso classes=0 boolean sign vectors=0
+  link(0) = {1} {2} {1,2} {1,3} {1,4} {3,5} {4,6} {5,6}             status=INFEASIBLE structures=     0 new iso classes=0 boolean sign vectors=0
+  link(0) = {1} {5} {1,2} {1,3} {1,4} {2,3} {4,6} {5,6}             status=INFEASIBLE structures=     0 new iso classes=0 boolean sign vectors=0
+  link(0) = {4} {6} {1,2} {1,3} {1,4} {1,5} {2,3} {5,6}             status=INFEASIBLE structures=     0 new iso classes=0 boolean sign vectors=0
+  link(0) = {1,2} {1,3} {1,4} {1,5} {2,6} {3,6} {4,6} {5,6}         status=INFEASIBLE structures=     0 new iso classes=0 boolean sign vectors=0
+  link(0) = {1} {2} {3} {4} {1,5} {2,5} {3,5} {4,5}                 status=INFEASIBLE structures=     0 new iso classes=0 boolean sign vectors=0
+  link(0) = {1} {5} {1,2} {1,3} {1,4} {2,5} {3,5} {4,5}             status=INFEASIBLE structures=     0 new iso classes=0 boolean sign vectors=0
+  link(0) = {1,2} {1,3} {1,4} {1,5} {2,6} {3,6} {4,7} {5,7}         status=INFEASIBLE structures=     0 new iso classes=0 boolean sign vectors=0
+  link(0) = {1} {2} {3} {4} {1,5} {2,5} {3,6} {4,6}                 status=INFEASIBLE structures=     0 new iso classes=0 boolean sign vectors=0
+  link(0) = {1} {5} {1,2} {1,3} {1,4} {2,5} {3,6} {4,6}             status=INFEASIBLE structures=     0 new iso classes=0 boolean sign vectors=0
+  link(0) = {2} {3} {1,2} {1,3} {1,4} {1,5} {4,6} {5,6}             status=INFEASIBLE structures=     0 new iso classes=0 boolean sign vectors=0
+  link(0) = {1,2} {1,3} {2,3} {4,5} {4,6} {5,7} {6,8} {7,8}         status=INFEASIBLE structures=     0 new iso classes=0 boolean sign vectors=0
+  link(0) = {1} {2} {1,2} {3,4} {3,5} {4,6} {5,7} {6,7}             status=INFEASIBLE structures=     0 new iso classes=0 boolean sign vectors=0
+  link(0) = {4} {5} {1,2} {1,3} {2,3} {4,6} {5,7} {6,7}             status=INFEASIBLE structures=     0 new iso classes=0 boolean sign vectors=0
+  link(0) = {1,2} {1,3} {2,4} {3,4} {5,6} {5,7} {6,8} {7,8}         status=OPTIMAL    structures=     2 new iso classes=1 boolean sign vectors=0
+  link(0) = {1} {2} {1,3} {2,3} {4,5} {4,6} {5,7} {6,7}             status=INFEASIBLE structures=     0 new iso classes=0 boolean sign vectors=0
+  link(0) = {1,2} {1,3} {2,4} {3,5} {4,6} {5,7} {6,8} {7,8}         status=INFEASIBLE structures=     0 new iso classes=0 boolean sign vectors=0
+  link(0) = {1} {2} {1,3} {2,4} {3,5} {4,6} {5,7} {6,7}             status=INFEASIBLE structures=     0 new iso classes=0 boolean sign vectors=0
+  link(0) = {} {1,2} {1,3} {1,4} {1,5} {2,3} {2,4} {2,5}            status=INFEASIBLE structures=     0 new iso classes=0 boolean sign vectors=0
+  link(0) = {} {1} {2} {3} {4} {1,2} {1,3} {1,4}                    status=INFEASIBLE structures=     0 new iso classes=0 boolean sign vectors=0
+  link(0) = {} {1} {2} {1,2} {1,3} {1,4} {2,3} {2,4}                status=INFEASIBLE structures=     0 new iso classes=0 boolean sign vectors=0
+  link(0) = {} {1,2} {1,3} {1,4} {1,5} {2,3} {4,6} {5,6}            status=INFEASIBLE structures=     0 new iso classes=0 boolean sign vectors=0
+  link(0) = {} {1} {2} {3} {4} {1,2} {3,5} {4,5}                    status=INFEASIBLE structures=     0 new iso classes=0 boolean sign vectors=0
+  link(0) = {} {1} {2} {1,2} {1,3} {1,4} {3,5} {4,5}                status=INFEASIBLE structures=     0 new iso classes=0 boolean sign vectors=0
+  link(0) = {} {1} {5} {1,2} {1,3} {1,4} {2,3} {4,5}                status=INFEASIBLE structures=     0 new iso classes=0 boolean sign vectors=0
+  link(0) = {} {4} {5} {1,2} {1,3} {1,4} {1,5} {2,3}                status=INFEASIBLE structures=     0 new iso classes=0 boolean sign vectors=0
+  link(0) = {} {1,2} {1,3} {2,3} {4,5} {4,6} {5,7} {6,7}            status=INFEASIBLE structures=     0 new iso classes=0 boolean sign vectors=0
+  link(0) = {} {1} {2} {1,2} {3,4} {3,5} {4,6} {5,6}                status=INFEASIBLE structures=     0 new iso classes=0 boolean sign vectors=0
+  link(0) = {} {4} {5} {1,2} {1,3} {2,3} {4,6} {5,6}                status=INFEASIBLE structures=     0 new iso classes=0 boolean sign vectors=0
+  link(0) = {} {1,2} {1,3} {2,4} {3,5} {4,6} {5,7} {6,7}            status=INFEASIBLE structures=     0 new iso classes=0 boolean sign vectors=0
+  link(0) = {} {1} {2} {1,3} {2,4} {3,5} {4,6} {5,6}                status=INFEASIBLE structures=     0 new iso classes=0 boolean sign vectors=0
+
+TOTAL labelled structures (with the symmetry breaking): 407
+isomorphism classes of structures satisfying (F1)-(F3): 3
+   sizes {2: 4, 3: 12} degree sequence (4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4) sets: ((5, 6), (5, 10), (6, 9), (9, 10), (0, 1, 2), (0, 1, 3), (0, 2, 4), (0, 3, 4), (1, 2, 7), (1, 3, 7), (2, 4, 7), (3, 4, 7), (5, 6, 8), (5, 8, 10), (6, 8, 9), (8, 9, 10))
+   sizes {1: 2, 3: 14} degree sequence (4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4) sets: ((5,), (8,), (0, 1, 2), (0, 1, 3), (0, 2, 4), (0, 3, 4), (1, 2, 9), (1, 3, 9), (2, 4, 9), (3, 4, 9), (5, 6, 7), (5, 6, 10), (5, 7, 10), (6, 7, 8), (6, 8, 10), (7, 8, 10))
+   sizes {3: 16} degree sequence (8, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4) sets: ((0, 1, 2), (0, 1, 3), (0, 2, 4), (0, 3, 4), (0, 5, 6), (0, 5, 7), (0, 6, 8), (0, 7, 8), (1, 2, 9), (1, 3, 9), (2, 4, 9), (3, 4, 9), (5, 6, 10), (5, 7, 10), (6, 8, 10), (7, 8, 10))
+Boolean sign vectors over all structures: 0   (expected 0)
+time 561.7s

@@ -1,0 +1,19 @@
+GATE run 2026-09-13T14:57:09Z
+toolchain: leanprover/lean4:v4.23.0   mathlib: leanprover/lean4:v4.23.0
+
+== modules imported by R3.lean ==
+import R3.Statement
+import R3.Basic
+import R3.Mass
+import R3.Link
+import R3.Twelve
+import R3.Cycle
+
+== lake build ==
+Build completed successfully (7222 jobs).
+ok    lake build exit 0
+
+== laundering scan (sorry/admit/axiom/native_decide/unsafe/implemented_by/extern) ==
+ok    none found
+
+== axiom audit ==

@@ -1,0 +1,5 @@
+weights (2,): realisable 0, not 44
+weights (2, 1): realisable 0, not 1848
+weights (2, 1, 1): realisable 0, not 73920
+weights (2, 1, 1, 1): realisable 0, not 2808960
+weights (2, 2): realisable 1848, not 0

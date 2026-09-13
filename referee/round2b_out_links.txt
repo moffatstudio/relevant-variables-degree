@@ -1,0 +1,66 @@
+k = 4: 462 labelled families on 8 elements, 4 shapes up to relabelling  (0s)
+    {a,b} {a,c} {b,d} {c,d}                              [pairs only]   <- 2-regular: C_4
+    {a} {b} {a,c} {b,c}                                  [2 singletons]
+    {} {a,b} {a,c} {b,c}                                 [has EMPTY, pairs only]   <- EMPTY + 2-regular: C_3
+    {} {a} {b} {a,b}                                     [has EMPTY, 2 singletons]
+    pairs-only shapes (= even simple graphs with 4 edges): 1
+
+k = 5: 1890 labelled families on 8 elements, 4 shapes up to relabelling  (1s)
+    {a,b} {a,c} {b,d} {c,e} {d,e}                        [pairs only]   <- 2-regular: C_5
+    {a} {b} {a,c} {b,d} {c,d}                            [2 singletons]
+    {} {a,b} {a,c} {b,d} {c,d}                           [has EMPTY, pairs only]   <- EMPTY + 2-regular: C_4
+    {} {a} {b} {a,c} {b,c}                               [has EMPTY, 2 singletons]
+    pairs-only shapes (= even simple graphs with 5 edges): 1
+
+k = 6: 9282 labelled families on 8 elements, 9 shapes up to relabelling  (12s)
+    {a,b} {a,c} {a,d} {a,e} {b,c} {d,e}                  [pairs only]   <- degrees (4, 2, 2, 2, 2)
+    {a,b} {a,c} {b,c} {d,e} {d,f} {e,f}                  [pairs only]   <- 2-regular: C_3+C_3
+    {a,b} {a,c} {b,d} {c,e} {d,f} {e,f}                  [pairs only]   <- 2-regular: C_6
+    {a} {b} {a,b} {a,c} {a,d} {c,d}                      [2 singletons]
+    {a} {b} {a,b} {c,d} {c,e} {d,e}                      [2 singletons]
+    {a} {b} {a,c} {b,d} {c,e} {d,e}                      [2 singletons]
+    {a} {b} {c} {d} {a,b} {c,d}                          [4 singletons]
+    {} {a,b} {a,c} {b,d} {c,e} {d,e}                     [has EMPTY, pairs only]   <- EMPTY + 2-regular: C_5
+    {} {a} {b} {a,c} {b,d} {c,d}                         [has EMPTY, 2 singletons]
+    pairs-only shapes (= even simple graphs with 6 edges): 3
+
+k = 8: 149103 labelled families on 8 elements, 36 shapes up to relabelling  (322s)
+    {a,b} {a,c} {a,d} {a,e} {b,c} {b,d} {b,f} {e,f}      [pairs only]   <- degrees (4, 4, 2, 2, 2, 2)
+    {a,b} {a,c} {a,d} {a,e} {b,c} {d,f} {e,g} {f,g}      [pairs only]   <- degrees (4, 2, 2, 2, 2, 2, 2)
+    {a,b} {a,c} {a,d} {a,e} {b,f} {c,f} {d,f} {e,f}      [pairs only]   <- degrees (4, 4, 2, 2, 2, 2)
+    {a,b} {a,c} {a,d} {a,e} {b,f} {c,f} {d,g} {e,g}      [pairs only]   <- degrees (4, 2, 2, 2, 2, 2, 2)
+    {a,b} {a,c} {b,c} {d,e} {d,f} {e,g} {f,h} {g,h}      [pairs only]   <- 2-regular: C_3+C_5
+    {a,b} {a,c} {b,d} {c,d} {e,f} {e,g} {f,h} {g,h}      [pairs only]   <- 2-regular: C_4+C_4
+    {a,b} {a,c} {b,d} {c,e} {d,f} {e,g} {f,h} {g,h}      [pairs only]   <- 2-regular: C_8
+    {a} {b} {a,b} {a,c} {a,d} {b,c} {b,e} {d,e}          [2 singletons]
+    {a} {b} {a,b} {a,c} {a,d} {c,e} {d,f} {e,f}          [2 singletons]
+    {a} {b} {a,b} {c,d} {c,e} {d,f} {e,g} {f,g}          [2 singletons]
+    {a} {b} {a,c} {a,d} {a,e} {b,c} {b,d} {b,e}          [2 singletons]
+    {a} {b} {a,c} {a,d} {a,e} {b,c} {c,d} {c,e}          [2 singletons]
+    {a} {b} {a,c} {a,d} {a,e} {b,c} {d,f} {e,f}          [2 singletons]
+    {a} {b} {a,c} {a,d} {a,e} {b,f} {c,d} {e,f}          [2 singletons]
+    {a} {b} {a,c} {b,c} {c,d} {c,e} {d,f} {e,f}          [2 singletons]
+    {a} {b} {a,c} {b,c} {d,e} {d,f} {e,g} {f,g}          [2 singletons]
+    {a} {b} {a,c} {b,d} {c,d} {c,e} {c,f} {e,f}          [2 singletons]
+    {a} {b} {a,c} {b,d} {c,d} {e,f} {e,g} {f,g}          [2 singletons]
+    {a} {b} {a,c} {b,d} {c,e} {d,f} {e,g} {f,g}          [2 singletons]
+    {a} {b} {c} {d} {a,b} {a,c} {a,e} {d,e}              [4 singletons]
+    {a} {b} {c} {d} {a,b} {c,e} {d,f} {e,f}              [4 singletons]
+    {a} {b} {c} {d} {a,e} {b,e} {c,e} {d,e}              [4 singletons]
+    {a} {b} {c} {d} {a,e} {b,e} {c,f} {d,f}              [4 singletons]
+    {} {a,b} {a,c} {a,d} {a,e} {b,c} {b,d} {b,e}         [has EMPTY, pairs only]   <- EMPTY + degrees (4, 4, 2, 2, 2)
+    {} {a,b} {a,c} {a,d} {a,e} {b,c} {d,f} {e,f}         [has EMPTY, pairs only]   <- EMPTY + degrees (4, 2, 2, 2, 2, 2)
+    {} {a,b} {a,c} {b,c} {d,e} {d,f} {e,g} {f,g}         [has EMPTY, pairs only]   <- EMPTY + 2-regular: C_3+C_4
+    {} {a,b} {a,c} {b,d} {c,e} {d,f} {e,g} {f,g}         [has EMPTY, pairs only]   <- EMPTY + 2-regular: C_7
+    {} {a} {b} {a,b} {a,c} {a,d} {b,c} {b,d}             [has EMPTY, 2 singletons]
+    {} {a} {b} {a,b} {a,c} {a,d} {c,e} {d,e}             [has EMPTY, 2 singletons]
+    {} {a} {b} {a,b} {c,d} {c,e} {d,f} {e,f}             [has EMPTY, 2 singletons]
+    {} {a} {b} {a,c} {a,d} {a,e} {b,c} {d,e}             [has EMPTY, 2 singletons]
+    {} {a} {b} {a,c} {b,c} {c,d} {c,e} {d,e}             [has EMPTY, 2 singletons]
+    {} {a} {b} {a,c} {b,c} {d,e} {d,f} {e,f}             [has EMPTY, 2 singletons]
+    {} {a} {b} {a,c} {b,d} {c,e} {d,f} {e,f}             [has EMPTY, 2 singletons]
+    {} {a} {b} {c} {d} {a,b} {a,c} {a,d}                 [has EMPTY, 4 singletons]
+    {} {a} {b} {c} {d} {a,b} {c,e} {d,e}                 [has EMPTY, 4 singletons]
+    pairs-only shapes (= even simple graphs with 8 edges): 7
+
+total time 322s

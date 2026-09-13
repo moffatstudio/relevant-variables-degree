@@ -1,0 +1,21 @@
+name: verify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install gcc
+        run: sudo apt-get update && sudo apt-get install -y build-essential
+      - run: pip install -r requirements.txt
+      - name: Rerun the complete search for n = 3..8 and check every solution
+        run: python verify.py

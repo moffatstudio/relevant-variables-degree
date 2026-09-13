@@ -1,0 +1,89 @@
+=== Part A: even simple graphs (all degrees even, no isolated vertices), up to isomorphism ===
+E=3: 1 classes
+     disjoint cycles C_3
+E=4: 1 classes
+     disjoint cycles C_4
+E=5: 1 classes
+     disjoint cycles C_5
+E=6: 3 classes
+     V=5 E=6 degrees=(4, 2, 2, 2, 2) components=[5]
+     disjoint cycles C_3+C_3
+     disjoint cycles C_6
+E=7: 4 classes
+     V=5 E=7 degrees=(4, 4, 2, 2, 2) components=[5]
+     V=6 E=7 degrees=(4, 2, 2, 2, 2, 2) components=[6]
+     disjoint cycles C_3+C_4
+     disjoint cycles C_7
+E=8: 7 classes
+     V=6 E=8 degrees=(4, 4, 2, 2, 2, 2) components=[6]
+     V=7 E=8 degrees=(4, 2, 2, 2, 2, 2, 2) components=[7]
+     V=6 E=8 degrees=(4, 4, 2, 2, 2, 2) components=[6]
+     V=7 E=8 degrees=(4, 2, 2, 2, 2, 2, 2) components=[7]
+     disjoint cycles C_3+C_5
+     disjoint cycles C_4+C_4
+     disjoint cycles C_8
+
+=== Part B: link shapes (k distinct sets of size <= 2, empty symmetric difference) ===
+k=4: 4 shapes
+    {a,b} {a,c} {b,d} {c,d}                             [pairs only]
+    {a} {b} {a,c} {b,c}                                 [2 singletons]
+    {} {a,b} {a,c} {b,c}                                [has EMPTY]
+    {} {a} {b} {a,b}                                    [has EMPTY, 2 singletons]
+k=6: 9 shapes
+    {a,b} {a,c} {a,d} {a,e} {b,c} {d,e}                 [pairs only]
+    {a} {b} {c} {d} {a,b} {c,d}                         [4 singletons]
+    {a} {b} {a,b} {a,c} {a,d} {c,d}                     [2 singletons]
+    {a,b} {a,c} {b,c} {d,e} {d,f} {e,f}                 [pairs only]
+    {a} {b} {a,b} {c,d} {c,e} {d,e}                     [2 singletons]
+    {a,b} {a,c} {b,d} {c,e} {d,f} {e,f}                 [pairs only]
+    {a} {b} {a,c} {b,d} {c,e} {d,e}                     [2 singletons]
+    {} {a,b} {a,c} {b,d} {c,e} {d,e}                    [has EMPTY]
+    {} {a} {b} {a,c} {b,d} {c,d}                        [has EMPTY, 2 singletons]
+k=8: 36 shapes
+    {a,b} {a,c} {a,d} {a,e} {b,c} {b,d} {b,f} {e,f}     [pairs only]
+    {a} {b} {c} {d} {a,b} {a,c} {a,e} {d,e}             [4 singletons]
+    {a} {b} {a,b} {a,c} {a,d} {b,c} {b,e} {d,e}         [2 singletons]
+    {a} {e} {a,b} {a,c} {a,d} {b,c} {b,d} {b,e}         [2 singletons]
+    {a,b} {a,c} {a,d} {a,e} {b,c} {d,f} {e,g} {f,g}     [pairs only]
+    {a} {b} {c} {d} {a,b} {c,e} {d,f} {e,f}             [4 singletons]
+    {a} {b} {a,b} {a,c} {a,d} {c,e} {d,f} {e,f}         [2 singletons]
+    {a} {e} {a,b} {a,c} {a,d} {b,c} {d,f} {e,f}         [2 singletons]
+    {d} {f} {a,b} {a,c} {a,d} {a,e} {b,c} {e,f}         [2 singletons]
+    {a,b} {a,c} {a,d} {a,e} {b,f} {c,f} {d,f} {e,f}     [pairs only]
+    {a} {b} {c} {d} {a,e} {b,e} {c,e} {d,e}             [4 singletons]
+    {a} {e} {a,b} {a,c} {a,d} {b,e} {c,e} {d,e}         [2 singletons]
+    {a,b} {a,c} {a,d} {a,e} {b,f} {c,f} {d,g} {e,g}     [pairs only]
+    {a} {b} {c} {d} {a,e} {b,e} {c,f} {d,f}             [4 singletons]
+    {a} {e} {a,b} {a,c} {a,d} {b,e} {c,f} {d,f}         [2 singletons]
+    {b} {c} {a,b} {a,c} {a,d} {a,e} {d,f} {e,f}         [2 singletons]
+    {a,b} {a,c} {b,c} {d,e} {d,f} {e,g} {f,h} {g,h}     [pairs only]
+    {a} {b} {a,b} {c,d} {c,e} {d,f} {e,g} {f,g}         [2 singletons]
+    {d} {e} {a,b} {a,c} {b,c} {d,f} {e,g} {f,g}         [2 singletons]
+    {a,b} {a,c} {b,d} {c,d} {e,f} {e,g} {f,h} {g,h}     [pairs only]
+    {a} {b} {a,c} {b,c} {d,e} {d,f} {e,g} {f,g}         [2 singletons]
+    {a,b} {a,c} {b,d} {c,e} {d,f} {e,g} {f,h} {g,h}     [pairs only]
+    {a} {b} {a,c} {b,d} {c,e} {d,f} {e,g} {f,g}         [2 singletons]
+    {} {a,b} {a,c} {a,d} {a,e} {b,c} {b,d} {b,e}        [has EMPTY]
+    {} {a} {b} {c} {d} {a,b} {a,c} {a,d}                [has EMPTY, 4 singletons]
+    {} {a} {b} {a,b} {a,c} {a,d} {b,c} {b,d}            [has EMPTY, 2 singletons]
+    {} {a,b} {a,c} {a,d} {a,e} {b,c} {d,f} {e,f}        [has EMPTY]
+    {} {a} {b} {c} {d} {a,b} {c,e} {d,e}                [has EMPTY, 4 singletons]
+    {} {a} {b} {a,b} {a,c} {a,d} {c,e} {d,e}            [has EMPTY, 2 singletons]
+    {} {a} {e} {a,b} {a,c} {a,d} {b,c} {d,e}            [has EMPTY, 2 singletons]
+    {} {d} {e} {a,b} {a,c} {a,d} {a,e} {b,c}            [has EMPTY, 2 singletons]
+    {} {a,b} {a,c} {b,c} {d,e} {d,f} {e,g} {f,g}        [has EMPTY]
+    {} {a} {b} {a,b} {c,d} {c,e} {d,f} {e,f}            [has EMPTY, 2 singletons]
+    {} {d} {e} {a,b} {a,c} {b,c} {d,f} {e,f}            [has EMPTY, 2 singletons]
+    {} {a,b} {a,c} {b,d} {c,e} {d,f} {e,g} {f,g}        [has EMPTY]
+    {} {a} {b} {a,c} {b,d} {c,e} {d,f} {e,f}            [has EMPTY, 2 singletons]
+
+=== cross-check: brute force families over a 6-element ground set ===
+k=4: brute force gives 4 shapes
+   agrees with graph method: True
+k=5: brute force gives 4 shapes
+     {a,b} {a,c} {b,d} {c,e} {d,e}
+     {a} {b} {a,c} {b,d} {c,d}
+     {} {a,b} {a,c} {b,d} {c,d}
+     {} {a} {b} {a,c} {b,c}
+k=6: brute force gives 9 shapes
+   agrees with graph method: True

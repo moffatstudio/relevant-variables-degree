@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: "If you use this code or these results, please cite the paper."
+type: software
+title: "relevant-variables-degree: paper, proofs, audited search and Lean certificate for 'The Nisan-Szegedy bound on relevant variables is never tight, and R_3 = 10'"
+authors:
+  - family-names: Moffat
+    given-names: Andrew
+    email: andrewmoffat.business@gmail.com
+    affiliation: Moffat Studio, United Kingdom
+date-released: 2026-09-13
+version: "0.9"
+repository-code: https://github.com/moffatstudio/relevant-variables-degree
+license: MIT
+preferred-citation:
+  type: article
+  title: "The Nisan-Szegedy bound on relevant variables is never tight, and R_3 = 10"
+  authors:
+    - family-names: Moffat
+      given-names: Andrew
+  year: 2026
+  month: 9
+  medium: "preprint"
+  url: https://github.com/moffatstudio/relevant-variables-degree
+  notes: "Preprint of 13 September 2026. The mathematics was developed with AI assistance (Claude, Anthropic) under the author's direction. Zenodo DOI and arXiv identifier to be added when available."
