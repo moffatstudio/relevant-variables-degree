@@ -1,87 +1,82 @@
-# HANDOFF — Lean F(11), delta = 2 lane (task 22, rotation 1, 2026-09-13)
+# HANDOFF — Lean F(11), delta = 2 lane (task 27, rotation 2, 2026-09-13)
 
-## State: partial.  Two of the three pieces of the case are machine-checked.
+## State: `eleven_delta_two` is PROVED and GATED.  The case `delta = 2` is machine-checked.
 
-`eleven_delta_two` is NOT proved.  Everything below was accepted by
-`lake env lean R3/<file>.lean` in this run (no `sorry`, no `native_decide`).
-Integration lines for `R3.lean` and `gate.sh` are in `INTEGRATE_delta2.md`.
-A full `lake build` / `gate.sh` has NOT been run by this lane (the captain owns those).
+`bash gate.sh` on 2026-09-13 reports **GATE: PASS**: `lake build` exit 0, laundering scan
+clean, and all 153 listed theorems (including `R3.eleven_delta_two`) depend only on
+`[propext, Classical.choice, Quot.sound]`.  `R3/LinkSix.lean` is unchanged from rotation 1.
 
-## Proved this run
+## The shape of the finished proof
 
-### `R3/LinkSix.lean` — Lemma 2(b), the mass-6 link
-- `mass_six_pm` — **no ±2 coefficient at a mass-6 vertex.**  This is the "Lemma 1, second
-  half" step the referee brute force (`round2b_out_lemma1.txt`) confirms.  Proof: a `{±2,±1,±1}`
-  link forces the two unit terms to agree at every point, so `chi_{T1 Δ T2} ≡ 1`, so `T1 = T2`.
-- `mass_six_card` — the support at a mass-6 vertex has exactly six sets.
-- `mass_six` — the six sets xor to `0` and their coefficients have product `-1`.
-- `mass_six_link` — the packaged form (mirrors `mass_four_link`): six distinct sets, each
-  `±1`, size ≤ 3, containing `v`, with link sets of size ≤ 2 avoiding `v` and xor `0`.
-- Reusable helpers: `card_eq_six`, `six_pm_sum`, `two_one_one_agree`, `xor_two_pow_cancel6`,
-  `sq_ne_two`, `sq_eq_one_of`.
+`eleven_delta_two` splits on whether a support set of size at most 1 exists.
 
-### `R3/DeltaTwo.lean` — the case itself
-- `delta_two_weight` — from `bookkeeping`: one vertex of mass 6 and ten of mass 4 forces the
-  lower-order weight `∑_S (3 - |S|) n_S²` to be exactly `2`.
-- `three_quadratics_absurd` — three distinct size-2 support sets already weigh `3 > 2`.
-- `two_quadratics_at` — **the L3 step.**  With no linear or constant term, a mass-4 vertex
-  on a quadratic lies on two distinct quadratics.  (`link_types` is used here for the first
-  time in the project: L1/L4 die because a singleton is not a pair, L2 dies because it would
-  need a linear term, L3 supplies the two singletons.)
-- `exists_quadratic`, `quad_three_of`.
-- **`eleven_delta_two_quad`** — the "two unit quadratics" branch of `delta = 2` is impossible.
-- `delta_two_linear` — in the other branch the lower-order term is a single **linear** term
-  `L` of size 1 with coefficient `±1`, and every other support set is a cubic.
-- General helper `four_distinct_exhaust` (four distinct values drawn from a four-element list
-  exhaust it; proved by `Finset.eq_of_subset_of_card_le`, not by a 256-way `rcases`).
+* **No low set** -> `eleven_delta_two_quad` (rotation 1, already gated).
+* **A low set** -> `delta_two_linear` makes it a single linear term `2 ^ l` with every other
+  support set a triple.  Two sub-cases, both new in this rotation:
+  * `l` different from `v` -> `eleven_delta_two_lin_four`;
+  * `l = v` -> `eleven_delta_two_lin_six`.
 
-## What remains: the "one linear term" branch
+## New shared infrastructure in `R3/DeltaTwo.lean`
 
-The top-level theorem should be assembled as
+- `one_linear_no_quad`, `one_linear_no_const`, `cubicAt_of_one_linear` — the one-linear-term
+  analogues of the delta = 4 lane's `two_linear_*` lemmas.  Note that `CubicAt 11 N u` holds
+  at every `u` other than `l`, which is what makes the whole `Octahedron` primed API usable
+  in this case.
+- `tri_link_absurd` — a triangle in the link of a cubic mass-4 vertex is impossible
+  (a thin wrapper on `no_triangle_at'`).
+- `common_sixth` — **the workhorse.**  If `o` carries the three faces of a triangle `a b c`
+  and `a`, `b` are cubic mass-4 vertices, the 4-cycle links at `a` and at `b` are completed by
+  the *same* sixth vertex `w`, and `w` then carries the whole triangle `a b c`.
+- `tri_apex_common` — `common_sixth` plus `tri_link_absurd`: that `w` must be `v` or `l`.
+- `supp_tri`, `tri_of_bit`, `tri_ne_of`, `tri_ne_bit`, `two_pow_ne_tri`, `tri_degen`,
+  `pair_tri_xor` — bitmask bookkeeping.
+- `other_nbr` — **degree two in the link of `v`.**  A cubic mass-4 vertex `u` carrying one
+  face through `v` carries exactly one other.  Proved by `link_struct'` at `u` plus
+  `edge_nbr`, with a `gen` helper applied to the four rotations of the 4-cycle via
+  `edge_rot`, so the four cases are not written out four times.
+
+## `eleven_delta_two_lin_four` (the linear vertex has mass 4)
+
+`link_L4_of_linear` (reused from `R3/DeltaFour.lean`, hence the new `import R3.DeltaFour`)
+gives `l` a triangle link `a b c`.  If `v` is one of `a b c` the case dies immediately from
+`tri_apex_common`.  Otherwise the common sixth vertex is forced to be `v`, so the link of `v`
+contains the triangle `abc`; the remaining three of its six link sets are shown to be pairs
+xoring to zero (`mass_six`, `xor_two_pow_cancel6`, `pair_tri_xor`), hence a second triangle
+`x y z` (`three_pairs_triangle`); `link_nbrs_of_v` shows `x y z` avoid `a b c` and `l`;
+`tri_apex_common` on `x y z` then forces its sixth vertex to be `l`, contradicting the
+triangle link of `l`.
+
+## `eleven_delta_two_lin_six` (the linear vertex is `v`)
+
+The link of `v` is the empty set plus five faces.  Start from any face at `v`; `other_nbr`
+gives each of its two endpoints a second neighbour; `link_sixth'` at both endpoints produces
+the same sixth vertex `w` (the `common_sixth` argument).  If the two second neighbours
+coincide, the link at `w` has a triangle (`tri_link_absurd`).  Otherwise
+`link_of_three_faces'` makes the link at `w` a 4-cycle, whence a fourth face at `v`.  Those
+four faces live on four vertices; the fifth face must avoid all four, and then `other_nbr` at
+one of its endpoints produces a second face through that endpoint with nowhere to go.
+This replaces the hand proof's `five_pairs_cycle`: the 5-cycle is never built, and degree two
+in the link comes straight from `other_nbr`.
+
+## Files
+
+- `R3/DeltaTwo.lean` — all of the above, now about 1100 lines.  Its imports gained
+  `R3.DeltaFour`; `R3.lean` already lists `DeltaFour` before `DeltaTwo`, so `R3.lean` needed
+  no edit.
+- Two declarations in `R3/DeltaTwo.lean` were renamed to `pair_lt_dtwo` and
+  `card_quad_eq_dtwo`.  The delta = 0 lane added declarations of the original names to
+  `R3/DeltaZero.lean`, and `R3.lean` imports both files, which broke the build.  Neither name
+  was in the gate list, so nothing else changed.
+- `R3/LinkSix.lean` — unchanged.
+- `R3/WIP_delta2.lean` — still contains no proofs.
+- `gate.sh` — the rotation-1 names plus the 18 new ones, listed in `INTEGRATE_delta2.md`.
+
+## Next step for whoever picks this up
+
+Nothing is outstanding in this lane.  The remaining work for R3 = 10 is the delta = 0 lane
+and the top-level assembly, which can consume
 
 ```
 theorem eleven_delta_two {N : ℕ → ℤ} (hsol : IsSol 11 N) {v : ℕ} (hv : v < 11)
     (h6 : mass 11 N v = 6) (hrest : ∀ w, w < 11 → w ≠ v → mass 11 N w = 4) : False
 ```
-
-by `by_cases hlow : ∃ S, S < 2 ^ 11 ∧ N S ≠ 0 ∧ card 11 S ≤ 1`.
-* `hlow` false gives exactly the hypothesis `hnolin` of `eleven_delta_two_quad` — **done**.
-* `hlow` true gives `delta_two_linear`, i.e. the linear term `L = 2 ^ l` — **outstanding**.
-
-Hand proof (R3_equals_10.md, "Case delta = 2", first bullet) for the outstanding branch:
-1. if `m_l = 4` its link is L4 (`∅` plus a triangle `abc`); two sub-cases (`v ∉ {a,b,c}` and
-   `v = a`) each end in a mass-4 vertex whose C_4 link contains a triangle;
-2. otherwise `l = v`, the mass-6 vertex, and `link(v) = ∅` plus **five pairs** with even
-   degrees, i.e. a 5-cycle `a_1..a_5`; completing the C_4 link at each `a_k` gives a common
-   sixth vertex `w` lying in five cubics, so `m_w = 5`, contradicting `mass_cases`.
-
-### BLOCKER the captain must decide on (it affects the delta = 4 lane too)
-
-The octahedron chain (`link_cycle`, `link_struct`, `link_sixth`, `link_of_three_faces`,
-`no_triangle_at`, `closure_of_links`) takes the **global** hypothesis `Cubic n N`
-(*every* support set has size 3).  That hypothesis is FALSE in both `delta = 2` and
-`delta = 4`: there is always at least one lower-order term.  Two observations:
-
-* `link_cycle` / `link_struct` / `link_sixth` / `link_of_three_faces` / `no_triangle_at` use
-  cubicity only through `cubic_link_card_two hcub hv hS` with `hS ∈ supp n N v`, i.e. only for
-  support sets **containing the vertex being read**.  They generalise verbatim to a per-vertex
-  `CubicAt n N v := ∀ S, S < 2^n → N S ≠ 0 → S.testBit v = true → card n S = 3`.
-* `closure_of_links` genuinely quantifies over *all* support sets (it calls
-  `exists_tri_of_card_three` on an arbitrary `S`), so it needs either global cubicity or the
-  weaker "every non-cubic support set avoids `A`".
-
-Recommendation: the captain (or whoever owns `R3/Octahedron.lean`) replaces `Cubic n N` by
-`CubicAt n N w` in the five link lemmas and adds the "non-cubic sets avoid `A`" variant of
-`closure_of_links`.  It is a mechanical edit of one file, it unblocks *both* remaining cases,
-and it cannot be done from this lane (I do not own `Octahedron.lean`).
-
-## Next three steps for this lane
-1. Get the `CubicAt` generalisation of the link chain (above) from the captain.
-2. Prove `five_pairs_cycle`: five distinct pairs with xor `0` form a C_5.  Same technique as
-   `four_pairs_cycle` in `R3/Cycle.lean` (`EvenDeg` + `cnt` + small `omega`s with
-   `clear * -`); budget 5-8 h, it is the largest single piece left.  What supplies its xor
-   hypothesis is `mass_six` at `v` (the six link sets are `∅` and the five pairs).
-3. Assemble the two sub-cases of the linear branch and then `eleven_delta_two`.
-
-Remaining-hours estimate for the linear branch: 10-14 h, of which 5-8 h is `five_pairs_cycle`
-and 2 h is blocked on the `CubicAt` refactor.

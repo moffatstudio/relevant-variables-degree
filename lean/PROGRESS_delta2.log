@@ -9,3 +9,16 @@
   exists_quadratic, quad_three_of, eleven_delta_two_quad (TWO-QUADRATICS BRANCH CLOSED),
   delta_two_linear (linear term is unique, card 1, coefficient +-1, all other terms cubic).
   eleven_delta_two itself NOT yet proved (linear branch outstanding).
+2026-09-13 task27 (delta=2 r2): R3/DeltaTwo.lean chunk 4 ACCEPTED by `lake env lean`.
+  one_linear_no_quad, one_linear_no_const, cubicAt_of_one_linear, tri_link_absurd,
+  common_sixth (the shared sixth vertex of two mass-4 links over a triangle).
+2026-09-13 task27: R3/DeltaTwo.lean chunk 5+6 ACCEPTED by `lake env lean` (no errors).
+  supp_tri, pair_tri_xor, tri_ne_of, tri_ne_bit, tri_apex_common, link_nbrs_of_v,
+  eleven_delta_two_lin_four (LINEAR TERM AT A MASS-4 VERTEX IS IMPOSSIBLE: both the
+  v-in-triangle and v-outside-triangle sub-cases of the hand proof).
+2026-09-13 task27: R3/DeltaTwo.lean chunk 7 ACCEPTED: tri_of_bit, two_pow_ne_tri, other_nbr (exactly two faces at a cubic mass-4 vertex of the link of v).
+2026-09-13 task27: R3/DeltaTwo.lean chunk 8 ACCEPTED: tri_degen, eleven_delta_two_lin_six (LINEAR TERM AT THE MASS-6 VERTEX IMPOSSIBLE).
+2026-09-13 task27: R3/DeltaTwo.lean chunks 6,8,9 FIXED and ACCEPTED by `lake env lean` (exit 0, no output).
+  eleven_delta_two_lin_four, eleven_delta_two_lin_six, ELEVEN_DELTA_TWO (case delta=2 CLOSED).
+  18 new names appended to gate.sh; gate re-run in progress.
+2026-09-13 task27: GATE PASS (lake build ok, laundering scan clean, 153 theorems incl. R3.eleven_delta_two on [propext, Classical.choice, Quot.sound]). Renamed pair_lt -> pair_lt_dtwo and card_quad_eq -> card_quad_eq_dtwo in DeltaTwo to avoid a clash with new DeltaZero declarations.

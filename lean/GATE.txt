@@ -1,4 +1,4 @@
-GATE run 2026-09-13T20:26:03Z
+GATE run 2026-09-13T21:55:36Z
 toolchain: leanprover/lean4:v4.23.0   mathlib: leanprover/lean4:v4.23.0
 
 == modules imported by R3.lean ==
@@ -14,13 +14,14 @@ import R3.LinkSix
 import R3.Final
 import R3.DeltaFour
 import R3.DeltaTwo
+import R3.DeltaZero
 
 == lake build ==
-Note: This linter can be disabled with `set_option linter.unnecessarySimpa false`
-warning: R3/DeltaFour.lean:1396:33: unused variable `hci`
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: R3/DeltaZero.lean:1260:33: unused variable `htu`
 
 Note: This linter can be disabled with `set_option linter.unusedVariables false`
-Build completed successfully (7228 jobs).
+Build completed successfully (7229 jobs).
 ok    lake build exit 0
 
 == laundering scan (sorry/admit/axiom/native_decide/unsafe/implemented_by/extern) ==
@@ -124,6 +125,63 @@ ok    none found
 'R3.mem_of_triangle_eq' depends on axioms: [propext, Quot.sound]
 'R3.linear_not_triangle' depends on axioms: [propext, Classical.choice, Quot.sound]
 'R3.eleven_delta_four' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.one_linear_no_quad' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.one_linear_no_const' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.cubicAt_of_one_linear' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.tri_link_absurd' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.common_sixth' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.supp_tri' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.pair_tri_xor' depends on axioms: [propext, Quot.sound]
+'R3.tri_ne_of' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.tri_ne_bit' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.tri_apex_common' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.link_nbrs_of_v' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.eleven_delta_two_lin_four' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.tri_of_bit' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.two_pow_ne_tri' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.other_nbr' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.tri_degen' depends on axioms: [propext, Quot.sound]
+'R3.eleven_delta_two_lin_six' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.eleven_delta_two' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.apex_gen' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.apex_other' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.closure_kills' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.closure_near' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.condII_corr' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.corr_bit_half' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.corr_supp' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.cubic_sum_mass' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.delta_zero_residual' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.dist6_swap' does not depend on any axioms
+'R3.edge_not_three' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.edge_second' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.eleven_degree_split' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.eleven_delta_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.eleven_delta_zero_eight' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.eleven_delta_zero_reduce' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.eleven_delta_zero_residual' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.exists_fifth_supp' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.exists_free_set' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.kill_free_triple' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.kill_pair' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.linkIs_rev' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.near_self' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.no_exc_pair' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.no_fifth_supp' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.octa_eight' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.octa_eight'' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.octa_half' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.octa_kill' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.octa_kill4' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.octa_kill4'' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.octa_v_triple' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.pair_not_three' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.pair_second' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.second_v_triple' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.supp_eq_quad' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.supp_tri_of_mem' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.tri_distinct' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.tri_xor_pair' depends on axioms: [propext, Quot.sound]
 ok    all listed theorems use only [propext, Classical.choice, Quot.sound]
 
 GATE: PASS

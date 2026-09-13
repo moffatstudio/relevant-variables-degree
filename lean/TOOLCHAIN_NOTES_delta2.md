@@ -31,3 +31,40 @@
 - `lake build R3.<Module>` builds one module and its dependencies only (~90 s here) and is the
   right way to produce the `.olean` for a NEW file so that `lake env lean` on a file importing
   it works.  It is not a full `lake build` and it is RAM-cheap.
+
+## Rotation 2 notes (task 27)
+
+- **Do not write a long Lean chunk inside a bash heredoc.**  A chunk containing `link_sixth'`
+  and friends breaks `<<'PY'` quoting on this shell.  Write the Lean text to a scratch file
+  with the `Write` tool and splice it in with a one-line `python -c` that reads that file.
+- **`Edge` is a bare 8-way disjunction of equalities**, so every "this pair is an edge of that
+  4-cycle" goal is discharged by `by unfold Edge; omega` — no need for `edge_pq`/`edge_rs`.
+  Likewise `edge_nbr ... E` followed by `clear * - k <the few ne facts>; omega` decides which
+  vertex of a 4-cycle a given vertex is.
+- **`edge_rot` makes the four "which vertex of the cycle is `v`" cases collapse to one.**  In
+  `other_nbr` the case analysis is a single `gen` helper applied to `(p,q,r,s)`, `(q,r,s,p)`,
+  `(r,s,p,q)`, `(s,p,q,r)`, transporting the link iff by `(hL ...).trans edge_rot` (chained).
+  Writing the four cases out costs four copies of the same 20-line proof.
+- **The hand proof's `five_pairs_cycle` is avoidable.**  Degree 2 in the link of `v` is not a
+  graph-theoretic fact to be proved from "five pairs with xor 0"; it falls straight out of
+  `link_struct'` at the (cubic, mass-4) neighbour — that is `other_nbr`.  Building the actual
+  5-cycle is never needed: four faces plus a "the fifth face has nowhere to go" count closes it.
+- `tri_ext (fun _ => by omega)` rearranges any `tri` to any permutation of itself; used as
+  `rw [show tri a b c = tri b a c from tri_ext (fun _ => by omega)]` dozens of times here.
+- `tri_ne_bit` (a triple containing a bit the other triple misses) replaces every ad-hoc
+  "these two faces are distinct" argument; feed it the vertex that separates them.
+- `set K := {...} with hKdef` then `simp only [hKdef, mem_insert, mem_singleton] at h` is the
+  reliable way to case on membership in an explicit `Finset` literal after `set` has abstracted
+  it; plain `simp at h` leaves `K`.
+- **Cross-lane name collisions break `lake build`, not `lake env lean`.**  `lake env lean
+  R3/DeltaTwo.lean` passes happily while `R3.lean` (which imports every lane) dies with
+  "environment already contains 'R3.pair_lt' from R3.DeltaTwo".  Before running the gate,
+  diff the declaration names of your file against the other lanes' files; generic helper names
+  (`pair_lt`, `card_quad_eq`, `tri_of_bit`, ...) are the ones that clash.
+- **`ext j; simp only [...]; tauto` on a six-element `Finset` equality hits maximum recursion
+  depth.**  `{A,B,C} ∪ {D,E,F} = {A,B,C,D,E,F}` is closed instantly by
+  `simp only [insert_union, singleton_union]`.
+- **`pgrep` does not exist in this Git Bash.**  `until ! pgrep -f lean; do ...; done` exits at
+  once (command not found is a non-zero status), so it silently fails as a wait loop and an
+  empty output file then reads as "no errors".  Poll the output file itself, or use a
+  `for i in $(seq 1 N); do grep -q ...; sleep 15; done` loop.
