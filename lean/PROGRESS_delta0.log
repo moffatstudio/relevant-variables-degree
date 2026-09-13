@@ -1,0 +1,12 @@
+2026-09-13 task23 rot1: R3/DeltaZero.lean accepted by `lake env lean` (74 s, no errors, no sorry).
+  Nbr, Near, nbr_tri_snd, nbr_tri_thd, near_self, closure_near, closure_kills, delta_zero_residual.
+2026-09-13 task23 rot1: added + accepted edge_second, edge_not_three, pair_second, pair_not_three
+  (pseudo-manifold: a pair through a mass-4 vertex lies in exactly 0 or 2 support triples).
+2026-09-13 task23 rot1: eleven_delta_zero_residual accepted (n = 11 corollary). File has no sorry.
+2026-09-13 task23 rot2: chunk 1 accepted — ne_of_testBit, tri_testBit_false, tri_mem_supp,
+  card_supp_le_mass, card_quad_eq, supp_eq_quad, no_fifth_supp (mass-4 exhaustion toolkit).
+2026-09-13 task26 rot2: octa_half accepted (local Lemma Y: shared apex for a support triple with two mass-4 ends).
+2026-09-13 task26 rot2: chunk 2 accepted - sq_cases, four_vals_ne_eight, exists_fifth_supp (mass-8 vertex has a 5th support set), supp_tri_of_mem.
+2026-09-13 task26 rot2: chunk 3 accepted - Octa, octa_eight (half-octahedron closure: a support triple at the mass-8 vertex forces the full 6-vertex octahedron and the five other links).
+2026-09-13 task26 rot2: chunk 4 accepted - cubic_sum_mass, eleven_degree_split (masses are (8,4^10) or (6,6,4^9)).
+2026-09-13 task26 rot2: chunk 5 accepted - Dist6, octa_eight', linkIs_rot, link_v_nbrs, link_not_mem, octa_v_triple.

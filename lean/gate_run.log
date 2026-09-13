@@ -1,4 +1,4 @@
-GATE run 2026-09-13T20:26:03Z
+GATE run 2026-09-13T17:53:56Z
 toolchain: leanprover/lean4:v4.23.0   mathlib: leanprover/lean4:v4.23.0
 
 == modules imported by R3.lean ==
@@ -10,21 +10,20 @@ import R3.Twelve
 import R3.Cycle
 import R3.Octahedron
 import R3.LinkTypes
-import R3.LinkSix
 import R3.Final
 import R3.DeltaFour
-import R3.DeltaTwo
 
 == lake build ==
-Note: This linter can be disabled with `set_option linter.unnecessarySimpa false`
-warning: R3/DeltaFour.lean:1396:33: unused variable `hci`
+⚠ [7224/7226] Built R3.DeltaFour (76s)
+warning: R3/DeltaFour.lean:375:73: try 'simp' instead of 'simpa'
 
-Note: This linter can be disabled with `set_option linter.unusedVariables false`
-Build completed successfully (7228 jobs).
+Note: This linter can be disabled with `set_option linter.unnecessarySimpa false`
+Build completed successfully (7226 jobs).
 ok    lake build exit 0
 
 == laundering scan (sorry/admit/axiom/native_decide/unsafe/implemented_by/extern) ==
-ok    none found
+FAIL  banned constructs:
+R3/WIP_delta0.lean:1:/-! Scratch for the delta = 0 lane.  NOT imported by R3.lean.  Keep free of `sorry`. -/
 
 == axiom audit ==
 'R3.evalF_sq' depends on axioms: [propext, Classical.choice, Quot.sound]
@@ -92,38 +91,6 @@ ok    none found
 'R3.eleven_cycle_closed' depends on axioms: [propext, Classical.choice, Quot.sound]
 'R3.eleven_four_quadratics' depends on axioms: [propext, Classical.choice, Quot.sound]
 'R3.delta_four_two_linear' depends on axioms: [propext, Classical.choice, Quot.sound]
-'R3.cubicAt_link_card_two' depends on axioms: [propext, Classical.choice, Quot.sound]
-'R3.link_cycle'' depends on axioms: [propext, Classical.choice, Quot.sound]
-'R3.link_struct'' depends on axioms: [propext, Classical.choice, Quot.sound]
-'R3.link_sixth'' depends on axioms: [propext, Classical.choice, Quot.sound]
-'R3.link_of_three_faces'' depends on axioms: [propext, Classical.choice, Quot.sound]
-'R3.no_triangle_at'' depends on axioms: [propext, Classical.choice, Quot.sound]
-'R3.closure_of_links'' depends on axioms: [propext, Classical.choice, Quot.sound]
-'R3.octahedron_closure_gen'' depends on axioms: [propext, Classical.choice, Quot.sound]
-'R3.mass_six_pm' depends on axioms: [propext, Classical.choice, Quot.sound]
-'R3.mass_six_card' depends on axioms: [propext, Classical.choice, Quot.sound]
-'R3.mass_six' depends on axioms: [propext, Classical.choice, Quot.sound]
-'R3.mass_six_link' depends on axioms: [propext, Classical.choice, Quot.sound]
-'R3.card_eq_six' depends on axioms: [propext, Classical.choice, Quot.sound]
-'R3.six_pm_sum' depends on axioms: [propext, Quot.sound]
-'R3.xor_two_pow_cancel6' depends on axioms: [propext, Quot.sound]
-'R3.four_distinct_exhaust' depends on axioms: [propext, Quot.sound]
-'R3.delta_two_weight' depends on axioms: [propext, Classical.choice, Quot.sound]
-'R3.three_quadratics_absurd' depends on axioms: [propext, Classical.choice, Quot.sound]
-'R3.two_quadratics_at' depends on axioms: [propext, Classical.choice, Quot.sound]
-'R3.exists_quadratic' depends on axioms: [propext, Classical.choice, Quot.sound]
-'R3.quad_three_of' depends on axioms: [propext, Classical.choice, Quot.sound]
-'R3.eleven_delta_two_quad' depends on axioms: [propext, Classical.choice, Quot.sound]
-'R3.delta_two_linear' depends on axioms: [propext, Classical.choice, Quot.sound]
-'R3.pair_mem_of_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
-'R3.pair_of_triangle' depends on axioms: [propext, Classical.choice, Quot.sound]
-'R3.link_L4_of_linear' depends on axioms: [propext, Classical.choice, Quot.sound]
-'R3.two_linear_no_quad' depends on axioms: [propext, Classical.choice, Quot.sound]
-'R3.cubicAt_of_two_linear' depends on axioms: [propext, Classical.choice, Quot.sound]
-'R3.closure_local' depends on axioms: [propext, Classical.choice, Quot.sound]
-'R3.mem_of_triangle_eq' depends on axioms: [propext, Quot.sound]
-'R3.linear_not_triangle' depends on axioms: [propext, Classical.choice, Quot.sound]
-'R3.eleven_delta_four' depends on axioms: [propext, Classical.choice, Quot.sound]
 ok    all listed theorems use only [propext, Classical.choice, Quot.sound]
 
-GATE: PASS
+GATE: FAIL

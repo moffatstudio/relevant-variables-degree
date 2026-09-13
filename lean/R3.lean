@@ -6,4 +6,7 @@ import R3.Twelve
 import R3.Cycle
 import R3.Octahedron
 import R3.LinkTypes
+import R3.LinkSix
 import R3.Final
+import R3.DeltaFour
+import R3.DeltaTwo

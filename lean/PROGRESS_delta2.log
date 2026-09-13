@@ -1,0 +1,11 @@
+2026-09-13 task22 (delta=2 lane): R3/LinkSix.lean ACCEPTED by `lake env lean` (no errors).
+  Theorems: sq_ne_two, sq_eq_one_of, six_pm_sum, two_one_one_agree, xor_two_pow_cancel6,
+  card_eq_six, mass_six_pm (NO +-2 coefficient at mass 6 = Lemma 1 second half),
+  mass_six_card, mass_six (xor 0 + sign product -1), mass_six_link (Lemma 2(b) packaged).
+2026-09-13 task22: R3/DeltaTwo.lean chunk 1 ACCEPTED by `lake env lean`.
+  card_quad_eq, four_distinct_exhaust, delta_two_weight (lower-order weight = 2),
+  quad_term_eq, three_quadratics_absurd, pair_lt, two_pow_lt_iff, two_quadratics_at (L3 step).
+2026-09-13 task22: R3/DeltaTwo.lean chunk 2 + 3 ACCEPTED by `lake env lean`.
+  exists_quadratic, quad_three_of, eleven_delta_two_quad (TWO-QUADRATICS BRANCH CLOSED),
+  delta_two_linear (linear term is unique, card 1, coefficient +-1, all other terms cubic).
+  eleven_delta_two itself NOT yet proved (linear branch outstanding).

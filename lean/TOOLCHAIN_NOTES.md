@@ -97,3 +97,49 @@
 - `lake build` + the axiom audit together take ~25-30 min here (the audit re-elaborates
   `import Mathlib`), so budget one gate run per lemma group, not per lemma; iterate with
   `lake env lean R3/WIP.lean` (~1.5 min).
+
+## Gotchas from task 21 rotation 2 (2026-09-13, DeltaFour.lean)
+
+* **Reading a four-element classification back.**  Do NOT `rcases` a four-way membership four
+  times (256 leaves, `simp_all` is minutes).  Use `four_cover` in `R3/DeltaFour.lean`: four
+  *distinct* values each in a four-element list give a `Finset` equation, via
+  `eq_of_subset_of_card_le` + `card_quad_le`.  Downstream reasoning is then `simp only
+  [mem_insert, mem_singleton]` + `rcases` on four cases, not 256.
+* `Bool.true_ne_false` does not exist in this Mathlib.  After `rw` turns a hypothesis into
+  `true = false`, close with `simp at h`.
+* `Nat.testBit_two_pow_self` is a *statement*, not a function: write
+  `Nat.testBit_two_pow_self`, never `Nat.testBit_two_pow_self v`.
+* `omega` cannot see through `N S ^ 2`.  When an integer goal mixes a square with linear
+  facts (`1 ≤ x`, `3 * x ≤ 4`), first
+  `obtain ⟨x, hxdef⟩ : ∃ x, N 0 ^ 2 = x := ⟨_, rfl⟩; rw [hxdef] at *` and then `omega`.
+  `linarith`/`nlinarith` fail here because the step needs integrality.
+* `rw [Finset.sum_insert …, …, Finset.sum_singleton, dw_quad …]` leaves a numeral goal like
+  `1 + (1 + 1) = 3`; always follow with `norm_num`.
+* `Nat.pow_right_injective (le_refl 2) h` turns `2 ^ x = 2 ^ a` into `x = a`.
+* **`subst` direction.**  `subst h` with `h : x = y` eliminates the *right-hand* variable,
+  rewriting `y := x`.  So to keep the name `ra` and drop `rb`, state the equation as
+  `ra = rb`, never `rb = ra`.  Getting this backwards produces "Unknown identifier `ra`"
+  errors dozens of lines later.  The same trap bites `rcases h with rfl` on a disjunction of
+  equations `j = a ∨ j = b ∨ …`: it eliminates `a`, `b`, … , not `j`.  Use
+  `rcases h with h0 | h0 | …` followed by `rw [h0] at hj` instead.
+* **`tauto` on membership goals blows the recursion limit** when the goal is a five-way
+  disjunction of equations coming from a `Finset` literal.  `simp only [mem_insert,
+  mem_singleton]` then `omega` (with the disjunction of equations as a hypothesis) is
+  instant.
+* `refine five_in_four …` cannot infer implicit arguments that occur only in a later `?_`
+  goal.  Pass them by name (`(Q1 := Q1) …`) rather than reordering the lemma.
+
+## task 25 / rotation 3 (2026-09-13)
+- `subst h` on `h : w = j` eliminates `j`, not `w`.  If later lines name `j`, use
+  `rw [h] at ...` instead of `subst`.
+- One `omega` over five 3-way disjunctions blows the default heartbeat budget.  Factor the
+  case analysis into a named lemma and apply it twice; `eleven_delta_four` still needs
+  `set_option maxHeartbeats 1000000 in` (which must sit ABOVE the doc comment, not between
+  the doc comment and the `theorem`, or the parser rejects it).
+- Long Lean blocks sent through the Bash tool's heredoc get mangled ("unexpected EOF").  Write
+  them with the Write tool to a `.tmp` file and splice with a short python script; python must
+  use `io.open(..., encoding='utf-8')` or cp1252 throws on the maths symbols.
+- gate.sh's laundering scan strips backtick-quoted spans before grepping, so doc comments may
+  name `sorry` in prose.  Real code is never inside backticks, so the scan is still sound.
+- `Nat.testBit_two_pow_of_ne : n ≠ m → (2 ^ n).testBit m = false` is the reliable way to read
+  a bit of a linear term; `simpa using hb` does not fire on `(2 ^ i).testBit v = true`.

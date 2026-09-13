@@ -59,3 +59,11 @@ all Step 4 needs and is much cheaper.  For F(11) see **PLAN_F11.md**.
 `bash lean/gate.sh` — lake build, laundering grep (sorry/admit/axiom/native_decide/unsafe/
 implemented_by/extern) over R3/, `#print axioms` for all 30 listed theorems; writes GATE.txt
 and AXIOMS.txt.  Last result: see GATE.txt.
+
+## Status 2026-09-13 (task 25, rotation 3)
+Module map addition: `R3/Octahedron.lean` now also exports the per-vertex `CubicAt` API
+(`cubicAt_of_cubic`, `cubicAt_link_card_two`, `link_cycle'`, `link_struct'`, `link_sixth'`,
+`link_of_three_faces'`, `no_triangle_at'`, `closure_of_links'`, `octahedron_closure_gen'`);
+the global-`Cubic` names are corollaries.  `R3.lean` imports `R3.LinkSix` and `R3.DeltaTwo`.
+`R3/DeltaFour.lean` closes the whole `δ = 4` case with `eleven_delta_four`.
+gate.sh: 97 theorems, GATE: PASS.

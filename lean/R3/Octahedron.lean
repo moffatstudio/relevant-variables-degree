@@ -201,8 +201,25 @@ lemma cubic_link_card_two {n : ℕ} {N : ℕ → ℤ} (hcub : Cubic n N) {v : �
   have h := card_xor_two_pow hv hb
   omega
 
-/-- general `n`: the link of a mass-4 vertex of a cubic solution is a 4-cycle. -/
-theorem link_cycle {n : ℕ} {N : ℕ → ℤ} (hsol : IsSol n N) (hcub : Cubic n N) {v : ℕ}
+/-- `CubicAt n N v`: every support set **through `v`** is a triple.  This is the per-vertex
+form of `Cubic`; the whole link chain below needs only this, which is what makes it usable in
+the `δ = 2` and `δ = 4` cases, where the global `Cubic n N` is false. -/
+def CubicAt (n : ℕ) (N : ℕ → ℤ) (v : ℕ) : Prop :=
+  ∀ S, S < 2 ^ n → N S ≠ 0 → S.testBit v = true → card n S = 3
+
+lemma cubicAt_of_cubic {n : ℕ} {N : ℕ → ℤ} (hcub : Cubic n N) (v : ℕ) : CubicAt n N v :=
+  fun S hS hN _ => hcub S hS hN
+
+/-- under `CubicAt n N v` every link set at `v` is a pair -/
+lemma cubicAt_link_card_two {n : ℕ} {N : ℕ → ℤ} {v : ℕ} (hcub : CubicAt n N v) (hv : v < n)
+    {S : ℕ} (hS : S ∈ supp n N v) : card n (S ^^^ 2 ^ v) = 2 := by
+  obtain ⟨hlt, hb, hN⟩ := mem_supp.mp hS
+  have h3 := hcub S hlt hN hb
+  have h := card_xor_two_pow hv hb
+  omega
+
+/-- general `n`: the link of a mass-4 vertex `v` is a 4-cycle, given cubicity **at `v`**. -/
+theorem link_cycle' {n : ℕ} {N : ℕ → ℤ} {v : ℕ} (hsol : IsSol n N) (hcub : CubicAt n N v)
     (hv : v < n) (h4 : mass n N v = 4) :
     ∃ p q r s, p ≠ q ∧ p ≠ r ∧ p ≠ s ∧ q ≠ r ∧ q ≠ s ∧ r ≠ s ∧
       ∀ S ∈ supp n N v, OnCycle p q r s (S ^^^ 2 ^ v) := by
@@ -211,7 +228,7 @@ theorem link_cycle {n : ℕ} {N : ℕ → ℤ} (hsol : IsSol n N) (hcub : Cubic 
   have hmem : ∀ S ∈ ({a, b, c, d} : Finset ℕ), S ∈ supp n N v := by
     intro S hS; rw [hs]; exact hS
   have hcard2 : ∀ S ∈ ({a, b, c, d} : Finset ℕ), card n (S ^^^ 2 ^ v) = 2 :=
-    fun S hS => cubic_link_card_two hcub hv (hmem S hS)
+    fun S hS => cubicAt_link_card_two hcub hv (hmem S hS)
   have lt2 : ∀ S ∈ ({a, b, c, d} : Finset ℕ), S ^^^ 2 ^ v < 2 ^ n := by
     intro S hS
     exact Nat.xor_lt_two_pow (hall S hS).1 (Nat.pow_lt_pow_right (by norm_num) hv)
@@ -247,12 +264,19 @@ theorem link_cycle {n : ℕ} {N : ℕ → ℤ} (hsol : IsSol n N) (hcub : Cubic 
   · rw [e3]; exact c3
   · rw [e4]; exact c4
 
-/-- **General `n`.**  At a mass-4 vertex `v` of a cubic solution the support is `v` plus the
-edges of a 4-cycle on four vertices `p q r s` distinct from `v`. -/
-theorem link_struct {n : ℕ} {N : ℕ → ℤ} (hsol : IsSol n N) (hcub : Cubic n N) {v : ℕ}
+/-- general `n`: the link of a mass-4 vertex of a cubic solution is a 4-cycle. -/
+theorem link_cycle {n : ℕ} {N : ℕ → ℤ} (hsol : IsSol n N) (hcub : Cubic n N) {v : ℕ}
+    (hv : v < n) (h4 : mass n N v = 4) :
+    ∃ p q r s, p ≠ q ∧ p ≠ r ∧ p ≠ s ∧ q ≠ r ∧ q ≠ s ∧ r ≠ s ∧
+      ∀ S ∈ supp n N v, OnCycle p q r s (S ^^^ 2 ^ v) :=
+  link_cycle' hsol (cubicAt_of_cubic hcub v) hv h4
+
+/-- **General `n`.**  At a mass-4 vertex `v` the support is `v` plus the edges of a 4-cycle on
+four vertices `p q r s` distinct from `v`, given cubicity **at `v`**. -/
+theorem link_struct' {n : ℕ} {N : ℕ → ℤ} {v : ℕ} (hsol : IsSol n N) (hcub : CubicAt n N v)
     (hv : v < n) (h4 : mass n N v = 4) :
     ∃ p q r s, Cyc n v p q r s ∧ LinkIs n N v p q r s := by
-  obtain ⟨p, q, r, s, hpq, hpr, hps, hqr, hqs, hrs, hcyc⟩ := link_cycle hsol hcub hv h4
+  obtain ⟨p, q, r, s, hpq, hpr, hps, hqr, hqs, hrs, hcyc⟩ := link_cycle' hsol hcub hv h4
   obtain ⟨a, b, c, d, hab, hac, had, hbc, hbd, hcd, hs, -, -, -⟩ := mass_four_link hsol hv h4
   have h2v : 2 ^ v < 2 ^ n := Nat.pow_lt_pow_right (by norm_num) hv
   -- every edge of the cycle is attained by a support set
@@ -320,6 +344,13 @@ theorem link_struct {n : ℕ} {N : ℕ → ℤ} (hsol : IsSol n N) (hcub : Cubic
     rw [← this]
     exact (mem_supp.mp hS).2.2
 
+/-- **General `n`.**  At a mass-4 vertex `v` of a cubic solution the support is `v` plus the
+edges of a 4-cycle on four vertices `p q r s` distinct from `v`. -/
+theorem link_struct {n : ℕ} {N : ℕ → ℤ} (hsol : IsSol n N) (hcub : Cubic n N) {v : ℕ}
+    (hv : v < n) (h4 : mass n N v = 4) :
+    ∃ p q r s, Cyc n v p q r s ∧ LinkIs n N v p q r s :=
+  link_struct' hsol (cubicAt_of_cubic hcub v) hv h4
+
 /-- `n = 12`: every vertex is a mass-4 vertex of a cubic solution. -/
 lemma twelve_cubic {N : ℕ → ℤ} (hsol : IsSol 12 N) : Cubic 12 N :=
   fun _ hS hN => twelve_card_three hsol hS hN
@@ -365,13 +396,14 @@ lemma tri_rotr (x y z : ℕ) : tri x y z = tri z x y := tri_ext (fun _ => by ome
 
 /-- The link at the mass-4 vertex `a` contains the path `b-v-d`, so it is the 4-cycle
 `b-v-d-e` for a sixth vertex `e` distinct from `a, v, b, d`. -/
-lemma link_sixth {n : ℕ} {N : ℕ → ℤ} (hsol : IsSol n N) (hcub : Cubic n N) {a v b d : ℕ}
+lemma link_sixth' {n : ℕ} {N : ℕ → ℤ} {a v b d : ℕ} (hsol : IsSol n N)
+    (hcub : CubicAt n N a)
     (ha : a < n) (hvlt : v < n) (hb : b < n) (hd : d < n) (h4a : mass n N a = 4)
     (hva : v ≠ a) (hba : b ≠ a) (hda : d ≠ a) (hbd : b ≠ d)
     (F1 : N (tri a v b) ≠ 0) (F2 : N (tri a v d) ≠ 0) :
     ∃ e, e < n ∧ e ≠ a ∧ e ≠ v ∧ e ≠ b ∧ e ≠ d ∧
       ∀ p q, p < n → q < n → p ≠ a → q ≠ a → (N (tri a p q) ≠ 0 ↔ Edge b v d e p q) := by
-  obtain ⟨p1, q1, r1, s1, hC1, hL1⟩ := link_struct hsol hcub ha h4a
+  obtain ⟨p1, q1, r1, s1, hC1, hL1⟩ := link_struct' hsol hcub ha h4a
   obtain ⟨hp1, hq1, hr1, hs1, hp1a, hq1a, hr1a, hs1a, e12, e13, e14, e23, e24, e34⟩ := hC1
   have E1 : Edge p1 q1 r1 s1 v b := (hL1 v b hvlt hb hva hba).mp F1
   have E2 : Edge p1 q1 r1 s1 v d := (hL1 v d hvlt hd hva hda).mp F2
@@ -382,16 +414,25 @@ lemma link_sixth {n : ℕ} {N : ℕ → ℤ} (hsol : IsSol n N) (hcub : Cubic n 
   · intro p q hp hq hpa hqa
     rw [hL1 p q hp hq hpa hqa]; exact hiff p q
 
+/-- global-`Cubic` corollary of `link_sixth'`. -/
+lemma link_sixth {n : ℕ} {N : ℕ → ℤ} (hsol : IsSol n N) (hcub : Cubic n N) {a v b d : ℕ}
+    (ha : a < n) (hvlt : v < n) (hb : b < n) (hd : d < n) (h4a : mass n N a = 4)
+    (hva : v ≠ a) (hba : b ≠ a) (hda : d ≠ a) (hbd : b ≠ d)
+    (F1 : N (tri a v b) ≠ 0) (F2 : N (tri a v d) ≠ 0) :
+    ∃ e, e < n ∧ e ≠ a ∧ e ≠ v ∧ e ≠ b ∧ e ≠ d ∧
+      ∀ p q, p < n → q < n → p ≠ a → q ≠ a → (N (tri a p q) ≠ 0 ↔ Edge b v d e p q) :=
+  link_sixth' hsol (cubicAt_of_cubic hcub a) ha hvlt hb hd h4a hva hba hda hbd F1 F2
+
 /-- Three faces `{w,m,x}`, `{w,m,z}`, `{w,x,u}` at the mass-4 vertex `w` (with `u ≠ m`)
-determine the link at `w` completely: it is the 4-cycle `x-m-z-u`. -/
-lemma link_of_three_faces {n : ℕ} {N : ℕ → ℤ} (hsol : IsSol n N) (hcub : Cubic n N)
-    {w m x z u : ℕ}
+determine the link at `w` completely: it is the 4-cycle `x-m-z-u`.  Needs cubicity at `w`. -/
+lemma link_of_three_faces' {n : ℕ} {N : ℕ → ℤ} {w m x z u : ℕ} (hsol : IsSol n N)
+    (hcub : CubicAt n N w)
     (hw : w < n) (hm : m < n) (hx : x < n) (hz : z < n) (hu : u < n) (h4w : mass n N w = 4)
     (hmw : m ≠ w) (hxw : x ≠ w) (hzw : z ≠ w) (huw : u ≠ w)
     (hxz : x ≠ z) (hmx : m ≠ x) (hum : u ≠ m)
     (F1 : N (tri w m x) ≠ 0) (F2 : N (tri w m z) ≠ 0) (F3 : N (tri w x u) ≠ 0) :
     ∀ p q, p < n → q < n → p ≠ w → q ≠ w → (N (tri w p q) ≠ 0 ↔ Edge x m z u p q) := by
-  obtain ⟨p1, q1, r1, s1, hC1, hL1⟩ := link_struct hsol hcub hw h4w
+  obtain ⟨p1, q1, r1, s1, hC1, hL1⟩ := link_struct' hsol hcub hw h4w
   obtain ⟨-, -, -, -, -, -, -, -, e12, e13, e14, e23, e24, e34⟩ := hC1
   have E1 : Edge p1 q1 r1 s1 m x := (hL1 m x hm hx hmw hxw).mp F1
   have E2 : Edge p1 q1 r1 s1 m z := (hL1 m z hm hz hmw hzw).mp F2
@@ -405,21 +446,43 @@ lemma link_of_three_faces {n : ℕ} {N : ℕ → ℤ} (hsol : IsSol n N) (hcub :
   intro p q hp hq hpw hqw
   rw [hL1 p q hp hq hpw hqw, hiff p q, hut]
 
+/-- global-`Cubic` corollary of `link_of_three_faces'`. -/
+lemma link_of_three_faces {n : ℕ} {N : ℕ → ℤ} (hsol : IsSol n N) (hcub : Cubic n N)
+    {w m x z u : ℕ}
+    (hw : w < n) (hm : m < n) (hx : x < n) (hz : z < n) (hu : u < n) (h4w : mass n N w = 4)
+    (hmw : m ≠ w) (hxw : x ≠ w) (hzw : z ≠ w) (huw : u ≠ w)
+    (hxz : x ≠ z) (hmx : m ≠ x) (hum : u ≠ m)
+    (F1 : N (tri w m x) ≠ 0) (F2 : N (tri w m z) ≠ 0) (F3 : N (tri w x u) ≠ 0) :
+    ∀ p q, p < n → q < n → p ≠ w → q ≠ w → (N (tri w p q) ≠ 0 ↔ Edge x m z u p q) :=
+  link_of_three_faces' hsol (cubicAt_of_cubic hcub w) hw hm hx hz hu h4w hmw hxw hzw huw
+    hxz hmx hum F1 F2 F3
+
 /-- If the sixth vertex coincided with the opposite vertex `c` of the link cycle at `v`,
-the link at the mass-4 vertex `b` would contain the triangle `a-v-c`. -/
-lemma no_triangle_at {n : ℕ} {N : ℕ → ℤ} (hsol : IsSol n N) (hcub : Cubic n N) {b v a c : ℕ}
+the link at the mass-4 vertex `b` would contain the triangle `a-v-c`.  Needs cubicity at `b`. -/
+lemma no_triangle_at' {n : ℕ} {N : ℕ → ℤ} {b v a c : ℕ} (hsol : IsSol n N)
+    (hcub : CubicAt n N b)
     (hb : b < n) (hvlt : v < n) (ha : a < n) (hc : c < n) (h4b : mass n N b = 4)
     (hvb : v ≠ b) (hab : a ≠ b) (hcb : c ≠ b) (hac : a ≠ c)
     (F1 : N (tri b v a) ≠ 0) (F2 : N (tri b v c) ≠ 0) (F3 : N (tri b a c) ≠ 0) : False := by
-  obtain ⟨p, q, r, s, hC, hL⟩ := link_struct hsol hcub hb h4b
+  obtain ⟨p, q, r, s, hC, hL⟩ := link_struct' hsol hcub hb h4b
   obtain ⟨-, -, -, -, -, -, -, -, f12, f13, f14, f23, f24, f34⟩ := hC
   exact edge_no_triangle f12 f13 f14 f23 f24 f34 hac
     ((hL v a hvlt ha hvb hab).mp F1) ((hL v c hvlt hc hvb hcb).mp F2)
     ((hL a c ha hc hab hcb).mp F3)
 
+/-- global-`Cubic` corollary of `no_triangle_at'`. -/
+lemma no_triangle_at {n : ℕ} {N : ℕ → ℤ} (hsol : IsSol n N) (hcub : Cubic n N) {b v a c : ℕ}
+    (hb : b < n) (hvlt : v < n) (ha : a < n) (hc : c < n) (h4b : mass n N b = 4)
+    (hvb : v ≠ b) (hab : a ≠ b) (hcb : c ≠ b) (hac : a ≠ c)
+    (F1 : N (tri b v a) ≠ 0) (F2 : N (tri b v c) ≠ 0) (F3 : N (tri b a c) ≠ 0) : False :=
+  no_triangle_at' hsol (cubicAt_of_cubic hcub b) hb hvlt ha hc h4b hvb hab hcb hac F1 F2 F3
+
 /-- Six vertices whose six link cycles all use only those six vertices are closed: no
-support triple crosses between them and the rest. -/
-lemma closure_of_links {n : ℕ} {N : ℕ → ℤ} {v a b c d e : ℕ} (hcub : Cubic n N)
+support triple crosses between them and the rest.  The cubicity hypothesis is the weak one:
+every support set is a triple **or** avoids the six vertices altogether. -/
+lemma closure_of_links' {n : ℕ} {N : ℕ → ℤ} {v a b c d e : ℕ}
+    (hcub : ∀ S, S < 2 ^ n → N S ≠ 0 →
+      card n S = 3 ∨ ∀ j, S.testBit j = true → j ∉ ({v, a, b, c, d, e} : Finset ℕ))
     (hlt : v < n ∧ a < n ∧ b < n ∧ c < n ∧ d < n ∧ e < n)
     (hne : v ≠ a ∧ v ≠ b ∧ v ≠ c ∧ v ≠ d ∧ v ≠ e ∧ a ≠ b ∧ a ≠ c ∧ a ≠ d ∧ a ≠ e ∧
       b ≠ c ∧ b ≠ d ∧ b ≠ e ∧ c ≠ d ∧ c ≠ e ∧ d ≠ e)
@@ -462,8 +525,9 @@ lemma closure_of_links {n : ℕ} {N : ℕ → ℤ} {v a b c d e : ℕ} (hcub : C
     clear * - hx hv ha hb hc hd he
     omega
   · intro S hS hN
+    refine (hcub S hS hN).elim (fun h3 => ?_) (fun havoid => Or.inr havoid)
     obtain ⟨x1, x2, x3, hx1, hx2, hx3, hn12, hn13, hn23, rfl⟩ :=
-      exists_tri_of_card_three hS (hcub S hS hN)
+      exists_tri_of_card_three hS h3
     by_cases hc1 : x1 ∈ ({v, a, b, c, d, e} : Finset ℕ)
     · left
       obtain ⟨m2, m3⟩ := hclosed x1 hc1 x2 x3 hx2 hx3 (Ne.symm hn12) (Ne.symm hn13) hN
@@ -484,6 +548,22 @@ lemma closure_of_links {n : ℕ} {N : ℕ → ℤ} {v a b c d e : ℕ} (hcub : C
     · right
       intro j hj
       rcases mem_tri_iff.mp hj with rfl | rfl | rfl <;> assumption
+
+/-- global-`Cubic` corollary of `closure_of_links'`. -/
+lemma closure_of_links {n : ℕ} {N : ℕ → ℤ} {v a b c d e : ℕ} (hcub : Cubic n N)
+    (hlt : v < n ∧ a < n ∧ b < n ∧ c < n ∧ d < n ∧ e < n)
+    (hne : v ≠ a ∧ v ≠ b ∧ v ≠ c ∧ v ≠ d ∧ v ≠ e ∧ a ≠ b ∧ a ≠ c ∧ a ≠ d ∧ a ≠ e ∧
+      b ≠ c ∧ b ≠ d ∧ b ≠ e ∧ c ≠ d ∧ c ≠ e ∧ d ≠ e)
+    (Lv : ∀ x y, x < n → y < n → x ≠ v → y ≠ v → (N (tri v x y) ≠ 0 ↔ Edge a b c d x y))
+    (La : ∀ x y, x < n → y < n → x ≠ a → y ≠ a → (N (tri a x y) ≠ 0 ↔ Edge b v d e x y))
+    (Lb : ∀ x y, x < n → y < n → x ≠ b → y ≠ b → (N (tri b x y) ≠ 0 ↔ Edge a v c e x y))
+    (Lc : ∀ x y, x < n → y < n → x ≠ c → y ≠ c → (N (tri c x y) ≠ 0 ↔ Edge b v d e x y))
+    (Ld : ∀ x y, x < n → y < n → x ≠ d → y ≠ d → (N (tri d x y) ≠ 0 ↔ Edge a v c e x y))
+    (Le : ∀ x y, x < n → y < n → x ≠ e → y ≠ e → (N (tri e x y) ≠ 0 ↔ Edge b a d c x y)) :
+    ∃ A : Finset ℕ, A.card = 6 ∧ A ⊆ range n ∧ v ∈ A ∧
+      ∀ S, S < 2 ^ n → N S ≠ 0 →
+        (∀ j, S.testBit j = true → j ∈ A) ∨ (∀ j, S.testBit j = true → j ∉ A) :=
+  closure_of_links' (fun S hS hN => Or.inl (hcub S hS hN)) hlt hne Lv La Lb Lc Ld Le
 
 /-- **Step 3 of R3_upper_bound.md (topology-free), general `n`.**  In a cubic solution all of
 whose vertices have mass 4, every vertex `v` lies in a set `A` of six vertices such that no
@@ -542,6 +622,25 @@ theorem octahedron_closure_gen {n : ℕ} {N : ℕ → ℤ} (hsol : IsSol n N) (h
     ⟨Ne.symm hav, Ne.symm hbv, Ne.symm hcv, Ne.symm hdv, Ne.symm hev, hab, hac, had,
       Ne.symm hea, hbc, hbd, Ne.symm heb, hcd, Ne.symm hec, Ne.symm hed⟩
     hL hLa hLb hLc hLd hLe
+
+/-- Per-vertex form of `octahedron_closure_gen`: cubicity is only ever read at a vertex of a
+support set, so `CubicAt` at every vertex plus the absence of a constant term suffices. -/
+theorem octahedron_closure_gen' {n : ℕ} {N : ℕ → ℤ} (hsol : IsSol n N)
+    (hcub : ∀ w, w < n → CubicAt n N w) (hconst : N 0 = 0)
+    (hall4 : ∀ w, w < n → mass n N w = 4) {v : ℕ} (hv : v < n) :
+    ∃ A : Finset ℕ, A.card = 6 ∧ A ⊆ range n ∧ v ∈ A ∧
+      ∀ S, S < 2 ^ n → N S ≠ 0 →
+        (∀ j, S.testBit j = true → j ∈ A) ∨ (∀ j, S.testBit j = true → j ∉ A) := by
+  refine octahedron_closure_gen hsol (fun S hS hN => ?_) hall4 hv
+  rcases eq_or_ne S 0 with rfl | h0
+  · exact absurd hconst hN
+  obtain ⟨j, hj, -⟩ := Nat.exists_most_significant_bit h0
+  have hjn : j < n := by
+    by_contra hc
+    push_neg at hc
+    rw [testBit_eq_false_of_lt hS hc] at hj
+    exact Bool.false_ne_true hj
+  exact hcub j hjn S hS hN hj
 
 /-- **Step 3 of R3_upper_bound.md (topology-free).**  In a 12-variable solution every vertex
 `v` lies in a set `A` of six vertices such that no support triple crosses between `A` and its

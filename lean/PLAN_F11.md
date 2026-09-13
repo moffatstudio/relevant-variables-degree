@@ -192,3 +192,68 @@ Correct topology-free shape for delta = 0 (do this, in order):
  (c) The C_8 case and the "two mass-6" cases may close by pure counting (masses/pairs), as in the hand proof's
      Euler-characteristic step recast as: sum over vertices of link edge counts = 3 * (#triples) and every pair lies
      in 0 or 2 triples. Try the counting first; fall back to (b).
+
+---
+
+## Progress update (task 21, rotation 2, 2026-09-13) — δ = 4 is three-fifths done
+
+New module `R3/DeltaFour.lean`, imported from `R3.lean`, all gated (55 theorems).
+
+**Done:** the *link cover* `mass_four_link_cover` (the link of a mass-4 vertex is literally
+one of four explicit four-element `Finset`s), its coefficient dictionary
+(`zero_mem_link` / `two_pow_mem_link` / `pair_mem_link` and the reverse readings
+`link_two_pow` / `link_pair`), the reusable pigeonhole `four_cover`, the 2-regularity of the
+quadratic graph `quad_deg_two`, the δ-budget calculus (`dw`, `delta_eq_four`, `sum_dw_le`,
+`dw_saturate`, `exists_dw_outside`, `low_set_shape`), `delta_four_no_const`, and the headline
+
+```
+delta_four_structure : IsSol 11 N → (∀ v < 11, mass 11 N v = 4) →
+  (two linear terms, no quadratics, everything else cubic)     -- the {2,2} sub-case
+  ∨ (four quadratics, no linear/constant, everything else cubic) -- the {1,1,1,1} sub-case
+```
+
+So the sub-cases `{4}`, `{3,1}` and `{2,1,1}` of "Case delta = 4" are **closed in Lean**, and
+only `{2,2}` and `{1,1,1,1}` remain before `eleven_delta_four`.
+
+**Revision to the plan for `{1,1,1,1}`.**  R3_equals_10.md kills it with the counting identity
+`∑_{T∈N} |T \ S₀| + 3M = 28` and the split `|N| ∈ {3,4}`.  **Do not formalise that.**  With
+`quad_exactly_two` (the "only two quadratics per vertex" strengthening of `quad_deg_two`) the
+case is purely structural: the four quadratics form a 4-cycle, every cycle vertex is L3 with
+its own apex, the four apexes coincide at a single vertex `c`, `mass c = 4` is then already
+exhausted, and `A = {i,a,j,b,c}` is closed — finish with `no_crossing_split`.  The `|N| = 3`
+branch of the paper never arises, because the apex of an L3 link is distinct from the two
+quadratic neighbours by construction.  Full recipe in `lean/HANDOFF.md`, Step B.
+
+**Revision to the plan for `{2,2}`.**  It needs the `Cubic → CubicAt` localisation of
+`R3/Octahedron.lean` described in `lean/HANDOFF.md`, Step C.  That refactor is mechanical
+(`hcub` is used only via `cubic_link_card_two` at the vertex whose link is being read) and it
+is also what δ = 2 will need, so it is worth doing properly rather than duplicating lemmas.
+
+## Progress update (task 21, rotation 2, later the same day) — δ = 4 is down to ONE sub-case
+
+`R3/DeltaFour.lean` now also carries `quad_exactly_two`, `link_L3` / `link_L3'`, `apex_eq`,
+`card_tri_eq`, `five_in_four`, `exists_fourth`, `eleven_cycle_closed`,
+**`eleven_four_quadratics`** (the `{1,1,1,1}` sub-case is impossible) and the capstone
+
+```
+delta_four_two_linear : IsSol 11 N → (∀ v < 11, mass 11 N v = 4) →
+  ∃ i j, i ≠ j ∧ N (2^i) ≠ 0 ∧ N (2^j) ≠ 0 ∧
+    ∀ S < 2^11, N S ≠ 0 → S = 2^i ∨ S = 2^j ∨ card 11 S = 3
+```
+
+So four of the five sub-cases of "Case delta = 4" — `{4}`, `{3,1}`, `{2,1,1}`, `{1,1,1,1}` —
+are closed in Lean, and `eleven_delta_four` is exactly the `{2,2}` sub-case.
+
+The `{1,1,1,1}` proof does **not** formalise the paper's counting identity
+`∑_{T∈N}|T \ S₀| + 3M = 28`, nor its `|N| ∈ {3,4}` split.  Instead: apexes agree along every
+quadratic edge, the quadratic graph has no triangle (a triangle would force a fifth
+quadratic), so the four quadratics form a 4-cycle, all four apexes coincide at one vertex `c`
+whose mass 4 is then exhausted, and the resulting 5-set is closed.  Recommend rewriting that
+bullet of R3_equals_10.md to match, since the Lean argument is shorter and avoids the
+`|N| = 3` sub-case entirely.
+
+## Status 2026-09-13 (task 25, rotation 3)
+**Case `δ = 4` is CLOSED in Lean:** `R3.eleven_delta_four : IsSol 11 N → (∀ v < 11,
+mass 11 N v = 4) → False`, gated.  The `{2,2}` sub-case followed the hand proof verbatim,
+using the new per-vertex `CubicAt` link chain.  Remaining for F(11): `δ = 2` (unblocked, the
+one-linear-term branch outstanding) and `δ = 0` (still blocked on paper mathematics).

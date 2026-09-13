@@ -1,88 +1,85 @@
-# HANDOFF — Lean R3 certificate (task 20, rotation 1, 2026-09-13)
+# HANDOFF — Lean R3 certificate (task 25, rotation 3, 2026-09-13)
 
-## State: GREEN.  **F(12) is machine-checked.**  F(11) is NOT proved.
+REFACTOR DONE 2026-09-13T20:09Z — the `CubicAt` refactor of `R3/Octahedron.lean` is gated and
+`R3.LinkSix` / `R3.DeltaTwo` are merged into `R3.lean` + `gate.sh`.
+**DELTA FOUR DONE 2026-09-13T21:55Z — `eleven_delta_four` is gated.**
 
-`bash lean/gate.sh` → GATE: PASS.  Top theorem `R3.F_twelve : F 12` (R_3 ≤ 11), from the
-frozen `R3/Statement.lean`, no `sorry`, no `native_decide`, standard axioms only.
-The gate's `#print axioms` list is now 42 theorems.  Do not edit `R3/Statement.lean`.
+## State: GREEN.  `bash lean/gate.sh` → GATE: PASS, 97 theorems, no `sorry`, no
+`native_decide`, axioms `[propext, Classical.choice, Quot.sound]` only.
+**F(12) machine-checked** (`R3.F_twelve`, from the frozen `R3/Statement.lean`).
+For F(11): **`δ = 4` is completely closed**; `δ = 2` is partial (the parked lane's two
+branches are gated, the one-linear-term branch is open); `δ = 0` is still blocked on paper
+mathematics.
 
-## What THIS run added (three things)
+## What this run added
 
-### 1. The Step 3 risk question is answered, and the answer is NO
-Full write-up in `PLAN_F11.md` under "ANSWER to the Step 3 risk question".  Route 1 of
-PLAN_F11 Step 3 — weaken the closure so only four of the six vertices need mass 4 — **cannot
-work**, and the reason is a statement-shape obstruction, not a proof gap.  `closure_of_links`
-concludes that *no* support triple crosses out of `A`; for an exceptional vertex `w ∈ A` that
-asserts the whole link of `w` sits on the other five vertices of `A`, and mass-4 hypotheses at
-the other four vertices say nothing whatever about the link of `w`.  Reworking
-`link_of_three_faces` (which is about *deriving* a link) cannot fix this.
+### 1. The `CubicAt` refactor (unblocks δ = 2 and δ = 4)
+`CubicAt n N v := ∀ S, S < 2 ^ n → N S ≠ 0 → S.testBit v = true → card n S = 3` — cubicity at
+one vertex, which is all the link chain ever reads.  `cubicAt_of_cubic`,
+`cubicAt_link_card_two`, and the primed chain `link_cycle'`, `link_struct'`, `link_sixth'`,
+`link_of_three_faces'`, `no_triangle_at'` (each takes `CubicAt` at the single vertex whose link
+it reads).  `closure_of_links'` takes the weak hypothesis
+`∀ S, S < 2^n → N S ≠ 0 → card n S = 3 ∨ (∀ j, S.testBit j = true → j ∉ {v,a,b,c,d,e})`, and
+`octahedron_closure_gen'` takes `CubicAt` at every vertex plus `N 0 = 0`.
+Every global-`Cubic` name is unchanged and is now a one-line corollary, so `R3/DeltaZero.lean`
+and `F_twelve` were untouched.
 
-**Consequence: `delta = 0` is the expensive case, not the cheap one.**  Do `delta = 4` and
-`delta = 2` first.  Before any more Lean time goes into `delta = 0`, ask the referee lane for
-a paper proof of the pigeonhole: *some mass-4 vertex has a closure 6-set containing neither
-exceptional vertex.*  Two facts that help: when all six of `v,a,b,c,d,e` have mass 4 the
-closure is symmetric (`A(w) = A(v)` for every `w ∈ A(v)`), so the closable mass-4 vertices are
-partitioned into 6-sets; and once such an `A` exists, `no_crossing_split` finishes `delta = 0`
-at `n = 11` immediately, because the other 5 vertices have mass ≥ 4 and non-crossing forces
-every triple through an outside vertex to lie wholly outside.
+### 2. gate.sh
+The laundering scan strips backtick-quoted prose before grepping, so a doc comment naming the
+s-word no longer fails the gate (that was the standing GATE: FAIL inherited from rotation 2).
+The `#print axioms` list is now 97 entries, including the 15 delta = 2 names.
 
-### 2. PLAN_F11 Step 0.2 is DONE — the closure chain is general in `n`
-In `R3/Octahedron.lean`.  New: `Cubic n N` (`∀ S < 2^n, N S ≠ 0 → card n S = 3`, the `δ = 0`
-hypothesis), `cubic_link_card_two`, **`link_cycle`**, **`link_struct`**, `twelve_cubic`,
-**`octahedron_closure_gen`**.  `Cyc` and `LinkIs` now take `n` as their first argument.
-`link_sixth`, `link_of_three_faces`, `no_triangle_at`, `closure_of_links` are general in `n`
-and carry an explicit `mass n N w = 4` hypothesis at each vertex whose link they read
-(`closure_of_links` no longer takes `hsol`, only `Cubic`).  `twelve_link_struct` and
-`octahedron_closure` are now one-line `n = 12` corollaries, so `R3/Final.lean` and `F_twelve`
-are untouched.
+### 3. `δ = 4`, the `{2,2}` sub-case — `eleven_delta_four`
+> `IsSol 11 N → (∀ v < 11, mass 11 N v = 4) → False`
 
-### 3. PLAN_F11 Step 1's prerequisite is DONE — **`link_types` is proved**
-New file `R3/LinkTypes.lean` (619 lines, all gated).  The headline theorem is
+New machinery in `R3/DeltaFour.lean`:
+- `link_L4_of_linear` — a mass-4 vertex with a linear term and no quadratic has a triangle
+  link, stated as an **iff**: `N (tri v x y) ≠ 0 ↔ x ≠ y ∧ x ∈ {a,b,c} ∧ y ∈ {a,b,c}`.  The
+  iff form is what makes every later step one line; copy it for any L-shape classification.
+- `two_linear_no_quad`, `cubicAt_of_two_linear` — the `{2,2}` configuration has no quadratic
+  at all, and every vertex other than `i`, `j` is `CubicAt`.
+- `closure_local` — generic: a vertex set all of whose cubics stay inside it, and which
+  contains every non-cubic support set, is closed.  Replaces the bespoke `hcross` block of
+  `eleven_cycle_closed`; use it for any future closure argument.
+- `linear_not_triangle` — `j ∉ {a,b,c}` (else a mass-4 vertex's 4-cycle link carries a
+  triangle, `no_triangle_at'`).
+- helpers `pair_mem_of_eq`, `pair_of_triangle`, `mem_of_triangle_eq`.
 
-```
-theorem link_types {n T1 T2 T3 T4 : ℕ}
-    (b1 : T1 < 2^n) … (c1 : card n T1 ≤ 2) … (d12 : T1 ≠ T2) …
-    (hxor : T1 ^^^ T2 ^^^ T3 ^^^ T4 = 0) : LinkType T1 T2 T3 T4
-```
-
-`LinkType` is the four-way disjunction L1 (a 4-cycle of pairs, via `four_pairs_cycle`),
-L2 (`∅,{a},{b},{a,b}`), L3 (`{a},{b},{a,c},{b,c}`), L4 (`∅,{a,b},{b,c},{a,c}`), each stated as
-a predicate holding of all four sets, so it is symmetric; `linkType_swap12/23/34` and
-`linkType_rot13/rot14` permute it.  Supporting results worth knowing about:
-- `card_le_two_cases` — a mask with ≤ 2 bits is `0`, `2^a` or `pair a b`;
-- `three_pairs_triangle` — three distinct pairs with xor 0 are the edges of a triangle,
-  returned in the strong ordered form `xy, xz, yz`;
-- **`card_sum_even`** — if `A ^^^ B ^^^ C ^^^ D = 0` then `|A|+|B|+|C|+|D|` is even.  This one
-  lemma kills every "odd number of singletons" shape in one line and is likely to be reusable
-  for the `m = 6` and `m = 8` link classifications of Steps 2 and 3;
-- `card_two_pow`, `card_pair_eq`, `pair_xor_pair_ne_two_pow`, `four_two_pow_xor_ne_zero`.
+The route: L4 at `i` gives the triangle `a,b,c`; `j` avoids it; `link_sixth'` at each of
+`a,b,c` gives a sixth vertex, all three equal (`Edge` + `omega`); that vertex carries the
+triangle `a,b,c`, so it is not cubic, so it is `j`; then `{i,j,a,b,c}` is closed and
+`no_crossing_split` finishes.  This follows the `{2,2}` bullet of `R3_equals_10.md` verbatim.
 
 ## Next work
 
-**`delta = 4` at `n = 11`** (PLAN_F11 Step 1): all masses are 4, lower-order weight 4 splits as
-`{4}, {2,2}, {3,1}, {2,1,1}, {1,1,1,1}`.  `link_types` is now available, `no_crossing_split` is
-general, and the closure chain is general.  The remaining genuinely fiddly piece named in the
-plan is the `{1,1,1,1}` counting identity `∑_{T∈N} |T \ S₀| + 3M = 28`, i.e. `sum_mass_le` /
-`bookkeeping` localised to a 4-set.
+1. **δ = 2** (the parked lane, now unblocked).  `eleven_delta_two_quad` and
+   `delta_two_linear` are gated; what is missing is the one-linear-term branch, whose big
+   piece is `five_pairs_cycle` (five distinct pairs with xor 0 form a C₅, same technique as
+   `four_pairs_cycle`).  See `HANDOFF_delta2.md`.  Estimate 10-15 h.
+2. **δ = 0** — still blocked on mathematics, not Lean: the pigeonhole step is false
+   (the C₄ ∪ C₄ glued-octahedra witness).  See the captain's note at the end of `PLAN_F11.md`.
+   Estimate 30+ h after a paper proof exists.
+3. Assemble `F_eleven` once δ = 2 and δ = 0 land: `bookkeeping` splits into `e ∈ {0,2,4}`,
+   and `eleven_delta_four` is the `e = 0` branch.
 
-To use `link_types` on a link, feed it the four link sets `S ^^^ 2^v` from `mass_four_link`
-(which already gives distinctness, `card ≤ 2`, and xor 0) — `link_cycle` shows the pattern for
-the all-pairs case.
-
-`R3/WIP.lean` is empty scratch (imports `R3.LinkTypes`, is NOT imported by `R3.lean`).
-Keep unfinished proofs there — but note the gate's laundering scan greps it too, so never park
-a `sorry` in it.
-
-Remaining-hours estimate: `delta = 4` 10-15 h (down from 12-18, `link_types` is done);
-`delta = 2` 10-15 h and it needs the `m = 6` link classification (six distinct pairs, all
-degrees even = C₆ / two triangles / bowtie — same technique, `card_sum_even` should help);
-`delta = 0` 30+ h **and a paper proof of the pigeonhole that does not yet exist**.
+## Remaining-hours estimate
+| case | hours | blocked? |
+|---|---|---|
+| δ = 4 | **0 — done** | — |
+| δ = 2 | 10-15 | no (refactor delivered) |
+| δ = 0 | 30+ | yes, on paper mathematics |
 
 ## Discipline notes
 - Every new file needs an `import R3.<File>` line in `R3.lean` or `lake build` never checks it.
-- Add every new theorem to `gate.sh`'s `#print axioms` list.
-- `PROGRESS.log` gets one line the moment a lemma type-checks.
-- `lake env lean R3/WIP.lean` is the fast loop (~1.5 min); a full `bash gate.sh` is ~25-30 min,
-  so budget one gate run per lemma *group*.  One `lake build` at a time.
-- New gotchas from this run are in `TOOLCHAIN_NOTES.md` (the `ac_rfl`-for-xor trick, the
-  `rcases … with rfl` variable-elimination trap, and the WIP laundering-scan trap).
+- Add every new theorem to `gate.sh`'s `#print axioms` list (now 97).
+- `lake env lean R3/DeltaFour.lean` is the fast loop (~70 s); a full `bash gate.sh` is 3-6 min
+  when the tree is warm.  One Lean worker at a time.
+- Heredocs through the Bash tool mangle long Lean blocks — write the block with the Write tool
+  to a `.tmp` file and splice it in with a short python script.  Python must open project files
+  with `io.open(..., encoding='utf-8')`; the default cp1252 codec throws on the maths symbols.
+- `subst h` on `h : w = j` eliminates `j`, not `w`; if later lines name `j`, use
+  `rw [h] at ...` instead (this cost one compile cycle).
+- A single `omega` over five 3-way disjunctions times out at the default heartbeat budget;
+  factor it into a named lemma (`mem_of_triangle_eq`) applied twice.  `eleven_delta_four`
+  carries `set_option maxHeartbeats 1000000 in`.
+- `R3/WIP.lean` is empty scratch (NOT imported) and must stay free of banned constructs.
