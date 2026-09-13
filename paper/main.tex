@@ -1,5 +1,8 @@
 \documentclass[11pt,reqno]{amsart}
 
+% Compiles with pdflatex, xelatex or tectonic. The Lean listings in Appendix B contain
+% mathematical Unicode characters; each is mapped below to its LaTeX equivalent, so no
+% special font is required.
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath,amssymb,amsthm}
@@ -7,7 +10,38 @@
 \usepackage[margin=1.15in]{geometry}
 \usepackage{booktabs}
 \usepackage{enumitem}
+\usepackage{fancyvrb}
+\usepackage{newunicodechar}
 \usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+
+%%% The Unicode characters of the Lean listings, set in the document's own maths fonts.
+\newcommand{\leansym}[1]{\ensuremath{#1}}
+\newunicodechar{ℕ}{\leansym{\mathbb{N}}}
+\newunicodechar{ℤ}{\leansym{\mathbb{Z}}}
+\newunicodechar{ℝ}{\leansym{\mathbb{R}}}
+\newunicodechar{∑}{\leansym{\textstyle\sum}}
+\newunicodechar{∀}{\leansym{\forall}}
+\newunicodechar{∃}{\leansym{\exists}}
+\newunicodechar{¬}{\leansym{\neg}}
+\newunicodechar{∧}{\leansym{\wedge}}
+\newunicodechar{∨}{\leansym{\vee}}
+\newunicodechar{∈}{\leansym{\in}}
+\newunicodechar{∉}{\leansym{\notin}}
+\newunicodechar{≠}{\leansym{\neq}}
+\newunicodechar{≤}{\leansym{\leq}}
+\newunicodechar{≥}{\leansym{\geq}}
+\newunicodechar{→}{\leansym{\to}}
+\newunicodechar{↔}{\leansym{\leftrightarrow}}
+\newunicodechar{⟨}{\leansym{\langle}}
+\newunicodechar{⟩}{\leansym{\rangle}}
+\newunicodechar{Δ}{\leansym{\mathit{\Delta}}}
+\newunicodechar{δ}{\leansym{\delta}}
+\newunicodechar{²}{\leansym{^2}}
+\newunicodechar{·}{\leansym{\cdot}}
+\newunicodechar{∋}{\leansym{\ni}}
+\newunicodechar{⊆}{\leansym{\subseteq}}
+\newcommand{\leanv}[1]{\texttt{#1}}
+\newcommand{\leanref}[1]{\textup{[\,\texttt{#1}\,]}}
 
 %%% theorem environments
 \theoremstyle{plain}
@@ -41,6 +75,18 @@
 \newcommand{\Fhat}[1]{\widehat{#1}}
 \newcommand{\XiC}{\Xi}
 \newcommand{\todo}[1]{\textup{\textbf{[\,todo: #1\,]}}}
+
+%%% Status of the Lean formalisation. Flip the argument to "complete" when F_eleven is gated.
+%%% Exactly two settings are intended:
+%%%   \newcommand{\LeanStatus}{inprogress}   %  delta = 2 still building
+%%%   \newcommand{\LeanStatus}{complete}     %  F(11) assembled and gated
+\newcommand{\LeanStatus}{inprogress}
+\newif\ifleandone
+\makeatletter
+\edef\@lsa{\LeanStatus}\def\@lsb{complete}
+\ifx\@lsa\@lsb \leandonetrue \else \leandonefalse \fi
+\newcommand{\leanstate}[2]{\ifleandone #1\else #2\fi}
+\makeatother
 \DeclareMathOperator{\Deg}{deg}
 
 \begin{document}
@@ -71,8 +117,12 @@ cross-polytope boundaries on disjoint variable sets, which no Boolean function a
 Second, we determine $R_3$ exactly: $R_3 = 10$, attained by the Chiarelli--Hatami--Saks
 function $\XiC_3$. Consequently $R_1 = 1$, $R_2 = 4$, $R_3 = 10$, and $22 \le R_4 \le 31$.
 The value $R_3 = 10$ is confirmed independently by an exhaustive canonical-form search over
-a finite reformulation of the problem, and the first structural steps of the argument have
-been formalised in Lean~4.
+a finite reformulation of the problem. The finite reformulation itself has been formalised in
+Lean~4 and machine-checked on the three standard axioms, with no \texttt{native\_decide}:
+the twelve-variable statement $F(12)$ is proved,
+\leanstate{and so is the eleven-variable statement $F(11)$.}{and the eleven-variable statement
+$F(11)$ is proved in the cases $\delta = 4$ and $\delta = 0$, the case $\delta = 2$ being in
+progress.}
 \end{abstract}
 
 \maketitle
@@ -189,9 +239,12 @@ statement $F(n)$ about integer vectors (Section~\ref{sec:finite}), and run an ex
 orderly search over canonical forms. The search finds no solution for $n = 11$ and exactly one
 orbit for $n = 10$, namely $\XiC_3$. A separate SAT-based structure search by an independent
 referee finds the same short list of candidate term structures and no Boolean sign vector on
-any of them. Finally, the first structural steps of Part~I have been formalised in Lean~4 and
-kernel-checked on the standard axioms; we are explicit in Section~\ref{sec:lean} about what is
-and what is not machine-checked (the finite statements $F(11)$ and $F(12)$ are \emph{not}).
+any of them. Finally, the finite statement $F(n)$ itself has been formalised in Lean~4 and
+kernel-checked on the three standard axioms: $F(12)$ is a theorem of that development, and
+\leanstate{so is $F(11)$.}{so are the cases $\delta = 4$ and $\delta = 0$ of $F(11)$, with
+$\delta = 2$ in progress.} Section~\ref{sec:lean} states exactly what is machine-checked and
+what is not; in particular the reduction from $F(n)$ to the statement about Boolean functions
+is on paper, not in Lean.
 
 \subsection{Related work and novelty}
 Nisan and Szegedy \cite{NS94} do not discuss whether \eqref{eq:ns} is tight for $d \ge 3$.
@@ -209,8 +262,9 @@ Section~\ref{sec:prelim} fixes notation and collects the standard facts we use.
 Section~\ref{sec:ns} proves Theorem~\ref{thm:main-ns}. Section~\ref{sec:partI} proves
 $R_3 \le 11$, Section~\ref{sec:partII} sets up the eleven-variable analysis and
 Appendix~\ref{app:cases} carries it out in full, completing Theorem~\ref{thm:main-r3}.
-Section~\ref{sec:comput} describes the computational verification. Section~\ref{sec:open}
-collects open problems.
+Section~\ref{sec:comput} describes the computational verification and Section~\ref{sec:lean} the
+formalisation in Lean~4, whose statements are reproduced in Appendix~\ref{app:leanstmt}.
+Section~\ref{sec:open} collects open problems.
 
 \section{Preliminaries}\label{sec:prelim}
 
@@ -225,12 +279,13 @@ on $\cube^n$, and Parseval reads $\Ex[g^2] = \sum_S \Fhat{g}(S)^2$; in particula
 $\sum_S \Fhat{f}(S)^2 = 1$ for Boolean $f$.
 
 \subsection{Granularity}
-\begin{fact}[Granularity; {\cite[Ex.~1.11]{ODbook}}, \cite{NS94}]\label{fact:gran}
+\begin{fact}[Granularity]\label{fact:gran}
 If $f \colon \cube^n \to \cube$ has $\Deg f \le d$, then every Fourier coefficient
 $\Fhat{f}(S)$ is an integer multiple of $2^{1-d}$.
 \end{fact}
-\todo{confirm the exercise number in O'Donnell's book; the statement itself is standard and is
-already implicit in \cite{NS94}.}
+
+This is standard: it is implicit in \cite{NS94} and is proved in \cite{ODbook} as the
+granularity of a Boolean function of degree $d$. (We quote no exercise number.)
 
 Granularity is what makes the whole argument finite: for $\Deg f \le d$ the rescaled
 coefficients $n_S := 2^{d-1}\Fhat{f}(S)$ are integers with $\sum_S n_S^2 = 4^{d-1}$, and the
@@ -766,24 +821,6 @@ By Lemma~\ref{lem:masses}, $e \in \{0, 2, 4\}$, with $e = 0$ meaning all $m_i = 
 meaning exactly one vertex of mass $6$, and $e = 4$ meaning either two vertices of mass $6$ or
 one of mass $8$. Correspondingly $\delta \in \{4, 2, 0\}$.
 
-\subsection{A surface fact}
-
-\begin{fact}[Surfaces of non-positive Euler characteristic]\label{fact:T}
-In a closed connected triangulated surface with $V'$ vertices, $E'$ edges, $F'$ faces and Euler
-characteristic $\chi'$, the relations $3F' = 2E'$ and $V' - E' + F' = \chi'$ give the degree sum
-$2E' = 6V' - 6\chi'$. Hence $\chi' \le 0$ forces average degree at least $6$. In every complex
-arising below, all degrees are $4$ except at most two vertices of degree at most $8$, so the
-average degree is at most $4 + 8/V' < 6$ as soon as $V' \ge 5$; and $V' \ge 5$ holds because
-some vertex has degree at least $4$ (a closed triangulated surface has no vertex of degree less
-than $3$, and $V' \ge \deg + 1$). Therefore every component occurring below is a sphere (degree
-sum $6V' - 12$) or a projective plane (degree sum $6V' - 6$, requiring at least $6$ vertices, by
-Step~3 of Theorem~\ref{thm:no12}).
-\end{fact}
-
-Fact~\ref{fact:T} was checked by computer: for every degree pattern used in
-Appendix~\ref{app:cases}, the relation $V' = 3\chi' + c/2$ (with $c$ the excess degree) was
-tabulated, and every row with $\chi' \le 0$ gives $V' \le 2$.
-
 \subsection{Statement and proof of Part II}
 
 \begin{theorem}\label{thm:no11}
@@ -957,41 +994,111 @@ $2$ isomorphism classes and $0$ Boolean sign vectors, consistent with the above;
 log ends inside the mass-$6$ branch without a totals line, so we quote the complete run for the
 totals.
 
-\subsection{Partial formalisation in Lean 4}\label{sec:lean}
-The finite statement $F(n)$ was transcribed into Lean~4 (toolchain
-\texttt{leanprover/lean4:v4.23.0}) as a frozen definition, and the first structural steps toward
-$F(12)$ were proved against it. The following is the exact status.
+\section{Formal verification in Lean 4}\label{sec:lean}
 
-\emph{What is machine-checked.} Twenty-three theorems are proved and kernel-checked, with no
-\texttt{sorry}, no \texttt{admit}, no \texttt{native\_decide}, no user axioms and no
-\texttt{unsafe}/\texttt{implemented\_by}/\texttt{extern} escape hatches; an automated gate runs
-\texttt{lake build}, greps for all of those, and runs \texttt{\#print axioms} on every listed
-theorem. Every one of the twenty-three depends only on the three standard Lean axioms
-\texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}. They cover:
+The finite statement $F(n)$ of Section~\ref{sec:finite} has been transcribed into Lean~4 and
+theorems about it have been proved and kernel-checked. This section says exactly what the
+transcription is, what has been proved, and --- just as important --- which part of the chain
+from $F(n)$ to $R_3 = 10$ is \emph{not} machine-checked.
+
+\subsection{The frozen finite statement}
+The file \texttt{R3/Statement.lean} is frozen: it is written once, from the definition in
+Section~\ref{sec:finite}, and no later file edits it. A subset $S \subseteq [n]$ is encoded as
+a natural number used as a bitmask, so that $i \in S$ means \texttt{S.testBit i}, symmetric
+difference is bitwise \texttt{xor} (written \texttt{\^{}\^{}\^{}}), and $|S|$ is
+\texttt{card n S}, the number of set bits below $n$. A coefficient vector is a function
+$N : \mathbb{N} \to \mathbb{Z}$, supported on sets of size at most $3$; its values outside
+$S < 2^n$ are never read. The conditions \texttt{CondI}, \texttt{CondII}, \texttt{CondIII} are
+(i), (ii), (iii) of Section~\ref{sec:finite} verbatim, \texttt{IsSol n N} is their conjunction
+together with the support condition, and
+\[
+  \texttt{F n} \; := \; \neg\, \exists\, N, \ \texttt{IsSol n N}.
+\]
+Appendix~\ref{app:leanstmt} reproduces the file's definitions and the headline theorems
+character for character.
+
+Two further definitions are used in the proofs, both in terms of the frozen ones: the
+\emph{mass} of a vertex, $\texttt{mass n N v} = \sum_{S \ni v} n_S^2$, which is $16\,\Inf_v$,
+and \texttt{Cubic n N}, ``every set with a nonzero coefficient has exactly three elements'',
+which is the hypothesis $\delta = 0$ of Appendix~\ref{app:delta0}.
+
+\subsection{What is machine-checked}
+The development is a single Lean library in the directory \texttt{lean/} of the repository of
+Appendix~\ref{app:leansrc}, about $5{,}000$ lines, built with toolchain
+\texttt{leanprover/lean4:v4.23.0} against the matching Mathlib. It contains no \texttt{sorry},
+no \texttt{admit}, no user \texttt{axiom}, no \texttt{native\_decide}, and no
+\texttt{unsafe}/\texttt{implemented\_by}/\texttt{extern} escape hatch. The gate script
+\texttt{gate.sh} runs \texttt{lake build}, greps the sources for each of those constructs
+(stripping backtick-quoted prose first, so that a doc comment naming one of them does not
+trigger), and runs \texttt{\#print axioms} on every listed theorem, requiring that each depend
+only on
+\[
+  \texttt{propext}, \qquad \texttt{Classical.choice}, \qquad \texttt{Quot.sound},
+\]
+Lean's three standard axioms. It exits $0$ only if all three checks pass, and writes its
+transcript to \texttt{GATE.txt}. The check does pass, currently on $97$ listed theorems.
+
+The headline results are:
 \begin{itemize}[leftmargin=1.4em]
-  \item the basic identities ($f_N^2 = 16$ in integer form, the pointwise membership (E1),
-  divisibility and lower bounds on the mass, $\sum_i m_i \le 48$);
-  \item Lemma~\ref{lem:masses} for $n \ge 11$ (mass in $\{4,6,8\}$), and that at least nine of
-  the eleven vertices have mass $4$;
-  \item the bookkeeping identity \eqref{eq:bookkeeping} in the form $e + \delta = 48 - 4n$;
-  \item the first half of Lemma~\ref{lem:links}(a): four distinct link sets of size at most $2$,
-  coefficients $\pm1$, symmetric difference empty, sign product $+1$, and every vertex in an
-  even number of the four sets;
-  \item Step 1 of Theorem~\ref{thm:no12} for $n = 12$ (all masses $4$, all terms cubic, all
-  coefficients $\pm1$, all link sets of size $2$);
-  \item Step 2 of Theorem~\ref{thm:no12}: four distinct pairs with empty symmetric difference
-  form a $4$-cycle, hence for $n = 12$ every vertex link is a $4$-cycle.
+  \item \texttt{F\_twelve : F 12}. The twelve-variable finite statement is proved outright.
+  Its proof is the formal counterpart of Theorem~\ref{thm:no12}: all masses are $4$, all terms
+  cubic with coefficients $\pm1$, every link is a $4$-cycle, the octahedral closure produces a
+  six-element vertex set closed under the support, and the disjoint-sum contradiction closes it.
+  \item \texttt{eleven\_delta\_four}: no solution on eleven variables has all masses $4$. This
+  is the case $\delta = 4$ of Appendix~\ref{app:delta4}.
+  \item \texttt{eleven\_delta\_zero}: no solution on eleven variables has all its support sets
+  of size $3$. This is the case $\delta = 0$, and it is the argument printed in
+  Appendix~\ref{app:delta0}, step for step; every lemma there carries the name of the theorem
+  that certifies it.
+  \item \leanstate{\texttt{eleven\_delta\_two}: the case $\delta = 2$, one vertex of mass $6$
+  and the rest of mass $4$.}{the case $\delta = 2$ (one vertex of mass $6$) is in progress; two
+  of its three branches are gated and the one-linear-term branch is open.}
 \end{itemize}
-The strongest certified statement is: in any $12$-variable solution of the frozen $F$, at every
-vertex $v$ there are four distinct vertices $p,q,r,s$ such that every support set at $v$, with
-$v$ removed, is one of the pairs $pq, qr, rs, sp$.
+\ifleandone
+The three cases are assembled into
+\[
+  \texttt{F\_eleven : F 11},
+\]
+so that both finite statements needed for $R_3 = 10$ are machine-checked.
+\else
+\todo{F\_eleven: fill in after gate --- state \texttt{F\_eleven : F 11}, its one-line proof by
+the bookkeeping trichotomy $\delta \in \{4,2,0\}$ from \texttt{bookkeeping}, and add it to
+Appendix~\ref{app:leanstmt}; then set \texttt{\textbackslash LeanStatus} to
+\texttt{complete}.}
+\fi
 
-\emph{What is not machine-checked.} Neither $F(12)$ nor $F(11)$ is formalised. The remaining
-steps for $F(12)$ are the octahedral closure (Step 3 of Theorem~\ref{thm:no12}) and the
-disjoint-sum contradiction (Step 4); for $F(11)$, the whole of Appendix~\ref{app:cases}. Mathlib
-has no classification of closed surfaces, so the closure arguments would have to be replaced by
-their topology-free finite versions, and the exhaustive search of the previous subsection is far
-beyond kernel \texttt{decide}. Theorem~\ref{thm:main-ns} is not formalised at all.
+The supporting theorems cover the basic identities ($f_N^2 = 16$ in integer form, the pointwise
+condition (E1), divisibility and lower bounds on the mass, $\sum_v m_v \le 48$),
+Lemma~\ref{lem:masses} (mass in $\{4,6,8\}$, and at most two vertices of mass other than $4$),
+the bookkeeping identity \eqref{eq:bookkeeping} in the form $e + \delta = 48 - 4n$, the link
+classification of Lemma~\ref{lem:links}(a), the $4$-cycle structure of a mass-$4$ link, the
+sixth-vertex and three-faces lemmas used for closure, and the octahedron kill of
+Lemma~\ref{lem:octakill}.
+
+\subsection{What is not machine-checked}
+Three things.
+
+First, the reduction from $F(n)$ to the statement about Boolean functions is on paper. It is the
+granularity argument of Section~\ref{sec:finite}: if $f \colon \cube^n \to \cube$ has degree at
+most $3$ then $N := 4\Fhat{f}$ is an integer vector satisfying (i)--(iii), so $F(n)$ implies
+that no degree-$3$ Boolean function has $n$ relevant variables. Fact~\ref{fact:gran} (integer
+granularity), Parseval, and the identity $\chi_S\chi_T = \chi_{S \sd T}$ are the only
+ingredients, and none of them is formalised here. What Lean certifies is a statement about
+integer vectors, not about Boolean functions.
+
+Second, Theorem~\ref{thm:main-ns} --- the general-$d$ result --- is not formalised at all, and
+neither is the exhaustive search of Section~\ref{sec:comput}: the latter is far beyond kernel
+\texttt{decide}, and nothing in the Lean development depends on it.
+
+Third, \leanstate{nothing else: with \texttt{F\_twelve} and \texttt{F\_eleven} both proved, the
+whole of Part~I and Appendix~\ref{app:cases} is covered in its finite form.}{the case
+$\delta = 2$ of $F(11)$ is not yet complete, so $F(11)$ itself is not yet a Lean theorem; the
+paper proof of that case (Appendix~\ref{app:delta2}) stands on its own and has been refereed.}
+
+We also record what the formalisation is \emph{not} evidence for. A kernel check certifies that
+the proofs are correct proofs of the Lean statements; that those statements say what
+Section~\ref{sec:finite} says is a matter of reading \texttt{Statement.lean}, which is why it is
+frozen and why it is reproduced verbatim in Appendix~\ref{app:leanstmt}.
 
 \section{Concluding remarks and open problems}\label{sec:open}
 
@@ -1068,8 +1175,9 @@ one variable off the Nisan--Szegedy bound, but not obviously more.
 The mathematics was developed with AI assistance (Claude). Every claim in
 Sections~\ref{sec:ns}--\ref{sec:partII} and Appendix~\ref{app:cases} was reviewed by an
 independent referee instance which supplied the corrections now incorporated, in particular the
-fourth four-set link shape (L4) of Lemma~\ref{lem:links}(a) and the Euler-characteristic
-Fact~\ref{fact:T}.
+fourth four-set link shape (L4) of Lemma~\ref{lem:links}(a). The topology-free treatment of the
+case $\delta = 0$ in Appendix~\ref{app:delta0} is the argument that was formalised in Lean; it
+replaces an earlier argument by Euler characteristics, and it too was refereed.
 
 \appendix
 
@@ -1252,123 +1360,464 @@ So $\delta = 2$ is impossible.
 \subsection{The case \texorpdfstring{$\delta = 0$}{delta = 0}: a homogeneous cubic}
 \label{app:delta0}
 
-Now $f = \frac14\sum_S n_S \chi_S$ is supported on triples, with $\sum_S n_S^2 = 16$, and the
-degree sequence $(m_i)$ is either $(8, 4^{10})$ or $(6,6,4^9)$. No $|n_S| = 2$ occurs: by
-Lemma~\ref{lem:links}(d) all three vertices of such a term would need mass $8$, and there is at
-most one vertex of mass $8$. So $\mathcal{F}$ is a $3$-uniform hypergraph with $16$ triples.
-Links are: a $C_4$ when $m = 4$ (Lemma~\ref{lem:links}(a)); for $m = 6$, a simple graph with $6$
-edges and all degrees even, i.e.\ $C_6$, two disjoint triangles, or a bowtie; for $m = 8$, a
-simple graph with $8$ edges and all degrees even.
+Now $f = \frac14\sum_S n_S \chi_S$ is supported on triples, with $\sum_S n_S^2 = 16$. This is
+the case that has been formalised in Lean~4 (Section~\ref{sec:lean}), and the argument given
+here is the formalised one: it uses no topology, no classification of the link shapes and no
+Euler characteristic. The name of the Lean theorem certifying each step is given in brackets;
+all of them live in \texttt{R3/DeltaZero.lean}, and the case as a whole is
+\texttt{eleven\_delta\_zero}.
 
-\subsubsection{Sub-case $(8, 4^{10})$}
-Let $v$ be the vertex with $m_v = 8$. If some $x$ had $\lambda_{vx} = 4$, then $v$ would have
-degree $4$ in $\lk(x)$, so $\lk(x)$ would not be a $C_4$, contradicting $m_x = 4$ (and
-$x \ne v$, since $x$ is a vertex of $\lk(v)$). Hence $\lk(v)$ is $2$-regular: $C_8$,
-$C_3 \cup C_5$, or $C_4 \cup C_4$; and every pair lies in $0$ or $2$ triples, so $|\mathcal{F}|$
-is a closed pseudo-manifold, with all links single cycles except possibly at $v$.
-
-\paragraph{$\lk(v) = C_8$.} Then $|\mathcal{F}|$ is a closed surface with $V = 11$, $E = 24$,
-$F = 16$, so $\chi = 3$. Consider its components. A closed surface with all degrees $4$ except
-at most one vertex of degree $8$ has degree sum $4V' + 4\cdot\mathbf{1}\{v \in \text{it}\}$. A
-sphere needs degree sum $6V' - 12$, giving either $V' = 6$ (the octahedron, not containing $v$)
-or $6V' - 12 = 4V' + 4$, i.e.\ $V' = 8$ --- a sphere on $8$ vertices with degrees $(8, 4^7)$,
-which is impossible since $v$ would need $8$ neighbours among $7$ other vertices. A projective
-plane needs $6V' - 6$, giving $V' = 3$ or $V' = 5$, both below the minimum of $6$ vertices. And
-$\chi' \le 0$ is excluded by Fact~\ref{fact:T}. So $\chi = 3$ cannot be realised as a sum of
-component characteristics. \hfill$\times$
-
-\paragraph{$\lk(v) = C_4 \cup C_4$.} Split $v$ into two vertices $v_1, v_2$, each of degree $4$.
-The result is a closed surface with $12$ vertices all of degree $4$, so $\chi = 12 - 24 + 16 = 4$
-and, exactly as in Step 3 of Theorem~\ref{thm:no12}, it is two octahedra. If $v_1$ and $v_2$ lay
-in the same octahedron --- this sub-case is in fact empty, since the two $C_4$'s of $\lk(v)$ are
-vertex-disjoint while two vertices of an octahedron share two or four neighbours --- the other
-octahedron would use $6$ variables disjoint from everything else and $f$ would be a disjoint
-sum, impossible by Lemma~\ref{lem:C}. Otherwise the two octahedra are glued at the identified
-vertex $v$. Write
-\[
-  f = g_1(x_v, y) + g_2(x_v, z), \qquad y, z \text{ disjoint } 5\text{-tuples}.
-\]
-Fixing $x_v = 1$ gives $g_1(1,y) + g_2(1,z) \in \{\pm1\}$ for all $y, z$, so by
-Lemma~\ref{lem:C} one of them is constant. But $g_1(1,y)$ is $\frac14$ times the sum of the eight
-face-characters of the first octahedron with $x_v = 1$ substituted, which are eight distinct
-non-constant monomials in $y$ (four quadratic and four cubic), so $g_1(1,\cdot)$ is not constant;
-and the same holds for $g_2(1,\cdot)$. \hfill$\times$
-
-\paragraph{$\lk(v) = C_3 \cup C_5$.} Split $v$ into $v_1$ of degree $3$ and $v_2$ of degree $5$:
-a closed surface with $12$ vertices, degrees $(3,5,4^{10})$, and $\chi = 4$. Components with
-$\chi' \le 1$ are excluded: $\chi' \le 0$ by Fact~\ref{fact:T}; and a projective plane needs
-degree sum $6V' - 6$, which with all degrees at most $5$ forces $V' \le 6$ (and a triangulated
-projective plane has at least $6$ vertices, by Step 3 of Theorem~\ref{thm:no12}), while the only
-$6$-vertex projective plane has all six degrees equal to $5$, whereas we have a single degree-$5$
-vertex. Hence both components are spheres, with degree sum $6V' - 12$ and degrees drawn from
-$\{3,4,5\}$:
+\subsubsection*{Setting and standing facts}
+Call a vertex \emph{ordinary} if its mass is $4$ and \emph{exceptional} otherwise. Write
+$\{x,y,z\}$ for a \emph{support triple}, that is, a set $S$ of size $3$ with $n_S \ne 0$. Two
+facts about an ordinary vertex $u$ are used throughout, both from Lemma~\ref{lem:links}(a):
 \begin{itemize}[leftmargin=1.4em]
-  \item containing both the $3$ and the $5$: $8 + 4a = 6(a+2) - 12$ gives $a = 4$, a $6$-vertex
-  sphere with degrees $(5,4,4,4,4,3)$. The degree-$5$ vertex is adjacent to all the others, its
-  link is a $5$-cycle, and the remaining $3$ faces triangulate that pentagon with two diagonals;
-  any two diagonals of a pentagon share a vertex or cross, so some vertex receives diagonal
-  degree $2$ or the triangulation is invalid, and the required degree pattern
-  $(4,4,4,4,3)$ on the rim, i.e.\ diagonal degrees $(1,1,1,1,0)$, cannot occur.
-  \item containing the $3$ but not the $5$: $3 + 4a = 6(a+1) - 12$ gives $a = 4.5$, not an
-  integer.
-  \item containing the $5$ but not the $3$: $5 + 4a = 6(a+1) - 12$ gives $a = 5.5$, not an
-  integer.
+  \item[(M1)] $u$ lies in exactly four support sets \leanref{mass\_four\_card}, and the
+  coefficient on each of them is $\pm1$ \leanref{mass\_four\_pm}. So four distinct support sets
+  exhibited at $u$ are all of them \leanref{supp\_eq\_quad}, and there is no fifth
+  \leanref{no\_fifth\_supp}.
+  \item[(M2)] If $S_1, S_2, S_3, S_4$ are the four support sets at $u$ then
+  $S_1 \sd S_2 \sd S_3 \sd S_4 = \emptyset$ and $n_{S_1} n_{S_2} n_{S_3} n_{S_4} = +1$
+  \leanref{mass\_four}. The second half is the \emph{sign relation} at $u$; it is the only place
+  the signs enter the argument, and it is what makes the route work.
 \end{itemize}
-\hfill$\times$
+Since every support set is a triple, (M1) says that the link of an ordinary vertex $u$ is a
+$4$-cycle of pairs $p$--$q$--$r$--$s$--$p$: the support triples at $u$ are exactly $u$ together
+with an edge of that cycle \leanref{LinkIs}. In particular a pair through an ordinary vertex
+lies in exactly $0$ or $2$ support triples \leanref{pair\_second, pair\_not\_three}.
 
-\subsubsection{Sub-case $(6,6,4^9)$}
-Let $v$ and $v'$ be the two vertices of mass $6$.
+\subsubsection*{Step 1: the degree sequence}
+With all terms cubic, $\sum_v m_v = 3 \cdot 16 = 48$ \leanref{cubic\_sum\_mass}, so the excess
+is $\sum_v (m_v - 4) = 48 - 44 = 4$. By Lemma~\ref{lem:masses} every mass is $4$, $6$ or $8$
+and at most two vertices are exceptional, so the degree sequence is $(8, 4^{10})$ or
+$(6,6,4^9)$ \leanref{eleven\_degree\_split}. No coefficient $|n_S| = 2$ occurs, by
+Lemma~\ref{lem:links}(d). \emph{At most two vertices are exceptional} is the only form in which
+the degree sequence is used below.
 
-\paragraph{Some link is a bowtie.} Say $\lk(v)$ is a bowtie with centre $w$. Then
-$\lambda_{vw} = 4$, so $v$ has degree $4$ in $\lk(w)$, which forces $m_w = 6$ and $\lk(w)$ a
-bowtie too, so $w = v'$ and, symmetrically, $\lk(v')$ is a bowtie centred at $v$. The four common
-triples are $\{v,v',a_k\}$, $k = 1,\dots,4$. The bowtie at $v$ adds two further triples
-$\{v,a_1,a_2\}, \{v,a_3,a_4\}$ (for some pairing of the $a_k$), and the one at $v'$ adds
-$\{v',a_i,a_j\}, \{v',a_k,a_l\}$ for some pairing.
-If the two pairings coincide, then $\lk(a_1)$ contains $\{v,v'\}, \{v,a_2\}, \{v',a_2\}$, a
-triangle, hence is not a $C_4$. Otherwise, say $v$ pairs $(a_1a_2)(a_3a_4)$ while $v'$ pairs
-$(a_1a_3)(a_2a_4)$: then $\lk(a_1)$ contains $\{v,v'\}, \{v,a_2\}, \{v',a_3\}$, and being a $C_4$
-it forces the fourth triple $\{a_1,a_2,a_3\}$; but then
-$\lk(a_2) = \{\{v,v'\},\{v,a_1\},\{v',a_4\},\{a_1,a_3\}\}$ has $a_3$ and $a_4$ of degree $1$, so
-it is not a $C_4$. \hfill$\times$
+\subsubsection*{Step 2: the half-octahedron}
 
-\paragraph{No link is a bowtie.} Then every pair lies in $0$ or $2$ triples and $|\mathcal{F}|$
-is a closed pseudo-manifold, singular only at $v$ or $v'$ and only when the link there is two
-triangles.
+\begin{lemma}[Half-closure; \texttt{octa\_half}]\label{lem:octahalf}
+Let $\{v,a,b\}$ be a support triple with $a$ and $b$ ordinary and $v, a, b$ distinct. Then there
+are vertices $a', b', y$ with
+\[
+  \lk(a) = b\text{--}v\text{--}b'\text{--}y, \qquad \lk(b) = a\text{--}v\text{--}a'\text{--}y,
+\]
+with the \emph{same} $y$; moreover $y \notin \{v,a,b\}$, and each of $a', b'$ is distinct from
+$a, b, v$ and $y$. The mass of $v$ is not used, so $v$ may be exceptional.
+\end{lemma}
 
-\emph{If both links are cycles}, $|\mathcal{F}|$ is a closed surface with
-$\chi = 11 - 24 + 16 = 3$. Component degree sums are
-$4V' + 2\cdot\mathbf{1}\{v\} + 2\cdot\mathbf{1}\{v'\}$.
-Spheres: $V' = 6$ (containing neither $v$ nor $v'$, the octahedron); or, containing exactly one
-of them, $4V' + 2 = 6V' - 12$, i.e.\ $V' = 7$ with degrees $(6,4^6)$ --- here the degree-$6$
-vertex is adjacent to all $6$ others, its link is a hexagon, and the remaining $4$ faces
-triangulate the hexagon with $3$ diagonals, so the six rim vertices have degrees $3 + d_i$ with
-$\sum_i d_i = 6$; all degrees equal to $4$ needs $d_i = 1$ for every $i$, a perfect matching of
-the hexagon by pairwise non-crossing diagonals, which does not exist (every hexagon
-triangulation has an ear). Containing both $v$ and $v'$: $4V' + 4 = 6V' - 12$, i.e.\ $V' = 8$
-with degree sum $36$, two degree-$6$ vertices and six degree-$4$ vertices --- this is not
-immediately absurd, but then the remaining components would have to be octahedra on the
-remaining $3$ vertices, which is impossible; and $V' = 11$ as a single component gives
-$\chi = 3 \ne 2$. Projective planes: $6V' - 6 = 4V' + 2s$ with $s \in \{0,1,2\}$ gives
-$V' = 3, 4, 5$, all below $6$. And $\chi' \le 0$ is excluded by Fact~\ref{fact:T}. So $\chi = 3$
-is not realisable. \hfill$\times$
+\begin{proof}
+Since $a$ is ordinary, the pair $\{a,v\}$ lies in a second support triple $\{a,v,b'\}$ with
+$b' \notin \{a,b,v\}$ \leanref{second\_v\_triple}. The link of $a$ is a $4$-cycle containing the
+two edges $\{v,b\}$ and $\{v,b'\}$ at $v$, hence is $b$--$v$--$b'$--$y_1$ for a sixth vertex
+$y_1 \notin \{a,v,b,b'\}$ \leanref{link\_sixth}. Symmetrically $\lk(b) = a$--$v$--$a'$--$y_2$.
+The edge $\{y_1,b\}$ of $\lk(a)$ gives the support triple $\{a,b,y_1\}$ and the edge
+$\{y_2,a\}$ of $\lk(b)$ gives $\{a,b,y_2\}$. If $y_1 \ne y_2$ then the pair $\{a,b\}$ would lie
+in the three distinct support triples $\{a,b,v\}, \{a,b,y_1\}, \{a,b,y_2\}$, impossible at the
+ordinary vertex $a$ \leanref{pair\_not\_three}. So $y_1 = y_2 =: y$.
+\end{proof}
 
-\emph{If $\lk(v)$ is two triangles}, split $v$ into $v_1, v_2$ of degree $3$ each. If $\lk(v')$
-is a cycle we obtain $12$ vertices with degrees $(3,3,6,4^9)$ and $\chi = 4$; both components
-are then spheres, since $\chi' \le 0$ is excluded by Fact~\ref{fact:T} and a projective plane
-would need $6V' - 6 \le 6 + 4(V'-1)$, i.e.\ $V' \le 4 < 6$. The sphere containing $v'$ satisfies
-$6 + 3a + 4b = 6(1 + a + b) - 12$, i.e.\ $3a + 2b = 12$ with $a \le 2$: the solution
-$(a,b) = (2,3)$ gives a $6$-vertex sphere with $v'$ of degree $6$, impossible as there are only
-$5$ other vertices; and $(a,b) = (0,6)$ gives the $(6,4^6)$ sphere excluded above. \hfill$\times$
+Lemma~\ref{lem:octahalf} says \emph{nothing} about $a'$ versus $b'$: it does not assert
+$a' \ne b'$. That distinctness is proved separately each time it is needed, from the fact that
+the $4$-cycle link of the ordinary vertex $y$ contains no triangle \leanref{no\_triangle\_at};
+see Step 4.
 
-If $\lk(v')$ is also two triangles, both split, giving degrees $(3,3,3,3,4^9)$ with $\chi = 5$:
-odd, hence impossible as a sum of sphere characteristics; projective planes with all degrees at
-most $4$ need $6V' - 6 \le 4V'$, i.e.\ $V' \le 3 < 6$; and $\chi' \le 0$ is excluded by
-Fact~\ref{fact:T}. \hfill$\times$
+\subsubsection*{Step 3: the kill}
+
+Say that $v, a, b, a', b', y$ \emph{carry the four octahedron links} if the six vertices are
+pairwise distinct \leanref{Dist6} and
+\begin{equation}\label{eq:octa4}
+  \lk(a) = b\text{--}v\text{--}b'\text{--}y, \quad \lk(b) = a\text{--}v\text{--}a'\text{--}y,
+  \quad \lk(y) = b\text{--}a\text{--}b'\text{--}a', \quad
+  \lk(a') = b\text{--}y\text{--}b'\text{--}v
+\end{equation}
+\leanref{Octa4}. Geometrically this is an octahedron with apex $v$ and antipode $y$; the fifth
+link, that of $b'$, is deliberately omitted, and is never used.
+
+\begin{lemma}[The kill; \texttt{octa\_kill4}]\label{lem:octakill}
+If $v, a, b, a', b', y$ carry the four links \eqref{eq:octa4} and the four vertices $a$, $b$,
+$a'$ and $y$ are ordinary, then $f$ is not Boolean. The mass of $v$, the mass of $b'$ and the
+link of $b'$ are not used. The mirror statement, with $a \leftrightarrow b$ and
+$a' \leftrightarrow b'$ exchanged, needs mass $4$ at $a, b, b', y$ and the link of $b'$ in place
+of that of $a'$ \leanref{octa\_kill4'}.
+\end{lemma}
+
+\begin{proof}
+The four edges of $\lk(y)$ give the support triples
+$\{y,a,b\}, \{y,a,b'\}, \{y,a',b'\}, \{y,a',b\}$, and $\lk(a), \lk(b), \lk(a')$ give
+$\{v,a,b\}, \{v,a,b'\}, \{v,a',b'\}, \{v,a',b\}$. The first four are distinct, so by (M1) they
+exhaust the support of $y$ \leanref{supp\_eq\_quad}.
+
+Now use $f^2 \equiv 1$ at the pair $U = \{v,y\}$: the coefficient of $\chi_U$ in $f^2$ is
+$\sum_{S} n_S n_{S \sd U} = 0$, the sum over all $S$. Since $y \in U$, the involution
+$S \mapsto S \sd U$ toggles membership of $y$ and so pairs each set containing $y$ with a set
+not containing $y$; the two halves of the sum are equal, and therefore
+\begin{equation}\label{eq:corr}
+  \sum_{S \ni y,\; n_S \ne 0} n_S\, n_{S \sd \{v,y\}} = 0
+\end{equation}
+\leanref{condII\_corr, corr\_bit\_half, corr\_supp}. Since $a, b, a', b'$ differ from $v$ and
+from $y$, flipping the apex sends $\{y,p,q\}$ to $\{v,p,q\}$ \leanref{tri\_xor\_pair}, so the
+four terms of \eqref{eq:corr} are exactly
+\[
+  \eps_1 = n_{vab}\,n_{yab}, \quad \eps_2 = n_{vab'}\,n_{yab'}, \quad
+  \eps_3 = n_{va'b'}\,n_{ya'b'}, \quad \eps_4 = n_{va'b}\,n_{ya'b},
+\]
+and $\eps_1 + \eps_2 + \eps_3 + \eps_4 = 0$. Each of the eight coefficients is $\pm1$ by (M1) at
+the ordinary vertices $a$, $a'$ and $y$, so each $\eps_i = \pm1$ \leanref{pm\_mul}.
+
+Finally the sign relation (M2) ties the $\eps_i$ together. The four support sets at $a$ are
+$\{v,a,b\}, \{v,a,b'\}, \{y,a,b'\}, \{y,a,b\}$ --- distinct, hence all of them by (M1) --- so
+their coefficient product is $+1$, i.e.\ $\eps_1\eps_2 = 1$. The four at $b$ are
+$\{v,a,b\}, \{v,a',b\}, \{y,a',b\}, \{y,a,b\}$, giving $\eps_1\eps_4 = 1$. The four at $a'$ are
+$\{v,a',b'\}, \{v,a',b\}, \{y,a',b\}, \{y,a',b'\}$, giving $\eps_3\eps_4 = 1$. Hence
+$\eps_2 = \eps_4 = \eps_3 = \eps_1$ and the sum is $4\eps_1 = \pm4 \ne 0$
+\leanref{eps\_kill}.
+\end{proof}
+
+This is the entire sign content of the case. Everything that follows exists only to produce a
+configuration to which Lemma~\ref{lem:octakill} applies.
+
+\subsubsection*{Step 4: full closure at a lone exceptional vertex}
+
+\begin{lemma}[Closure; \texttt{octa\_eight}]\label{lem:octaeight}
+Let $\{v,a,b\}$ be a support triple and suppose every vertex other than $v$ is ordinary. Then
+the vertices $a', b', y$ of Lemma~\ref{lem:octahalf} are pairwise distinct and distinct from
+$v, a, b$, and all five links other than that of $v$ are the octahedron links: \eqref{eq:octa4}
+holds, together with $\lk(b') = v$--$a$--$y$--$a'$.
+\end{lemma}
+
+\begin{proof}
+Apply Lemma~\ref{lem:octahalf}; its two links give the support triples
+$\{a,v,b'\}, \{a,b',y\}, \{a,y,b\}, \{b,v,a'\}, \{b,a',y\}$. If $a' = b'$ then $\lk(y)$ would
+contain the three pairs $\{a',a\}, \{a',b\}, \{a,b\}$, a triangle, which the $4$-cycle link of
+the ordinary vertex $y$ cannot contain \leanref{no\_triangle\_at}; hence $a' \ne b'$. Three
+faces at an ordinary vertex determine its $4$-cycle link \leanref{link\_of\_three\_faces}: from
+$\{y,a,b\}, \{y,a,b'\}, \{y,b,a'\}$ we get $\lk(y) = b$--$a$--$b'$--$a'$, which yields the
+triple $\{y,b',a'\}$; then from $\{a',y,b\}, \{a',y,b'\}, \{a',b,v\}$ we get
+$\lk(a') = b$--$y$--$b'$--$v$, which yields $\{a',b',v\}$; and from
+$\{b',a,v\}, \{b',a,y\}, \{b',v,a'\}$ we get $\lk(b') = v$--$a$--$y$--$a'$.
+\end{proof}
+
+\begin{proposition}[\texttt{eleven\_delta\_zero\_eight}]\label{prop:lone}
+If at most one vertex of a homogeneous cubic solution on $11$ variables is exceptional, there is
+no solution.
+\end{proposition}
+
+\begin{proof}
+Let $v$ be the possible exception. By relevance $v$ lies in some support set, which is a triple
+$\{v,a,b\}$ with $a, b$ distinct and different from $v$. Both are ordinary, so
+Lemma~\ref{lem:octaeight} closes the octahedron on $v, a, b, a', b', y$; the four vertices
+$a, b, a', y$ all differ from $v$ and are therefore ordinary, and Lemma~\ref{lem:octakill}
+applies.
+\end{proof}
+
+\begin{remark}\label{rem:no8}
+Proposition~\ref{prop:lone} disposes of the sub-case $(8, 4^{10})$, but it never uses the value
+$8$, nor indeed any property of $m_v$: the only hypothesis is that \emph{at most one vertex is
+exceptional}. So the $(8, 4^{10})$ sub-case is not a mass-$8$ argument at all. Moreover
+Steps~2--6 are independent of $n$: each is a statement about an arbitrary number of variables
+with at most two exceptional vertices. Only Step~1 (the degree split) and Step~7 (the weight
+count $6 + 6 < 16$) are arithmetic about $n = 11$.
+\end{remark}
+
+Combining Step~1 with Proposition~\ref{prop:lone}: a homogeneous cubic solution on eleven
+variables has degree sequence $(6,6,4^9)$ \leanref{eleven\_delta\_zero\_reduce}. From here on
+$v$ and $w$ are the two exceptional vertices, $v \ne w$, and every other vertex is ordinary.
+No hypothesis on the values $m_v, m_w$ is used before Step~7.
+
+\subsubsection*{Step 5: the apex of a triple at an exceptional vertex}
+
+\begin{lemma}[\texttt{apex\_other}]\label{lem:apexother}
+Let $\{v,a,b\}$ be a support triple with $a$ and $b$ ordinary. Then the apex $y$ supplied by
+Lemma~\ref{lem:octahalf} is the \emph{other} exceptional vertex $w$:
+\[
+  \lk(a) = b\text{--}v\text{--}b'\text{--}w, \qquad \lk(b) = a\text{--}v\text{--}a'\text{--}w,
+\]
+with $a', b' \notin \{a,b,v,w\}$.
+\end{lemma}
+
+\begin{proof}
+Apply Lemma~\ref{lem:octahalf}, obtaining $a', b', y$, and suppose $y \notin \{v,w\}$. Then $y$
+is ordinary, so exactly as in Lemma~\ref{lem:octaeight} we get $a' \ne b'$ (else $\lk(y)$
+contains a triangle) and $\lk(y) = b$--$a$--$b'$--$a'$ is forced by the three faces
+$\{y,a,b\}, \{y,a,b'\}, \{y,b,a'\}$. Two cases.
+\begin{itemize}[leftmargin=1.4em]
+  \item If $a' \ne w$ then $a'$ is ordinary (it is not $v$ either) and its link is forced to be
+  $b$--$y$--$b'$--$v$ by the faces $\{a',y,b\}, \{a',y,b'\}, \{a',b,v\}$. Now
+  $v, a, b, a', b', y$ carry the four links \eqref{eq:octa4} with $a, b, a', y$ all ordinary, and
+  Lemma~\ref{lem:octakill} applies.
+  \item If $a' = w$ then $b'$ is ordinary ($b'$ is neither $v$ nor $a' = w$) and its link is
+  forced to be $a$--$y$--$a'$--$v$ by the faces $\{b',y,a\}, \{b',y,a'\}, \{b',a,v\}$. This is
+  the mirror configuration, killed by the mirror of Lemma~\ref{lem:octakill}, which needs mass
+  $4$ at $a, b, b'$ and $y$.
+\end{itemize}
+Either way $f$ is not Boolean. So $y \in \{v,w\}$, and $y \ne v$ by Lemma~\ref{lem:octahalf};
+hence $y = w$.
+\end{proof}
+
+\begin{lemma}[\texttt{no\_exc\_pair}]\label{lem:noexcpair}
+No support triple contains both $v$ and $w$.
+\end{lemma}
+
+\begin{proof}
+Suppose $\{u,v,w\}$ is a support triple. Then $u \notin \{v,w\}$, so $u$ is ordinary and the
+pair $\{u,v\}$ lies in a second support triple $\{u,v,d\}$ with $d \ne w$ and $d \ne u$
+\leanref{pair\_second}; also $d \ne v$, the three vertices of a support triple being distinct
+\leanref{tri\_distinct}. So $d$ is ordinary, and Lemma~\ref{lem:apexother} applied to the triple
+$\{v,u,d\}$ gives $\lk(u) = d$--$v$--$b'$--$w$ for some $b' \notin \{d,u,v,w\}$. In that
+$4$-cycle the two neighbours of $v$ are $d$ and $b'$, so the only support triples containing the
+pair $\{u,v\}$ are $\{u,v,d\}$ and $\{u,v,b'\}$ \leanref{link\_v\_nbrs}. But $\{u,v,w\}$ is such
+a triple and $w \notin \{d,b'\}$.
+\end{proof}
+
+\subsubsection*{Step 6: killing every triple of ordinary vertices}
+
+\begin{lemma}[Generic apex; \texttt{apex\_gen}]\label{lem:apexgen}
+Let $\{x,a,b\}$ be any support triple whose ends $a$ and $b$ are ordinary; the third vertex $x$
+is arbitrary, ordinary or exceptional. Then at least one of
+\[
+  \{v,a,b\}, \qquad \{w,a,b\}, \qquad \{v,b,x\}, \qquad \{w,b,x\}
+\]
+is a support triple.
+\end{lemma}
+
+\begin{proof}
+Apply Lemma~\ref{lem:octahalf} at $\{x,a,b\}$, giving $a', b', y$ with
+$\lk(a) = b$--$x$--$b'$--$y$ and $\lk(b) = a$--$x$--$a'$--$y$. Reading $\lk(b)$ gives the
+support triple $\{b,x,a'\}$ and reading $\lk(a)$ gives $\{a,y,b\}$. If $a' \in \{v,w\}$ the
+third or fourth alternative holds; if $y \in \{v,w\}$ the first or second does. So assume $y$
+and $a'$ are both ordinary. Then, exactly as in Lemma~\ref{lem:apexother}, $a' \ne b'$,
+$\lk(y) = b$--$a$--$b'$--$a'$ and $\lk(a') = b$--$y$--$b'$--$x$ are forced, so
+$x, a, b, a', b', y$ carry the four links \eqref{eq:octa4} with $a, b, a', y$ ordinary, and
+Lemma~\ref{lem:octakill} applies.
+\end{proof}
+
+\begin{lemma}[\texttt{kill\_pair}]\label{lem:killpair}
+Let $e \in \{v,w\}$, let $s$ and $t$ be ordinary and let $\{e,s,t\}$ be a support triple. Then
+no ordinary vertex $u$ completes the pair $\{s,t\}$: $\{s,t,u\}$ is not a support triple.
+\end{lemma}
+
+\begin{proof}
+Write $e_1 = e$ and let $e_2$ be the other of $v, w$; here it matters that $v \ne w$, so that
+$e_1$ and $e_2$ are genuinely two vertices. Lemma~\ref{lem:apexother} applied at $\{e_1,s,t\}$
+gives $\lk(s) = t$--$e_1$--$t'$--$e_2$ for some $t' \notin \{s,t,e_1,e_2\}$. In this $4$-cycle
+the two neighbours of $t$ are $e_1$ and $e_2$, so the only support triples containing the pair
+$\{s,t\}$ are $\{s,t,e_1\}$ and $\{s,t,e_2\}$ \leanref{link\_v\_nbrs}. An ordinary $u$ is
+neither.
+\end{proof}
+
+\begin{lemma}[No free triple; \texttt{kill\_free\_triple}]\label{lem:killfree}
+Assume $v \ne w$. Then no support triple has all three vertices ordinary.
+\end{lemma}
+
+\begin{proof}
+Let $\{p,q,r\}$ be such a triple and apply Lemma~\ref{lem:apexgen} with $x = p$, $a = q$,
+$b = r$. In the first two cases $\{v,q,r\}$ or $\{w,q,r\}$ is a support triple with $q, r$
+ordinary, while $\{q,r,p\}$ is a support triple with $p$ ordinary, contradicting
+Lemma~\ref{lem:killpair} with $(s,t,u) = (q,r,p)$. In the last two cases $\{v,r,p\}$ or
+$\{w,r,p\}$ is a support triple with $r, p$ ordinary, while $\{r,p,q\}$ is a support triple with
+$q$ ordinary, contradicting Lemma~\ref{lem:killpair} with $(s,t,u) = (r,p,q)$.
+\end{proof}
+
+\subsubsection*{Step 7: the endgame}
+
+\begin{lemma}[\texttt{exists\_free\_set}]\label{lem:freeset}
+If $m_v = m_w = 6$ and no support set contains both $v$ and $w$, then some support set contains
+neither.
+\end{lemma}
+
+\begin{proof}
+If every support set met $\{v,w\}$ then, the two supports being disjoint, they would partition
+the whole support, giving $16 = \sum_S n_S^2 = m_v + m_w = 12$. (Only $\sum_S n_S^2 = 16$ is
+used here; homogeneity is not.)
+\end{proof}
+
+\begin{proof}[Proof that $\delta = 0$ is impossible]
+By Step~1 and Proposition~\ref{prop:lone} the degree sequence is $(6,6,4^9)$; let $v \ne w$ be
+the two vertices of mass $6$, every other vertex being ordinary. A support set containing both
+$v$ and $w$ would be a triple $\{u,v,w\}$ with $u$ ordinary, which Lemma~\ref{lem:noexcpair}
+forbids, so the supports of $v$ and of $w$ are disjoint. By Lemma~\ref{lem:freeset} some support
+set contains neither $v$ nor $w$; it is a triple $\{p,q,r\}$, and $p, q, r$ are all ordinary.
+Lemma~\ref{lem:killfree} forbids it. \leanref{eleven\_delta\_zero}
+\end{proof}
+
+\begin{remark}
+The route never classifies the link of an exceptional vertex, so the shapes $C_8$,
+$C_3 \cup C_5$, $C_4 \cup C_4$ and the bowtie are never named. An independent seeded search
+reports that in the $(8,4^{10})$ branch only $C_4 \cup C_4$ admits a combinatorial completion,
+with exactly $630$ of them, all of them two octahedra glued at $v$, and that nothing
+combinatorial excludes them: they die only to a sign argument. Lemma~\ref{lem:octakill} is that
+sign argument, localised to a single octahedron and to the single pair $U = \{v,y\}$. The $630$
+configurations are therefore exactly the ones it kills.
+\end{remark}
 
 \medskip
 So $\delta = 0$ is impossible, and with Sections~\ref{app:delta4} and \ref{app:delta2} all cases
 are exhausted. This proves Theorem~\ref{thm:no11}. \hfill$\square$
+
+\section{The Lean statements}\label{app:leanstmt}
+\sloppy
+The following are copied from the sources, character for character; only statements are shown,
+never proofs. Appendix~\ref{app:leansrc} says where the proofs are.
+
+\subsection{The frozen finite statement}
+All of \texttt{R3/Statement.lean} except its header comment and its \texttt{import Mathlib}:
+
+\begin{Verbatim}[fontsize=\footnotesize,formatcom=\ttfamily,samepage=false]
+/-- number of elements of the subset of [n] encoded by the bitmask `S` -/
+def card (n S : ℕ) : ℕ := ((range n).filter fun i => S.testBit i).card
+
+/-- `N` is supported on subsets of size ≤ 3 -/
+def IsCoeffVec (n : ℕ) (N : ℕ → ℤ) : Prop :=
+  ∀ S, S < 2 ^ n → 3 < card n S → N S = 0
+
+/-- (i)  ∑_S n_S² = 16 -/
+def CondI (n : ℕ) (N : ℕ → ℤ) : Prop :=
+  ∑ S ∈ range (2 ^ n), (N S) ^ 2 = 16
+
+/-- (ii) for every nonempty U ⊆ [n], ∑_{(S,T) : S Δ T = U} n_S n_T = 0 -/
+def CondII (n : ℕ) (N : ℕ → ℤ) : Prop :=
+  ∀ U, 0 < U → U < 2 ^ n →
+    ∑ S ∈ range (2 ^ n), ∑ T ∈ range (2 ^ n), (if S ^^^ T = U then N S * N T else 0) = 0
+
+/-- (iii) every variable is relevant -/
+def CondIII (n : ℕ) (N : ℕ → ℤ) : Prop :=
+  ∀ i, i < n → ∃ S, S < 2 ^ n ∧ S.testBit i ∧ N S ≠ 0
+
+/-- a solution of the finite problem on n variables -/
+def IsSol (n : ℕ) (N : ℕ → ℤ) : Prop :=
+  IsCoeffVec n N ∧ CondI n N ∧ CondII n N ∧ CondIII n N
+
+/-- The finite statement F(n). -/
+def F (n : ℕ) : Prop := ¬ ∃ N : ℕ → ℤ, IsSol n N
+\end{Verbatim}
+
+The bitmask encoding is the whole of the translation: \texttt{S.testBit i} is $i \in S$,
+\texttt{\^{}\^{}\^{}} is $\sd$, and \texttt{range (2 \^{} n)} enumerates the subsets of $[n]$.
+Note that \texttt{CondII} sums over \emph{ordered} pairs, as in Section~\ref{sec:finite}.
+
+\subsection{The auxiliary definitions}
+From \texttt{R3/Basic.lean} and \texttt{R3/Octahedron.lean}:
+
+\begin{Verbatim}[fontsize=\footnotesize,formatcom=\ttfamily,samepage=false]
+/-- mass of v: `∑_{S ∋ v} n_S²` -/
+def mass (n : ℕ) (N : ℕ → ℤ) (v : ℕ) : ℤ :=
+  ∑ S ∈ range (2 ^ n), if S.testBit v then (N S) ^ 2 else 0
+
+def Cubic (n : ℕ) (N : ℕ → ℤ) : Prop := ∀ S, S < 2 ^ n → N S ≠ 0 → card n S = 3
+
+/-- `{x, y}` is an edge of the 4-cycle p-q-r-s-p -/
+def Edge (p q r s x y : ℕ) : Prop :=
+  (x = p ∧ y = q) ∨ (x = q ∧ y = p) ∨ (x = q ∧ y = r) ∨ (x = r ∧ y = q) ∨
+  (x = r ∧ y = s) ∨ (x = s ∧ y = r) ∨ (x = s ∧ y = p) ∨ (x = p ∧ y = s)
+
+/-- the support triples at `v` are exactly `v` plus an edge of the cycle p-q-r-s-p -/
+def LinkIs (n : ℕ) (N : ℕ → ℤ) (v p q r s : ℕ) : Prop :=
+  ∀ x y, x < n → y < n → x ≠ v → y ≠ v → (N (tri v x y) ≠ 0 ↔ Edge p q r s x y)
+\end{Verbatim}
+
+Here \texttt{tri v x y} is the bitmask of $\{v,x,y\}$. \texttt{Cubic 11 N} is the hypothesis
+$\delta = 0$; \texttt{mass n N v} is $m_v = 16\,\Inf_v(f)$.
+
+\subsection{The headline theorems}
+From \texttt{R3/Final.lean}, \texttt{R3/DeltaFour.lean} and \texttt{R3/DeltaZero.lean}:
+
+\begin{Verbatim}[fontsize=\footnotesize,formatcom=\ttfamily,samepage=false]
+theorem F_twelve : F 12
+
+theorem eleven_delta_four {N : ℕ → ℤ} (hsol : IsSol 11 N)
+    (hm : ∀ v, v < 11 → mass 11 N v = 4) : False
+
+theorem eleven_delta_zero {N : ℕ → ℤ} (hsol : IsSol 11 N) (hcub : Cubic 11 N) : False
+\end{Verbatim}
+
+\ifleandone
+The case $\delta = 2$ and the assembly are
+\begin{Verbatim}[fontsize=\footnotesize,formatcom=\ttfamily,samepage=false]
+theorem eleven_delta_two {N : ℕ → ℤ} (hsol : IsSol 11 N) {v : ℕ} (hv : v < 11)
+    (h6 : mass 11 N v = 6) (hrest : ∀ w, w < 11 → w ≠ v → mass 11 N w = 4) : False
+
+theorem F_eleven : F 11
+\end{Verbatim}
+\else
+The case $\delta = 2$ is in progress; its statement is
+\begin{Verbatim}[fontsize=\footnotesize,formatcom=\ttfamily,samepage=false]
+theorem eleven_delta_two {N : ℕ → ℤ} (hsol : IsSol 11 N) {v : ℕ} (hv : v < 11)
+    (h6 : mass 11 N v = 6) (hrest : ∀ w, w < 11 → w ≠ v → mass 11 N w = 4) : False
+\end{Verbatim}
+and \todo{F\_eleven: fill in after gate --- paste the verbatim statement of
+\texttt{F\_eleven : F 11} here.}
+\fi
+
+The octahedron kill of Lemma~\ref{lem:octakill}, the one place the signs are used, is stated
+against the four links \eqref{eq:octa4}:
+
+\begin{Verbatim}[fontsize=\footnotesize,formatcom=\ttfamily,samepage=false]
+def Octa4 (n : ℕ) (N : ℕ → ℤ) (v a b a' b' y : ℕ) : Prop :=
+  LinkIs n N a b v b' y ∧ LinkIs n N b a v a' y ∧ LinkIs n N y b a b' a' ∧
+    LinkIs n N a' b y b' v
+
+theorem octa_kill4 {n : ℕ} {N : ℕ → ℤ} (hsol : IsSol n N)
+    {v a b a' b' y : ℕ} (hv : v < n) (ha : a < n) (hb : b < n) (ha'lt : a' < n)
+    (hb'lt : b' < n) (hylt : y < n)
+    (h4a : mass n N a = 4) (h4b : mass n N b = 4) (h4a' : mass n N a' = 4)
+    (h4y : mass n N y = 4)
+    (hD : Dist6 v a b a' b' y) (hO : Octa4 n N v a b a' b' y) : False
+\end{Verbatim}
+
+Two features of this statement are worth reading off, because they are exactly the claims made
+in Appendix~\ref{app:delta0}: there is no hypothesis \texttt{mass n N v} and no hypothesis
+\texttt{mass n N b'}, and \texttt{Octa4} names four links, not five. The theorem also does not
+take \texttt{Cubic}. \texttt{Dist6} is the conjunction of the fifteen distinctness facts among
+$v, a, b, a', b', y$.
+
+\subsection{The axiom certificate}
+The \texttt{\#print axioms} output for the headline theorems reads
+
+\begin{Verbatim}[fontsize=\scriptsize,formatcom=\ttfamily,samepage=false]
+'R3.F_twelve' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.eleven_delta_four' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.eleven_delta_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+\end{Verbatim}
+
+and likewise for each of the other listed theorems. No line of the gate's output names any
+other axiom. The list of theorems the gate audits grows as each case is merged into the
+top-level module; a theorem is quoted here only once its own file has been built and its
+axioms printed.
+
+\section{The Lean development}\label{app:leansrc}
+The formal development is about $5{,}000$ lines, too long to print here. It is the directory
+\texttt{lean/} of the repository
+\begin{center}
+  \url{https://github.com/moffatstudio/relevant-variables-degree}
+\end{center}
+and is also the ancillary material of this submission. Its layout is:
+
+\begin{itemize}[leftmargin=1.4em]
+  \item \texttt{R3/Statement.lean} --- the frozen finite statement $F(n)$, reproduced in full in
+  Appendix~\ref{app:leanstmt}. Nothing else in the development modifies it.
+  \item \texttt{R3/Basic.lean}, \texttt{R3/Mass.lean}, \texttt{R3/Link.lean} --- masses,
+  supports, the pointwise condition (E1), Lemma~\ref{lem:masses} and the link classification of
+  Lemma~\ref{lem:links}(a).
+  \item \texttt{R3/Cycle.lean}, \texttt{R3/Octahedron.lean}, \texttt{R3/LinkTypes.lean},
+  \texttt{R3/LinkSix.lean} --- $4$-cycle links, \texttt{Edge}, \texttt{LinkIs}, the sixth-vertex
+  and three-faces lemmas, and the closure machinery.
+  \item \texttt{R3/Twelve.lean}, \texttt{R3/Final.lean} --- Theorem~\ref{thm:no12} in finite
+  form, ending in \texttt{F\_twelve}.
+  \item \texttt{R3/DeltaFour.lean}, \texttt{R3/DeltaTwo.lean}, \texttt{R3/DeltaZero.lean} ---
+  the three cases of $F(11)$; \texttt{DeltaZero.lean} is the file whose argument is printed in
+  Appendix~\ref{app:delta0}.
+  \item \texttt{gate.sh} --- the gate described in Section~\ref{sec:lean}; it writes
+  \texttt{GATE.txt} and \texttt{AXIOMS.txt} and exits nonzero on any failure. The same gate runs
+  in continuous integration on a fresh clone, and the repository carries its badge.
+\end{itemize}
+
+From a fresh clone,
+\[
+  \texttt{lake exe cache get \&\& lake build \&\& bash gate.sh}
+\]
+reproduces the check. The toolchain is pinned by \texttt{lean-toolchain}
+(\texttt{leanprover/lean4:v4.23.0}) and the Mathlib revision by \texttt{lake-manifest.json}.
 
 \begin{thebibliography}{99}
 
@@ -1383,7 +1832,6 @@ Combinatorica \textbf{40} (2020), 237--244.
 N.~Nisan and M.~Szegedy,
 \emph{On the degree of Boolean functions as real polynomials},
 Computational Complexity \textbf{4} (1994), 301--313.
-\todo{page range not independently re-verified in this project.}
 
 \bibitem{ODbook}
 R.~O'Donnell,

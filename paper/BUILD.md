@@ -91,3 +91,24 @@ never referenced.
 
 ## Compiled 2026-09-13
 Tectonic 0.17.0 installed via `scoop install tectonic`. Build: `tectonic -X compile main.tex` in this folder (exit 0, PDF produced; fontconfig warning is harmless).
+
+## Paper v2, 2026-09-13 (Lean route + Lean section and appendices)
+
+- Appendix A's case `delta = 0` is now the topology-free Lean route; `Fact T` (Euler
+  characteristic) has been deleted, no other case used it.
+- New Section "Formal verification in Lean 4", Appendix B (verbatim Lean statements) and
+  Appendix C (pointer to the repository).
+- The Lean listings in Appendix B contain mathematical Unicode. **No special font is needed**:
+  every such character is mapped in the preamble by `\newunicodechar` to its LaTeX equivalent
+  (`ℕ` to `\mathbb{N}`, `∑` to `\sum`, and so on), so the file still compiles with plain
+  `pdflatex` as well as with `xelatex`/`tectonic`. If a new Lean snippet introduces a character
+  that is not in that list, the compile stops with "Unicode character ... not set up"; add one
+  more `\newunicodechar` line.
+- `fontspec` is deliberately **not** used: `fontspec` plus `amsart` breaks the maths in the
+  abstract ("\textfont 6 is undefined"), and `unicode-math` then breaks other macros.
+- `\LeanStatus` at the top of the preamble takes `inprogress` or `complete`; it drives the
+  boolean `\ifleandone` and the macro `\leanstate{complete text}{in-progress text}`. Flipping
+  that one line updates the abstract, the introduction, Section "Formal verification" and
+  Appendix B together. Verbatim blocks are switched with `\ifleandone ... \else ... \fi`, not
+  with `\leanstate` (a `Verbatim` environment cannot sit inside a macro argument).
+- Page count: 21. `main.pdf` is copied to `paper.pdf`.
