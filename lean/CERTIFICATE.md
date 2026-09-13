@@ -1,6 +1,6 @@
 # Machine-checked certificate — F(11) and F(12)
 
-Date: 2026-09-13 (gate run 2026-09-13T23:12:01Z).
+Date: 2026-09-13 (from-scratch gate run 2026-09-13T23:17:45Z).
 
 ## What is certified
 
@@ -86,7 +86,8 @@ cd <campaign>/lean
 bash gate.sh
 ```
 
-Wall time 4m31s on the development machine (incremental; `lake build` from cold is longer).
+Wall time 22m10s on the development machine for a from-scratch rebuild of the whole `R3`
+library (Mathlib oleans reused); 4m31s incremental.
 The gate writes `GATE.txt` and `AXIOMS.txt`, and exits 0 iff `lake build` succeeds, the
 laundering scan finds nothing, and all 158 `#print axioms` lines are clean. Last run:
 `GATE: PASS`.
