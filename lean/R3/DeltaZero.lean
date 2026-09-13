@@ -1,5 +1,6 @@
 import R3.Final
 import R3.LinkTypes
+import R3.LinkSix
 /-!
 # Case `δ = 0` of R3_equals_10.md at `n = 11`
 
@@ -798,17 +799,46 @@ lemma eps_kill {e1 e2 e3 e4 : ℤ} (h1 : e1 = 1 ∨ e1 = -1) (h2 : e2 = 1 ∨ e2
   rcases h1 with rfl | rfl <;> rcases h2 with rfl | rfl <;> rcases h3 with rfl | rfl <;>
     rcases h4 with rfl | rfl <;> omega
 
+/-- **The apex correlation.**  For any two vertices `v` and `y`, condition (ii) at the pair
+`{v, y}` says that the support sets at `y`, paired with their translates through `{v, y}`,
+have vanishing correlation.  All the analysis happens at `y`: sets whose translate is not in
+the support simply contribute `0`. -/
+theorem corr_supp {n : ℕ} {N : ℕ → ℤ} (hsol : IsSol n N) {v y : ℕ} (hv : v < n)
+    (hy : y < n) : ∑ S ∈ supp n N y, N S * N (S ^^^ pair v y) = 0 := by
+  have hUlt : pair v y < 2 ^ n := pair_lt hv hy
+  have hUpos : 0 < pair v y := Nat.pos_of_ne_zero pair_ne_zero
+  have hyU : (pair v y).testBit y = true := mem_pair_iff.mpr (Or.inr rfl)
+  have hhalf := corr_bit_half hyU hUlt (condII_corr hsol.2.2.1 hUpos hUlt)
+  have hsub : supp n N y ⊆ (range (2 ^ n)).filter (fun S => S.testBit y = true) := by
+    intro S hS
+    obtain ⟨k1, k2, k3⟩ := mem_supp.mp hS
+    exact mem_filter.mpr ⟨mem_range.mpr k1, k2⟩
+  have hvanish : ∀ S ∈ (range (2 ^ n)).filter (fun S => S.testBit y = true),
+      S ∉ supp n N y → N S * N (S ^^^ pair v y) = 0 := by
+    intro S hS hnot
+    rw [mem_filter, mem_range] at hS
+    have h0 : N S = 0 := by
+      by_contra hne
+      exact hnot (mem_supp.mpr ⟨hS.1, hS.2, hne⟩)
+    rw [h0, zero_mul]
+  rw [← Finset.sum_subset hsub hvanish] at hhalf
+  exact hhalf
+
 /-- **The octahedron kill.**  If `v, a, b, a', b', y` carry the octahedron links and the rim
 vertices `a, b, a'` and the antipode `y` all have mass 4, condition (ii) at the pair
 `{v, y}` fails.  (The mass of `v` itself is irrelevant.) -/
-theorem octa_kill {n : ℕ} {N : ℕ → ℤ} (hsol : IsSol n N)
+def Octa4 (n : ℕ) (N : ℕ → ℤ) (v a b a' b' y : ℕ) : Prop :=
+  LinkIs n N a b v b' y ∧ LinkIs n N b a v a' y ∧ LinkIs n N y b a b' a' ∧
+    LinkIs n N a' b y b' v
+
+theorem octa_kill4 {n : ℕ} {N : ℕ → ℤ} (hsol : IsSol n N)
     {v a b a' b' y : ℕ} (hv : v < n) (ha : a < n) (hb : b < n) (ha'lt : a' < n)
     (hb'lt : b' < n) (hylt : y < n)
     (h4a : mass n N a = 4) (h4b : mass n N b = 4) (h4a' : mass n N a' = 4)
     (h4y : mass n N y = 4)
-    (hD : Dist6 v a b a' b' y) (hO : Octa n N v a b a' b' y) : False := by
+    (hD : Dist6 v a b a' b' y) (hO : Octa4 n N v a b a' b' y) : False := by
   obtain ⟨d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12, d13, d14, d15⟩ := hD
-  obtain ⟨hLa, hLb, hLy, hLa', hLb'⟩ := hO
+  obtain ⟨hLa, hLb, hLy, hLa'⟩ := hO
   -- the four support triples at `y`
   have Y1 : N (tri y a b) ≠ 0 :=
     (hLy a b ha hb d9 d12).mpr (edge_symm.mp (edge_pq b a b' a'))
@@ -826,7 +856,7 @@ theorem octa_kill {n : ℕ} {N : ℕ → ℤ} (hsol : IsSol n N)
   have V3 : N (tri v a' b') ≠ 0 := by
     rw [← tri_rotr a' b' v]
     exact (hLa' b' v hb'lt hv (Ne.symm d13) d3).mpr (edge_rs b y b' v)
-  clear hLa hLb hLy hLa' hLb'
+  clear hLa hLb hLy hLa'
   -- the support of `y`
   have hsy : supp n N y = {tri y a b, tri y a b', tri y a' b', tri y a' b} :=
     supp_eq_quad h4y (tri_mem_supp hylt ha hb Y1) (tri_mem_supp hylt ha hb'lt Y2)
@@ -902,23 +932,8 @@ theorem octa_kill {n : ℕ} {N : ℕ → ℤ} (hsol : IsSol n N)
   have qV3 := pma' _ (tri_mem_supp2 hv ha'lt hb'lt V3)
   have qV4 := pma' _ (tri_mem_supp2 hv ha'lt hb V4)
   -- condition (ii) at the pair {v, y}
-  have hUlt : pair v y < 2 ^ n := pair_lt hv hylt
-  have hUpos : 0 < pair v y := Nat.pos_of_ne_zero pair_ne_zero
-  have hyU : (pair v y).testBit y = true := mem_pair_iff.mpr (Or.inr rfl)
-  have hhalf := corr_bit_half hyU hUlt (condII_corr hsol.2.2.1 hUpos hUlt)
-  have hsub : supp n N y ⊆ (range (2 ^ n)).filter (fun S => S.testBit y = true) := by
-    intro S hS
-    obtain ⟨k1, k2, k3⟩ := mem_supp.mp hS
-    exact mem_filter.mpr ⟨mem_range.mpr k1, k2⟩
-  have hvanish : ∀ S ∈ (range (2 ^ n)).filter (fun S => S.testBit y = true),
-      S ∉ supp n N y → N S * N (S ^^^ pair v y) = 0 := by
-    intro S hS hnot
-    rw [mem_filter, mem_range] at hS
-    have h0 : N S = 0 := by
-      by_contra hne
-      exact hnot (mem_supp.mpr ⟨hS.1, hS.2, hne⟩)
-    rw [h0, zero_mul]
-  rw [← Finset.sum_subset hsub hvanish, hsy,
+  have hhalf := corr_supp hsol hv hylt
+  rw [hsy,
     Finset.sum_insert (by
       simp only [Finset.mem_insert, Finset.mem_singleton]
       push_neg
@@ -942,6 +957,39 @@ theorem octa_kill {n : ℕ} {N : ℕ → ℤ} (hsol : IsSol n N)
     (by linear_combination Pa) (by linear_combination Pb) (by linear_combination Pa')
     (by linear_combination hhalf)
 
+
+/-- reversing the link cycle -/
+lemma linkIs_rev {n : ℕ} {N : ℕ → ℤ} {x p q r s : ℕ} (h : LinkIs n N x p q r s) :
+    LinkIs n N x s r q p :=
+  fun u t hu ht hux htx => (h u t hu ht hux htx).trans edge_rev
+
+lemma dist6_swap {v a b a' b' y : ℕ} (hD : Dist6 v a b a' b' y) :
+    Dist6 v b a b' a' y := by
+  obtain ⟨d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12, d13, d14, d15⟩ := hD
+  exact ⟨d2, d1, d4, d3, d5, Ne.symm d6, d11, d10, d12, d8, d7, d9,
+    Ne.symm d13, d15, d14⟩
+
+/-- **The octahedron kill** (original packaging, all five links). -/
+theorem octa_kill {n : ℕ} {N : ℕ → ℤ} (hsol : IsSol n N)
+    {v a b a' b' y : ℕ} (hv : v < n) (ha : a < n) (hb : b < n) (ha'lt : a' < n)
+    (hb'lt : b' < n) (hylt : y < n)
+    (h4a : mass n N a = 4) (h4b : mass n N b = 4) (h4a' : mass n N a' = 4)
+    (h4y : mass n N y = 4)
+    (hD : Dist6 v a b a' b' y) (hO : Octa n N v a b a' b' y) : False :=
+  octa_kill4 hsol hv ha hb ha'lt hb'lt hylt h4a h4b h4a' h4y hD
+    ⟨hO.1, hO.2.1, hO.2.2.1, hO.2.2.2.1⟩
+
+/-- the mirror of `octa_kill4`: the same kill using the link of `b'` instead of `a'`
+(masses needed at `a`, `b`, `b'`, `y`). -/
+theorem octa_kill4' {n : ℕ} {N : ℕ → ℤ} (hsol : IsSol n N)
+    {v a b a' b' y : ℕ} (hv : v < n) (ha : a < n) (hb : b < n) (ha'lt : a' < n)
+    (hb'lt : b' < n) (hylt : y < n)
+    (h4a : mass n N a = 4) (h4b : mass n N b = 4) (h4b' : mass n N b' = 4)
+    (h4y : mass n N y = 4) (hD : Dist6 v a b a' b' y)
+    (hLa : LinkIs n N a b v b' y) (hLb : LinkIs n N b a v a' y)
+    (hLy : LinkIs n N y b a b' a') (hLb' : LinkIs n N b' v a y a') : False :=
+  octa_kill4 hsol hv hb ha hb'lt ha'lt hylt h4b h4a h4b' h4y (dist6_swap hD)
+    ⟨hLb, hLa, linkIs_rot (linkIs_rot (linkIs_rev hLy)), linkIs_rot hLb'⟩
 
 /-! ## The `(8, 4^10)` branch of `δ = 0` -/
 
@@ -967,5 +1015,374 @@ theorem eleven_delta_zero_reduce {N : ℕ → ℤ} (hsol : IsSol 11 N) (hcub : C
   rcases eleven_degree_split hsol hcub with ⟨v, hv, _, hexc⟩ | h
   · exact (eleven_delta_zero_eight hsol hcub hv hexc).elim
   · exact h
+
+
+/-! ## Toolkit for the `(6, 6, 4^9)` sub-case
+
+`corr_supp` is already stated for an arbitrary pair of vertices, so the `C_6` branch of
+`(6,6,4^9)` needs only the mass-6 analogues of `supp_eq_quad` and `eps_kill`: if `link(v)`
+and `link(w)` are the same 6-cycle, condition (ii) at `{v, w}` gives `∑_{i<6} e_i = 0` while
+mass 4 at the cycle vertices gives `e_i e_{i+1} = 1`, so the sum is `±6`. -/
+
+lemma card_six_eq {S1 S2 S3 S4 S5 S6 : ℕ}
+    (n12 : S1 ≠ S2) (n13 : S1 ≠ S3) (n14 : S1 ≠ S4) (n15 : S1 ≠ S5) (n16 : S1 ≠ S6)
+    (n23 : S2 ≠ S3) (n24 : S2 ≠ S4) (n25 : S2 ≠ S5) (n26 : S2 ≠ S6)
+    (n34 : S3 ≠ S4) (n35 : S3 ≠ S5) (n36 : S3 ≠ S6)
+    (n45 : S4 ≠ S5) (n46 : S4 ≠ S6) (n56 : S5 ≠ S6) :
+    ({S1, S2, S3, S4, S5, S6} : Finset ℕ).card = 6 := by
+  rw [Finset.card_insert_of_notMem (by simp [n12, n13, n14, n15, n16]),
+    Finset.card_insert_of_notMem (by simp [n23, n24, n25, n26]),
+    Finset.card_insert_of_notMem (by simp [n34, n35, n36]),
+    Finset.card_insert_of_notMem (by simp [n45, n46]),
+    Finset.card_insert_of_notMem (by simp [n56]), Finset.card_singleton]
+
+/-- **Exhaustion at a mass-6 vertex.**  Six distinct support sets at a vertex of mass 6 are
+all of them (`mass_six_card`). -/
+theorem supp_eq_six {n : ℕ} {N : ℕ → ℤ} (hsol : IsSol n N) {v : ℕ} (hv : v < n)
+    (h6 : mass n N v = 6) {S1 S2 S3 S4 S5 S6 : ℕ}
+    (h1 : S1 ∈ supp n N v) (h2 : S2 ∈ supp n N v) (h3 : S3 ∈ supp n N v)
+    (h4 : S4 ∈ supp n N v) (h5 : S5 ∈ supp n N v) (h6' : S6 ∈ supp n N v)
+    (n12 : S1 ≠ S2) (n13 : S1 ≠ S3) (n14 : S1 ≠ S4) (n15 : S1 ≠ S5) (n16 : S1 ≠ S6)
+    (n23 : S2 ≠ S3) (n24 : S2 ≠ S4) (n25 : S2 ≠ S5) (n26 : S2 ≠ S6)
+    (n34 : S3 ≠ S4) (n35 : S3 ≠ S5) (n36 : S3 ≠ S6)
+    (n45 : S4 ≠ S5) (n46 : S4 ≠ S6) (n56 : S5 ≠ S6) :
+    supp n N v = {S1, S2, S3, S4, S5, S6} := by
+  have hsub : ({S1, S2, S3, S4, S5, S6} : Finset ℕ) ⊆ supp n N v := by
+    intro T hT
+    simp only [Finset.mem_insert, Finset.mem_singleton] at hT
+    rcases hT with rfl | rfl | rfl | rfl | rfl | rfl <;> assumption
+  have hcard : (supp n N v).card ≤ ({S1, S2, S3, S4, S5, S6} : Finset ℕ).card := by
+    rw [card_six_eq n12 n13 n14 n15 n16 n23 n24 n25 n26 n34 n35 n36 n45 n46 n56]
+    exact le_of_eq (mass_six_card hsol hv h6)
+  exact (Finset.eq_of_subset_of_card_le hsub hcard).symm
+
+/-- the six-term sign contradiction: six `±1` values, consecutively linked, summing to zero -/
+lemma eps_kill6 {e1 e2 e3 e4 e5 e6 : ℤ} (h1 : e1 = 1 ∨ e1 = -1) (h2 : e2 = 1 ∨ e2 = -1)
+    (h3 : e3 = 1 ∨ e3 = -1) (h4 : e4 = 1 ∨ e4 = -1) (h5 : e5 = 1 ∨ e5 = -1)
+    (h6 : e6 = 1 ∨ e6 = -1)
+    (p12 : e1 * e2 = 1) (p23 : e2 * e3 = 1) (p34 : e3 * e4 = 1) (p45 : e4 * e5 = 1)
+    (p56 : e5 * e6 = 1) (hsum : e1 + e2 + e3 + e4 + e5 + e6 = 0) : False := by
+  rcases h1 with rfl | rfl <;> rcases h2 with rfl | rfl <;> rcases h3 with rfl | rfl <;>
+    rcases h4 with rfl | rfl <;> rcases h5 with rfl | rfl <;> rcases h6 with rfl | rfl <;>
+    omega
+
+/-! ## The apex of a triple at an exceptional vertex is the other exceptional vertex -/
+
+/-- **Lemma D1.**  Let `v`, `w` be the only two vertices that may have mass `≠ 4`, and let
+`{v, a, b}` be a support triple with `a, b ∉ {v, w}`.  Then the apex supplied by `octa_half`
+is `w` itself: the links of `a` and of `b` are the 4-cycles `b-v-b'-w` and `a-v-a'-w`.
+(If the apex were an ordinary vertex, the octahedron would close up far enough for
+`octa_kill4` — in one of its two mirror forms — to contradict condition (ii).) -/
+theorem apex_other {n : ℕ} {N : ℕ → ℤ} (hsol : IsSol n N) (hcub : Cubic n N)
+    {v w a b : ℕ} (hv : v < n) (ha : a < n) (hb : b < n)
+    (hexc : ∀ z, z < n → z ≠ v → z ≠ w → mass n N z = 4)
+    (hav : a ≠ v) (haw : a ≠ w) (hbv : b ≠ v) (hbw : b ≠ w) (hab : a ≠ b)
+    (hF : N (tri v a b) ≠ 0) :
+    ∃ a' b', a' < n ∧ b' < n ∧ a' ≠ a ∧ a' ≠ b ∧ a' ≠ v ∧ a' ≠ w ∧
+      b' ≠ a ∧ b' ≠ b ∧ b' ≠ v ∧ b' ≠ w ∧
+      LinkIs n N a b v b' w ∧ LinkIs n N b a v a' w := by
+  have h4a : mass n N a = 4 := hexc a ha hav haw
+  have h4b : mass n N b = 4 := hexc b hb hbv hbw
+  have hFa : N (tri a v b) ≠ 0 := by
+    rw [show tri a v b = tri v a b from tri_ext (fun _ => by omega)]; exact hF
+  obtain ⟨a', b', y, ha'lt, hb'lt, hylt, ha'a, ha'b, ha'v, ha'y, hb'a, hb'b, hb'v, hb'y,
+    hya, hyb, hyv, hLa, hLb⟩ := octa_half hsol hcub hv ha hb h4a h4b hav hbv hab hFa
+  have hy : y = w := by
+    by_contra hyw
+    have h4y : mass n N y = 4 := hexc y hylt hyv hyw
+    -- the faces read off the links of `a` and `b`
+    have Favb' : N (tri a v b') ≠ 0 :=
+      (hLa v b' hv hb'lt (Ne.symm hav) hb'a).mpr (edge_qr b v b' y)
+    have Fab'y : N (tri a b' y) ≠ 0 :=
+      (hLa b' y hb'lt hylt hb'a hya).mpr (edge_rs b v b' y)
+    have Fayb : N (tri a y b) ≠ 0 :=
+      (hLa y b hylt hb hya (Ne.symm hab)).mpr (edge_sp b v b' y)
+    have Fbva' : N (tri b v a') ≠ 0 :=
+      (hLb v a' hv ha'lt (Ne.symm hbv) ha'b).mpr (edge_qr a v a' y)
+    have Fba'y : N (tri b a' y) ≠ 0 :=
+      (hLb a' y ha'lt hylt ha'b hyb).mpr (edge_rs a v a' y)
+    have ha'b' : a' ≠ b' := by
+      intro hEq
+      refine no_triangle_at hsol hcub hylt ha'lt ha hb h4y ha'y (Ne.symm hya) (Ne.symm hyb)
+        hab ?_ ?_ ?_
+      · rw [show tri y a' a = tri a b' y from tri_ext (fun _ => by omega)]; exact Fab'y
+      · rw [show tri y a' b = tri b a' y from tri_ext (fun _ => by omega)]; exact Fba'y
+      · rw [show tri y a b = tri a y b from tri_ext (fun _ => by omega)]; exact Fayb
+    have hLy : LinkIs n N y b a b' a' := by
+      refine link_of_three_faces hsol hcub hylt ha hb hb'lt ha'lt h4y (Ne.symm hya)
+        (Ne.symm hyb) hb'y ha'y (Ne.symm hb'b) hab ha'a ?_ ?_ ?_
+      · rw [show tri y a b = tri a y b from tri_ext (fun _ => by omega)]; exact Fayb
+      · rw [show tri y a b' = tri a b' y from tri_ext (fun _ => by omega)]; exact Fab'y
+      · rw [show tri y b a' = tri b a' y from tri_ext (fun _ => by omega)]; exact Fba'y
+    have Fyb'a' : N (tri y b' a') ≠ 0 :=
+      (hLy b' a' hb'lt ha'lt hb'y ha'y).mpr (edge_rs b a b' a')
+    have hD : Dist6 v a b a' b' y :=
+      ⟨Ne.symm hav, Ne.symm hbv, Ne.symm ha'v, Ne.symm hb'v, Ne.symm hyv, hab,
+        Ne.symm ha'a, Ne.symm hb'a, Ne.symm hya, Ne.symm ha'b, Ne.symm hb'b, Ne.symm hyb,
+        ha'b', ha'y, hb'y⟩
+    by_cases ha'w : a' = w
+    · -- `a' = w`, so `b'` is ordinary: use the mirror kill through the link of `b'`
+      have hb'w : b' ≠ w := by rw [← ha'w]; exact Ne.symm ha'b'
+      have h4b' : mass n N b' = 4 := hexc b' hb'lt hb'v hb'w
+      have hLb'r : LinkIs n N b' a y a' v := by
+        refine link_of_three_faces hsol hcub hb'lt hylt ha ha'lt hv h4b' (Ne.symm hb'y)
+          (Ne.symm hb'a) ha'b' (Ne.symm hb'v) (Ne.symm ha'a) hya (Ne.symm hyv) ?_ ?_ ?_
+        · rw [show tri b' y a = tri a b' y from tri_ext (fun _ => by omega)]; exact Fab'y
+        · rw [show tri b' y a' = tri y b' a' from tri_ext (fun _ => by omega)]; exact Fyb'a'
+        · rw [show tri b' a v = tri a v b' from tri_ext (fun _ => by omega)]; exact Favb'
+      exact octa_kill4 hsol hv hb ha hb'lt ha'lt hylt h4b h4a h4b' h4y (dist6_swap hD)
+        ⟨hLb, hLa, linkIs_rot (linkIs_rot (linkIs_rev hLy)), hLb'r⟩
+    · have h4a' : mass n N a' = 4 := hexc a' ha'lt ha'v ha'w
+      have hLa' : LinkIs n N a' b y b' v := by
+        refine link_of_three_faces hsol hcub ha'lt hylt hb hb'lt hv h4a' (Ne.symm ha'y)
+          (Ne.symm ha'b) (Ne.symm ha'b') (Ne.symm ha'v) (Ne.symm hb'b) hyb (Ne.symm hyv)
+          ?_ ?_ ?_
+        · rw [show tri a' y b = tri b a' y from tri_ext (fun _ => by omega)]; exact Fba'y
+        · rw [show tri a' y b' = tri y b' a' from tri_ext (fun _ => by omega)]; exact Fyb'a'
+        · rw [show tri a' b v = tri b v a' from tri_ext (fun _ => by omega)]; exact Fbva'
+      exact octa_kill4 hsol hv ha hb ha'lt hb'lt hylt h4a h4b h4a' h4y hD
+        ⟨hLa, hLb, hLy, hLa'⟩
+  subst hy
+  exact ⟨a', b', ha'lt, hb'lt, ha'a, ha'b, ha'v, ha'y, hb'a, hb'b, hb'v, hb'y, hLa, hLb⟩
+
+/-! ## No support triple contains both exceptional vertices -/
+
+/-- **Lemma D2.**  With `v`, `w` the only two vertices of mass `≠ 4`, no support triple
+contains both of them.  (The second `v`-triple at the third vertex `u` has apex `w` by
+`apex_other`, so the 4-cycle `link u` is `d-v-b'-w`, in which `v` and `w` are opposite.) -/
+theorem no_exc_pair {n : ℕ} {N : ℕ → ℤ} (hsol : IsSol n N) (hcub : Cubic n N)
+    {v w u : ℕ} (hv : v < n) (hw : w < n) (hu : u < n)
+    (hexc : ∀ z, z < n → z ≠ v → z ≠ w → mass n N z = 4)
+    (hvw : v ≠ w) (huv : u ≠ v) (huw : u ≠ w)
+    (hF : N (tri u v w) ≠ 0) : False := by
+  have h4u : mass n N u = 4 := hexc u hu huv huw
+  obtain ⟨d, hdlt, hdu, hdw, hFd⟩ :=
+    pair_second hsol hcub hu hv hw h4u (Ne.symm huv) (Ne.symm huw) hF
+  have hdv : d ≠ v := Ne.symm (tri_distinct hcub hu hv hdlt hFd).2.2
+  obtain ⟨a', b', ha'lt, hb'lt, ha'a, ha'b, ha'v, ha'w, hb'a, hb'b, hb'v, hb'w, hLa, hLb⟩ :=
+    apex_other hsol hcub hv hu hdlt hexc huv huw hdv hdw (Ne.symm hdu)
+      (by rw [tri_swap v u d]; exact hFd)
+  have hk : w = d ∨ w = b' :=
+    link_v_nbrs hLa hdlt hv hb'lt hw hw hdv (Ne.symm hb'b) hdw (Ne.symm hb'v) hvw hb'w
+      (Ne.symm huv) (Ne.symm huw) hF
+  rcases hk with h | h
+  · exact hdw h.symm
+  · exact hb'w h.symm
+
+/-! ## The generic apex lemma -/
+
+/-- **Lemma D3.**  Let `v`, `w` be the only two vertices that may have mass `≠ 4` and let
+`{x, a, b}` be *any* support triple whose two ends `a, b` are ordinary.  Then one of the four
+triples `{v, a, b}`, `{w, a, b}`, `{v, b, x}`, `{w, b, x}` is in the support: either the
+`octa_half` apex `y` is exceptional, or the second `x`-neighbour `a'` of `b` is, and if
+neither then `octa_kill4` applies. -/
+theorem apex_gen {n : ℕ} {N : ℕ → ℤ} (hsol : IsSol n N) (hcub : Cubic n N)
+    {v w x a b : ℕ} (hx : x < n) (ha : a < n) (hb : b < n)
+    (hexc : ∀ z, z < n → z ≠ v → z ≠ w → mass n N z = 4)
+    (hav : a ≠ v) (haw : a ≠ w) (hbv : b ≠ v) (hbw : b ≠ w) (hab : a ≠ b)
+    (hax : a ≠ x) (hbx : b ≠ x)
+    (hF : N (tri x a b) ≠ 0) :
+    N (tri v a b) ≠ 0 ∨ N (tri w a b) ≠ 0 ∨ N (tri v b x) ≠ 0 ∨ N (tri w b x) ≠ 0 := by
+  have h4a : mass n N a = 4 := hexc a ha hav haw
+  have h4b : mass n N b = 4 := hexc b hb hbv hbw
+  have hFa : N (tri a x b) ≠ 0 := by
+    rw [show tri a x b = tri x a b from tri_ext (fun _ => by omega)]; exact hF
+  obtain ⟨a', b', y, ha'lt, hb'lt, hylt, ha'a, ha'b, ha'x, ha'y, hb'a, hb'b, hb'x, hb'y,
+    hya, hyb, hyx, hLa, hLb⟩ := octa_half hsol hcub hx ha hb h4a h4b hax hbx hab hFa
+  have Fbxa' : N (tri b x a') ≠ 0 :=
+    (hLb x a' hx ha'lt (Ne.symm hbx) ha'b).mpr (edge_qr a x a' y)
+  have Fayb : N (tri a y b) ≠ 0 :=
+    (hLa y b hylt hb hya (Ne.symm hab)).mpr (edge_sp b x b' y)
+  by_cases ha'v : a' = v
+  · refine Or.inr (Or.inr (Or.inl ?_))
+    rw [show tri v b x = tri b x a' from by rw [← ha'v]; exact tri_ext (fun _ => by omega)]
+    exact Fbxa'
+  by_cases ha'w : a' = w
+  · refine Or.inr (Or.inr (Or.inr ?_))
+    rw [show tri w b x = tri b x a' from by rw [← ha'w]; exact tri_ext (fun _ => by omega)]
+    exact Fbxa'
+  by_cases hyv : y = v
+  · refine Or.inl ?_
+    rw [show tri v a b = tri a y b from by rw [← hyv]; exact tri_ext (fun _ => by omega)]
+    exact Fayb
+  by_cases hyw : y = w
+  · refine Or.inr (Or.inl ?_)
+    rw [show tri w a b = tri a y b from by rw [← hyw]; exact tri_ext (fun _ => by omega)]
+    exact Fayb
+  exfalso
+  have h4y : mass n N y = 4 := hexc y hylt hyv hyw
+  have h4a' : mass n N a' = 4 := hexc a' ha'lt ha'v ha'w
+  have Favb' : N (tri a x b') ≠ 0 :=
+    (hLa x b' hx hb'lt (Ne.symm hax) hb'a).mpr (edge_qr b x b' y)
+  have Fab'y : N (tri a b' y) ≠ 0 :=
+    (hLa b' y hb'lt hylt hb'a hya).mpr (edge_rs b x b' y)
+  have Fba'y : N (tri b a' y) ≠ 0 :=
+    (hLb a' y ha'lt hylt ha'b hyb).mpr (edge_rs a x a' y)
+  have ha'b' : a' ≠ b' := by
+    intro hEq
+    refine no_triangle_at hsol hcub hylt ha'lt ha hb h4y ha'y (Ne.symm hya) (Ne.symm hyb)
+      hab ?_ ?_ ?_
+    · rw [show tri y a' a = tri a b' y from tri_ext (fun _ => by omega)]; exact Fab'y
+    · rw [show tri y a' b = tri b a' y from tri_ext (fun _ => by omega)]; exact Fba'y
+    · rw [show tri y a b = tri a y b from tri_ext (fun _ => by omega)]; exact Fayb
+  have hLy : LinkIs n N y b a b' a' := by
+    refine link_of_three_faces hsol hcub hylt ha hb hb'lt ha'lt h4y (Ne.symm hya)
+      (Ne.symm hyb) hb'y ha'y (Ne.symm hb'b) hab ha'a ?_ ?_ ?_
+    · rw [show tri y a b = tri a y b from tri_ext (fun _ => by omega)]; exact Fayb
+    · rw [show tri y a b' = tri a b' y from tri_ext (fun _ => by omega)]; exact Fab'y
+    · rw [show tri y b a' = tri b a' y from tri_ext (fun _ => by omega)]; exact Fba'y
+  have Fyb'a' : N (tri y b' a') ≠ 0 :=
+    (hLy b' a' hb'lt ha'lt hb'y ha'y).mpr (edge_rs b a b' a')
+  have hLa' : LinkIs n N a' b y b' x := by
+    refine link_of_three_faces hsol hcub ha'lt hylt hb hb'lt hx h4a' (Ne.symm ha'y)
+      (Ne.symm ha'b) (Ne.symm ha'b') (Ne.symm ha'x) (Ne.symm hb'b) hyb (Ne.symm hyx)
+      ?_ ?_ ?_
+    · rw [show tri a' y b = tri b a' y from tri_ext (fun _ => by omega)]; exact Fba'y
+    · rw [show tri a' y b' = tri y b' a' from tri_ext (fun _ => by omega)]; exact Fyb'a'
+    · rw [show tri a' b x = tri b x a' from tri_ext (fun _ => by omega)]; exact Fbxa'
+  exact octa_kill4 hsol hx ha hb ha'lt hb'lt hylt h4a h4b h4a' h4y
+    ⟨Ne.symm hax, Ne.symm hbx, Ne.symm ha'x, Ne.symm hb'x, Ne.symm hyx, hab,
+      Ne.symm ha'a, Ne.symm hb'a, Ne.symm hya, Ne.symm ha'b, Ne.symm hb'b, Ne.symm hyb,
+      ha'b', ha'y, hb'y⟩
+    ⟨hLa, hLb, hLy, hLa'⟩
+
+/-! ## A support triple through an exceptional vertex cannot be extended -/
+
+/-- **Lemma D4.**  If `{e, s, t}` is a support triple with `e` exceptional and `s, t`
+ordinary, then the link of `s` is the 4-cycle `t-e-t'-e₂` with `e₂` the other exceptional
+vertex, so the two support triples on the pair `{s, t}` are `{e, s, t}` and `{e₂, s, t}`:
+no ordinary vertex `u` can complete `{s, t}`. -/
+theorem kill_pair {n : ℕ} {N : ℕ → ℤ} (hsol : IsSol n N) (hcub : Cubic n N)
+    {v w e s t u : ℕ} (hv : v < n) (hw : w < n) (hs : s < n) (ht : t < n) (hu : u < n)
+    (hexc : ∀ z, z < n → z ≠ v → z ≠ w → mass n N z = 4) (hvw : v ≠ w)
+    (he : e = v ∨ e = w)
+    (hsv : s ≠ v) (hsw : s ≠ w) (htv : t ≠ v) (htw : t ≠ w) (huv : u ≠ v) (huw : u ≠ w)
+    (hst : s ≠ t) (hsu : s ≠ u) (htu : t ≠ u)
+    (hF1 : N (tri e s t) ≠ 0) (hF2 : N (tri s t u) ≠ 0) : False := by
+  have main : ∀ e₁ e₂ : ℕ, e₁ < n → e₂ < n →
+      (∀ z, z < n → z ≠ e₁ → z ≠ e₂ → mass n N z = 4) → e₁ ≠ e₂ →
+      s ≠ e₁ → s ≠ e₂ → t ≠ e₁ → t ≠ e₂ → u ≠ e₁ → u ≠ e₂ →
+      N (tri e₁ s t) ≠ 0 → False := by
+    intro e₁ e₂ h1 h2 hex hne hse1 hse2 hte1 hte2 hue1 hue2 hFF
+    obtain ⟨p', q', hp'lt, hq'lt, hp'a, hp'b, hp'v, hp'w, hq'a, hq'b, hq'v, hq'w, hLs, hLt⟩ :=
+      apex_other hsol hcub h1 hs ht hex hse1 hse2 hte1 hte2 hst hFF
+    have hk : u = e₂ ∨ u = e₁ :=
+      link_v_nbrs (linkIs_rot (linkIs_rot (linkIs_rot hLs))) h2 ht h1 hq'lt hu
+        (Ne.symm hte2) (Ne.symm hne) (Ne.symm hq'w) hte1 (Ne.symm hq'b) (Ne.symm hq'v)
+        (Ne.symm hst) (Ne.symm hsu) hF2
+    rcases hk with h | h
+    · exact hue2 h
+    · exact hue1 h
+  rcases he with h | h
+  · exact main v w hv hw hexc hvw hsv hsw htv htw huv huw (h ▸ hF1)
+  · exact main w v hw hv (fun z hz k1 k2 => hexc z hz k2 k1) (Ne.symm hvw) hsw hsv htw htv
+      huw huv (h ▸ hF1)
+
+/-! ## The endgame: a support triple missing both exceptional vertices -/
+
+/-- **Lemma D5.**  A support triple all three of whose vertices are ordinary is impossible:
+`apex_gen` produces a support triple through an exceptional vertex on one of its pairs, and
+`kill_pair` says that pair then lies in no third triple. -/
+theorem kill_free_triple {n : ℕ} {N : ℕ → ℤ} (hsol : IsSol n N) (hcub : Cubic n N)
+    {v w p q r : ℕ} (hv : v < n) (hw : w < n) (hp : p < n) (hq : q < n) (hr : r < n)
+    (hexc : ∀ z, z < n → z ≠ v → z ≠ w → mass n N z = 4) (hvw : v ≠ w)
+    (hpv : p ≠ v) (hpw : p ≠ w) (hqv : q ≠ v) (hqw : q ≠ w) (hrv : r ≠ v) (hrw : r ≠ w)
+    (hpq : p ≠ q) (hpr : p ≠ r) (hqr : q ≠ r)
+    (hF : N (tri p q r) ≠ 0) : False := by
+  have Fqrp : N (tri q r p) ≠ 0 := by
+    rw [show tri q r p = tri p q r from tri_ext (fun _ => by omega)]; exact hF
+  have Frpq : N (tri r p q) ≠ 0 := by
+    rw [show tri r p q = tri p q r from tri_ext (fun _ => by omega)]; exact hF
+  rcases apex_gen hsol hcub hp hq hr hexc hqv hqw hrv hrw hqr (Ne.symm hpq) (Ne.symm hpr) hF
+    with h | h | h | h
+  · exact kill_pair hsol hcub hv hw hq hr hp hexc hvw
+      (show (v : ℕ) = v ∨ v = w from Or.inl rfl) hqv hqw hrv hrw hpv hpw hqr
+      (Ne.symm hpq) (Ne.symm hpr) h Fqrp
+  · exact kill_pair hsol hcub hv hw hq hr hp hexc hvw
+      (show (w : ℕ) = v ∨ w = w from Or.inr rfl) hqv hqw hrv hrw hpv hpw hqr
+      (Ne.symm hpq) (Ne.symm hpr) h Fqrp
+  · exact kill_pair hsol hcub hv hw hr hp hq hexc hvw
+      (show (v : ℕ) = v ∨ v = w from Or.inl rfl) hrv hrw hpv hpw hqv hqw
+      (Ne.symm hpr) (Ne.symm hqr) hpq h Frpq
+  · exact kill_pair hsol hcub hv hw hr hp hq hexc hvw
+      (show (w : ℕ) = v ∨ w = w from Or.inr rfl) hrv hrw hpv hpw hqv hqw
+      (Ne.symm hpr) (Ne.symm hqr) hpq h Frpq
+
+/-- **Lemma D6.**  If the two exceptional vertices have mass `6` and no support set contains
+both, then some support set contains neither: their two supports account for only
+`6 + 6 = 12` of the total weight `16`. -/
+theorem exists_free_set {n : ℕ} {N : ℕ → ℤ} (hsol : IsSol n N) {v w : ℕ}
+    (hdisj : ∀ S, S < 2 ^ n → N S ≠ 0 → S.testBit v = true → S.testBit w = true → False)
+    (h6v : mass n N v = 6) (h6w : mass n N w = 6) :
+    ∃ S, S < 2 ^ n ∧ N S ≠ 0 ∧ S.testBit v = false ∧ S.testBit w = false := by
+  by_contra hcon
+  have key : ∀ S, S < 2 ^ n → N S ≠ 0 → S ∈ supp n N v ∪ supp n N w := by
+    intro S h1 h2
+    by_cases hb : S.testBit v = true
+    · exact Finset.mem_union_left _ (mem_supp.mpr ⟨h1, hb, h2⟩)
+    by_cases hc : S.testBit w = true
+    · exact Finset.mem_union_right _ (mem_supp.mpr ⟨h1, hc, h2⟩)
+    simp only [Bool.not_eq_true] at hb hc
+    exact absurd ⟨S, h1, h2, hb, hc⟩ hcon
+  have hsub : supp n N v ∪ supp n N w ⊆ range (2 ^ n) := by
+    intro S hS
+    rcases Finset.mem_union.mp hS with h | h
+    · exact mem_range.mpr (mem_supp.mp h).1
+    · exact mem_range.mpr (mem_supp.mp h).1
+  have hzero : ∀ S ∈ range (2 ^ n), S ∉ supp n N v ∪ supp n N w → (N S) ^ 2 = 0 := by
+    intro S hS hnot
+    have h0 : N S = 0 := by
+      by_contra hne
+      exact hnot (key S (mem_range.mp hS) hne)
+    rw [h0]; ring
+  have hdj : Disjoint (supp n N v) (supp n N w) := by
+    refine Finset.disjoint_left.mpr ?_
+    intro S hS hT
+    obtain ⟨k1, k2, k3⟩ := mem_supp.mp hS
+    exact hdisj S k1 k3 k2 (mem_supp.mp hT).2.1
+  have hsum : ∑ S ∈ supp n N v ∪ supp n N w, (N S) ^ 2 = 16 := by
+    rw [Finset.sum_subset hsub hzero]; exact hsol.2.1
+  rw [Finset.sum_union hdj, ← mass_eq_sum_supp, ← mass_eq_sum_supp, h6v, h6w] at hsum
+  exact absurd hsum (by norm_num)
+
+/-! ## `δ = 0` at `n = 11` -/
+
+/-- **The `δ = 0` case is impossible.**  `eleven_delta_zero_reduce` leaves the degree
+sequence `(6, 6, 4^9)`; `no_exc_pair` makes the two supports of the exceptional vertices
+disjoint, so they carry only `12` of the weight `16`, and the remaining support set is a
+triple of ordinary vertices, which `kill_free_triple` forbids. -/
+theorem eleven_delta_zero {N : ℕ → ℤ} (hsol : IsSol 11 N) (hcub : Cubic 11 N) : False := by
+  obtain ⟨v, w, hv, hw, hvw, h6v, h6w, hexc⟩ := eleven_delta_zero_reduce hsol hcub
+  have hdisj : ∀ S, S < 2 ^ 11 → N S ≠ 0 → S.testBit v = true → S.testBit w = true →
+      False := by
+    intro S h1 h2 hbv hbw
+    obtain ⟨x, y, hx, hy, hxv, hyv, hxy, rfl⟩ :=
+      supp_tri_of_mem hcub (mem_supp.mpr ⟨h1, hbv, h2⟩)
+    rcases mem_tri_iff.mp hbw with h | h | h
+    · exact hvw h.symm
+    · refine no_exc_pair hsol hcub hv hw hy hexc hvw hyv ?_ ?_
+      · rw [h]; exact Ne.symm hxy
+      · rw [show tri y v w = tri v x y from by rw [h]; exact tri_ext (fun _ => by omega)]
+        exact h2
+    · refine no_exc_pair hsol hcub hv hw hx hexc hvw hxv ?_ ?_
+      · rw [h]; exact hxy
+      · rw [show tri x v w = tri v x y from by rw [h]; exact tri_ext (fun _ => by omega)]
+        exact h2
+  obtain ⟨S, hSlt, hSN, hSv, hSw⟩ := exists_free_set hsol hdisj h6v h6w
+  obtain ⟨p, q, r, hp, hq, hr, hpq, hpr, hqr, rfl⟩ :=
+    exists_tri_of_card_three hSlt (hcub _ hSlt hSN)
+  have hnv : ∀ z, z = p ∨ z = q ∨ z = r → z ≠ v := by
+    intro z hz hzv
+    have hbit : (tri p q r).testBit v = true := by rw [← hzv]; exact mem_tri_iff.mpr hz
+    rw [hSv] at hbit; simp at hbit
+  have hnw : ∀ z, z = p ∨ z = q ∨ z = r → z ≠ w := by
+    intro z hz hzw
+    have hbit : (tri p q r).testBit w = true := by rw [← hzw]; exact mem_tri_iff.mpr hz
+    rw [hSw] at hbit; simp at hbit
+  exact kill_free_triple hsol hcub hv hw hp hq hr hexc hvw
+    (hnv p (Or.inl rfl)) (hnw p (Or.inl rfl))
+    (hnv q (Or.inr (Or.inl rfl))) (hnw q (Or.inr (Or.inl rfl)))
+    (hnv r (Or.inr (Or.inr rfl))) (hnw r (Or.inr (Or.inr rfl)))
+    hpq hpr hqr hSN
 
 end R3

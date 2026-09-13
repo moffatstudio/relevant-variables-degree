@@ -14,3 +14,17 @@
   (CondII at the pair {v,y} kills any octahedron whose rim a,b,a' and antipode y have mass 4).
 2026-09-13 task26 rot2: chunk 7 accepted - eleven_delta_zero_eight (the (8,4^10) sub-case is
   closed) and eleven_delta_zero_reduce (delta=0 at n=11 forces the degree sequence (6,6,4^9)).
+2026-09-13 task26 rot2: chunk 8 accepted - corr_supp (reusable: sum over supp y of N S * N (S xor {v,y}) = 0,
+  extracted from octa_kill, any v y), card_six_eq, supp_eq_six (mass-6 exhaustion), eps_kill6.
+  DeltaZero.lean now also imports R3.LinkSix (for mass_six_card).  Re-verified clean after the
+  CubicAt refactor of Octahedron.lean.
+2026-09-13 task28 rot3: chunk A accepted - Octa4, octa_kill4 (four-link kill, hLb' not needed), octa_kill wrapper, linkIs_rev, dist6_swap, octa_kill4' (mirror).
+2026-09-13 task28 rot3: chunk B accepted - apex_other (Lemma D1: a support triple at an exceptional vertex with two mass-4 ends has the OTHER exceptional vertex as its octa_half apex).
+2026-09-13 task28 rot3: chunk C accepted - no_exc_pair (no support triple contains both
+  exceptional vertices), apex_gen (generic apex lemma at an ARBITRARY apex), kill_pair
+  (a pair {s,t} lying in a triple with an exceptional vertex lies in no third triple).
+2026-09-13 task28 rot3: chunk D accepted - kill_free_triple, exists_free_set and
+  **eleven_delta_zero : IsSol 11 N -> Cubic 11 N -> False**.  DELTA = 0 IS CLOSED.
+  File 1388 lines, no sorry / native_decide / maxHeartbeats; axioms = propext,
+  Classical.choice, Quot.sound only.  The six-pair cycle classification (C_6 vs C_3+C_3),
+  the bowtie sub-case and the 8-set closure were all AVOIDED - see HANDOFF_delta0.md.

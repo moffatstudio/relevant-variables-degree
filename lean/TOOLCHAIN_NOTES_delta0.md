@@ -42,3 +42,24 @@
   `(fun S => S ^^^ U) ((fun S => S ^^^ U) S) = S`; open each with `show … ` before rewriting.
 * `linear_combination h` is the cheap way to match a `mass_four` coefficient product against
   a differently-associated product of the same factors.
+
+## Rotation 3
+
+* **Refactor a `theorem` into a weaker-hypothesis version by editing only its header.**
+  `octa_kill` destructured `Octa` into five links but used only four (`hLb'` was dead).
+  Replacing the header and the `obtain`/`clear` lines turned it into `octa_kill4` with no
+  change to the 150-line body, and `octa_kill` became a wrapper.  Cheap, and the diff is
+  reviewable.  Grep the body for the dropped hypothesis first.
+* **`rcases h with rfl` when both sides are theorem parameters is a trap.**  Which variable
+  survives is not predictable from the source; `h ▸ hF` (rewriting the one hypothesis that
+  mentions it) is shorter and always right.
+* `Bool.eq_false_or_eq_true b : b = true ∨ b = false` — the *true* branch is first.  Prefer
+  `by_cases hb : S.testBit v = true` and `simp only [Bool.not_eq_true] at hb` for the
+  negative branch.
+* To `#print axioms` a module that is not built (no `.olean`), append the `#print axioms`
+  lines to a **copy** of the source placed in `R3/` and run `lake env lean` on the copy.
+  Avoids `lake build` and its RAM.
+* `rw [show tri a b c = tri d e f from by rw [h]; exact tri_ext (fun _ => by omega)]` is the
+  cheap idiom for reordering a triple under a vertex equation `h`, and avoids `subst`.
+* Symmetry-by-instantiation beats symmetry lemmas: `linkIs_rot` / `linkIs_rev` plus a
+  permuted `Dist6` let the mirror of a kill be a one-line `exact`, with no new proof.
