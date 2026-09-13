@@ -1,62 +1,75 @@
-# HANDOFF — delta = 0 lane (task 23, rotation 1, 2026-09-13)
+# HANDOFF — delta = 0 lane (task 26, rotation 2, 2026-09-13)
 
-## State: GREEN but PARTIAL.  `eleven_delta_zero` is NOT proved.
+## State: GREEN.  `(8, 4^10)` is CLOSED.  Only `(6, 6, 4^9)` is left.
 
-All of `lean/R3/DeltaZero.lean` is accepted by `lake env lean R3/DeltaZero.lean` (clean,
-~75 s, no `sorry`, no `native_decide`).  It is not yet imported by `R3.lean` — see
-`INTEGRATE_delta0.md`.
+`lean/R3/DeltaZero.lean` is accepted by `lake env lean R3/DeltaZero.lean` (70 s, no `sorry`,
+no `native_decide`, no raised heartbeat limit).  See `INTEGRATE_delta0.md` for the import
+line, the theorem list and the `#print axioms` list.
 
-## Proved this run
+`eleven_delta_zero` is NOT yet proved.  What remains is exactly:
 
-1. **Distance in the support hypergraph.**  `Nbr n N v w` (v, w lie in a common support set),
-   `Near n N v w` (distance at most two), `near_self`, `nbr_tri_snd`, `nbr_tri_thd`.
-2. **`closure_near`** — the localisation of `octahedron_closure_gen`.  The global hypothesis
-   `∀ w < n, mass n N w = 4`, which is unusable at delta = 0 (the masses are (8,4^10) or
-   (6,6,4^9)), is replaced by `∀ w < n, Near n N v w → mass n N w = 4`.  This works because
-   the proof of `octahedron_closure_gen` reads the mass only at `v`, at the four link-cycle
-   vertices `a b c d` (neighbours of `v`) and at the sixth vertex `e` (a neighbour of `a`).
-   The body is the body of `octahedron_closure_gen` with six explicit `mass … = 4` facts.
-3. **`closure_kills`** — step (a) of the captain's plan: `IsSol n N`, `Cubic n N`, `6 < n`,
-   and everything within distance two of some `v` of mass 4 gives `False`
-   (`closure_near` + `no_crossing_split`, the `F_twelve` tail pattern with `range n`).
-4. **`delta_zero_residual`** / **`eleven_delta_zero_residual`** — the contrapositive: in a
-   cubic solution with `n > 6` **every** vertex has an exceptional vertex (mass ≠ 4) within
-   distance two.  At `n = 11` there are at most two exceptional vertices
-   (`card_mass_ne_four_le_two`), so the whole support sits in their distance-2 neighbourhood.
-5. **Pseudo-manifold counting** (step (c) groundwork): `edge_second`, `edge_not_three` (a
-   4-cycle vertex has a second neighbour, and never three), and their solution-level forms
-   **`pair_second`** and **`pair_not_three`**: if `mass x = 4` then the pair `{x, v}` lies in
-   exactly 0 or 2 support triples.  Note the consequence worth exploiting: at n = 11,
-   delta = 0, the ONLY pair that can fail "0 or 2" is the pair of the two mass-6 vertices,
-   because every other pair has a mass-4 endpoint.  In the (8,4^10) sub-case every pair is
-   0-or-2, so `link(v)` at the mass-8 vertex is 2-regular — the hand proof's first step,
-   now available in Lean.
+    IsSol 11 N → Cubic 11 N → v, w the two mass-6 vertices, all other masses 4 → False
 
-## In progress / not started
+and `eleven_delta_zero_reduce` already hands you that hypothesis in that shape.
 
-`eleven_delta_zero : IsSol 11 N → Cubic 11 N → False`.  Nothing of it is written.
-The residual after step (a) is exactly the hand proof's sub-cases; `R3_equals_10.md` kills
-them with Euler characteristic (Fact T), which the plan forbids formalising.
+## Proved in rotation 2
 
-## Next three steps (recommended, in order)
+1. **Mass-4 exhaustion toolkit** — `supp_eq_quad`, `no_fifth_supp`, `tri_distinct`,
+   `second_v_triple`, `tri_mem_supp{,2,3}`, `tri_ne_of_mem`.
+2. **`octa_half`** — Lemma Y in its local form: a support triple `{v, a, b}` with
+   `mass a = mass b = 4` has a *shared apex* `y`, i.e. the links of `a` and of `b` are the
+   4-cycles `b-v-b'-y` and `a-v-a'-y` with the same `y`.  (Proof: the pair `{a, b}` would
+   otherwise lie in three triples, contradicting `pair_not_three`.)
+3. **`octa_eight` / `octa_eight'`** — the half-octahedron closure.  From a support triple at
+   `v` in a cubic solution where every vertex except possibly `v` has mass 4, the whole
+   octahedron `v, a, b, a', b', y` is forced: six distinct vertices (`Dist6`) and the five
+   links other than `v`'s (`Octa`, stated with the existing `LinkIs`).  Note this never uses
+   `mass v`.
+4. **`cubic_sum_mass`, `eleven_degree_split`** — `∑ mass = 48` under `Cubic`, hence the
+   degree sequence is `(8, 4^10)` or `(6, 6, 4^9)`.
+5. **`octa_v_triple`** — in an octahedron, a support triple `{v, x, z}` with `x` on the
+   equator or at the antipode is one of the four equatorial triples at `v`.  (Not used by
+   the final proof; kept because the `(6,6)` case will want it.)
+6. **Condition (ii) in correlation form** — `condII_corr`:
+   `∀ U ≠ 0, ∑_S n_S n_{S Δ U} = 0`; and `corr_bit_half`: the half of that sum over the `S`
+   containing a fixed vertex `y` of `U` is itself `0` (the map `S ↦ S Δ U` is an involution
+   exchanging the halves).  Plus the bitmask identity `tri_xor_pair`:
+   `{y,p,q} Δ {v,y} = {v,p,q}`.
+7. **`octa_kill`** — the kill.  An octahedron whose rim `a, b, a'` and antipode `y` have
+   mass 4 contradicts condition (ii) at `U = {v, y}`.  See `INTEGRATE_delta0.md` for the
+   three-line mathematical statement; it is shorter and stronger than "Lemma A" of
+   `DELTA0_TOPOLOGY_FREE.md`, which can be deleted from the plan.
+8. **`eleven_delta_zero_eight`** and **`eleven_delta_zero_reduce`** — the `(8, 4^10)`
+   sub-case is closed and `delta = 0` is reduced to `(6, 6, 4^9)`.
 
-1. **Degree bookkeeping in Lean.**  Prove at n = 11 under `Cubic`: `∑_v mass v = 48`
-   (`sum_mass` with every support set of card 3) and hence the mass multiset is `(8,4^10)`
-   or `(6,6,4^9)`.  `bookkeeping`, `mass_cases`, `card_mass_ne_four_le_two` already give
-   most of it; what is missing is the explicit two-way split.  Cheap, ~2-3 h, and every
-   later step branches on it.
-2. **(8,4^10): 2-regularity and the C_4 ∪ C_4 forcing.**  With `pair_not_three` the link of
-   the mass-8 vertex `u` is 2-regular on its 8 edges.  Then classify: C_8, C_3 ∪ C_5,
-   C_4 ∪ C_4.  This is the m = 8 analogue of `four_pairs_cycle`; reuse `card_sum_even` and
-   the `four_cover` trick of `DeltaFour.lean` rather than a raw case split.  Expensive
-   (10-15 h) and it is the gateway to the whole sub-case.
-3. **Kill C_4 ∪ C_4 by a finite sign check.**  Once the 16-triple structure is forced up to
-   relabelling, the contradiction is `CondII` at a well-chosen `U`; see
-   `referee/check_glued_octahedra.py` for which `U` suffice.  Keep the `decide` instance
-   tiny — evaluate `CondII` at ONE `U` per sign pattern rather than enumerating 2^16.
-   Completeness of the structure list must come from step 2, never from `search/`.
+## Next three steps (in order)
 
-## Honest estimate
-30-40 agent-hours remain for `eleven_delta_zero`, and the C_8 and (6,6,4^9) branches still
-have no topology-free paper proof.  Ask the referee lane for those two before spending Lean
-time on them; the C_4 ∪ C_4 branch is the only one with a ready non-topological argument.
+1. **The mass-6 link is 2-regular.**  Let `v, w` be the two mass-6 vertices.  Every pair
+   `{v, x}` with `x ≠ w` has a mass-4 endpoint, so `pair_second`/`pair_not_three` give it
+   degree exactly 0 or 2 in `link(v)`; `mass_six_card` gives `|supp v| = 6`, so `link(v)` is
+   a 2-regular graph with six edges, and the degree sum forces `deg(w) ∈ {0, 2}` inside it.
+   Needed Lean object: the analogue of `four_pairs_cycle` for six pairs, i.e. `C_6` or
+   `C_3 + C_3`.  This is the one genuinely expensive step left (estimate 10-15 h); do it as
+   a standalone file-local development in `WIP_delta0.lean` first, and reuse `card_sum_even`
+   and the `four_cover` trick of `DeltaFour.lean` rather than a raw case split.
+2. **Kill the `C_3` components with `octa_half`.**  A triangle component `z1 z2 z3` of
+   `link(v)` all of whose vertices have mass 4 gives, by `octa_half` applied to the triple
+   `{v, z1, z2}`, an apex `y` with `link(y)` containing the edge `z1 z2` and likewise for the
+   other edges; `Corollary Y'` (link of a mass-4 vertex is a 4-cycle) then forces `k = 4`,
+   contradiction.  `octa_half` already gives the shared apex, so this should be a short
+   argument once step 1 exists.
+3. **`C_6`: `link(w) = link(v)` and the six-fold `octa_kill`.**  The captain's third bullet
+   derives `link(w) = link(v) = L` (six edges, same vertices).  Then repeat the `octa_kill`
+   computation **verbatim with a 6-cycle instead of a 4-cycle**: condition (ii) at
+   `U = {v, w}` gives `∑_{i=1}^{6} n_{v e_i} n_{w e_i} = 0`, while mass 4 at each of the six
+   cycle vertices gives `e_i e_{i+1} = 1`, so all six agree and the sum is `±6`.  The
+   generic machinery for this (`condII_corr`, `corr_bit_half`, `tri_xor_pair`,
+   `supp_eq_quad`, `mass_four`) is already in the file — only the six-term bookkeeping and a
+   `eps_kill6` are new.  Budget 4-6 h once step 1 is in.
+
+Honest estimate for `eleven_delta_zero`: 15-25 agent-hours, almost all of it step 1.
+
+## Gotchas
+See `TOOLCHAIN_NOTES_delta0.md` — in particular: never write `by omega` for a trivial `≠`
+side condition inside a big proof (it cost this lane two failed 3-minute compiles); destructure
+`Dist6` and pass the named `Ne` or `Ne.symm` term instead.

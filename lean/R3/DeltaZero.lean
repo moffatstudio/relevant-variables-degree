@@ -775,4 +775,197 @@ lemma tri_ne_of_mem {x u1 u2 u3 w1 w2 w3 : ℕ} (h1 : x ≠ u1) (h2 : x ≠ u2) 
   · exact h2 rfl
   · exact h3 rfl
 
+
+/-! ## The octahedron is impossible when its rim has mass 4 -/
+
+lemma tri_mem_supp2 {n : ℕ} {N : ℕ → ℤ} {x y z : ℕ} (hx : x < n) (hy : y < n)
+    (hz : z < n) (h : N (tri x y z) ≠ 0) : tri x y z ∈ supp n N y :=
+  mem_supp.mpr ⟨tri_lt hx hy hz, mem_tri_iff.mpr (Or.inr (Or.inl rfl)), h⟩
+
+lemma tri_mem_supp3 {n : ℕ} {N : ℕ → ℤ} {x y z : ℕ} (hx : x < n) (hy : y < n)
+    (hz : z < n) (h : N (tri x y z) ≠ 0) : tri x y z ∈ supp n N z :=
+  mem_supp.mpr ⟨tri_lt hx hy hz, mem_tri_iff.mpr (Or.inr (Or.inr rfl)), h⟩
+
+lemma pm_mul {p q : ℤ} (hp : p = 1 ∨ p = -1) (hq : q = 1 ∨ q = -1) :
+    p * q = 1 ∨ p * q = -1 := by
+  rcases hp with rfl | rfl <;> rcases hq with rfl | rfl <;> norm_num
+
+/-- the sign contradiction: four `±1` values, pairwise linked and summing to zero -/
+lemma eps_kill {e1 e2 e3 e4 : ℤ} (h1 : e1 = 1 ∨ e1 = -1) (h2 : e2 = 1 ∨ e2 = -1)
+    (h3 : e3 = 1 ∨ e3 = -1) (h4 : e4 = 1 ∨ e4 = -1)
+    (p12 : e1 * e2 = 1) (p14 : e1 * e4 = 1) (p34 : e3 * e4 = 1)
+    (hsum : e1 + e2 + e3 + e4 = 0) : False := by
+  rcases h1 with rfl | rfl <;> rcases h2 with rfl | rfl <;> rcases h3 with rfl | rfl <;>
+    rcases h4 with rfl | rfl <;> omega
+
+/-- **The octahedron kill.**  If `v, a, b, a', b', y` carry the octahedron links and the rim
+vertices `a, b, a'` and the antipode `y` all have mass 4, condition (ii) at the pair
+`{v, y}` fails.  (The mass of `v` itself is irrelevant.) -/
+theorem octa_kill {n : ℕ} {N : ℕ → ℤ} (hsol : IsSol n N)
+    {v a b a' b' y : ℕ} (hv : v < n) (ha : a < n) (hb : b < n) (ha'lt : a' < n)
+    (hb'lt : b' < n) (hylt : y < n)
+    (h4a : mass n N a = 4) (h4b : mass n N b = 4) (h4a' : mass n N a' = 4)
+    (h4y : mass n N y = 4)
+    (hD : Dist6 v a b a' b' y) (hO : Octa n N v a b a' b' y) : False := by
+  obtain ⟨d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12, d13, d14, d15⟩ := hD
+  obtain ⟨hLa, hLb, hLy, hLa', hLb'⟩ := hO
+  -- the four support triples at `y`
+  have Y1 : N (tri y a b) ≠ 0 :=
+    (hLy a b ha hb d9 d12).mpr (edge_symm.mp (edge_pq b a b' a'))
+  have Y2 : N (tri y a b') ≠ 0 := (hLy a b' ha hb'lt d9 d15).mpr (edge_qr b a b' a')
+  have Y3 : N (tri y a' b') ≠ 0 :=
+    (hLy a' b' ha'lt hb'lt d14 d15).mpr (edge_symm.mp (edge_rs b a b' a'))
+  have Y4 : N (tri y a' b) ≠ 0 := (hLy a' b ha'lt hb d14 d12).mpr (edge_sp b a b' a')
+  -- the four support triples at `v`
+  have V1 : N (tri v a b) ≠ 0 := by
+    rw [← tri_rotr a b v]; exact (hLa b v hb hv (Ne.symm d6) d1).mpr (edge_pq b v b' y)
+  have V2 : N (tri v a b') ≠ 0 := by
+    rw [← tri_swap a v b']; exact (hLa v b' hv hb'lt d1 (Ne.symm d8)).mpr (edge_qr b v b' y)
+  have V4 : N (tri v a' b) ≠ 0 := by
+    rw [← tri_rotl b v a']; exact (hLb v a' hv ha'lt d2 (Ne.symm d10)).mpr (edge_qr a v a' y)
+  have V3 : N (tri v a' b') ≠ 0 := by
+    rw [← tri_rotr a' b' v]
+    exact (hLa' b' v hb'lt hv (Ne.symm d13) d3).mpr (edge_rs b y b' v)
+  clear hLa hLb hLy hLa' hLb'
+  -- the support of `y`
+  have hsy : supp n N y = {tri y a b, tri y a b', tri y a' b', tri y a' b} :=
+    supp_eq_quad h4y (tri_mem_supp hylt ha hb Y1) (tri_mem_supp hylt ha hb'lt Y2)
+      (tri_mem_supp hylt ha'lt hb'lt Y3) (tri_mem_supp hylt ha'lt hb Y4)
+      (tri_ne_of_mem d15 (Ne.symm d8) (Ne.symm d11) (Or.inr (Or.inr rfl)))
+      (tri_ne_of_mem d14 (Ne.symm d7) (Ne.symm d10) (Or.inr (Or.inl rfl)))
+      (tri_ne_of_mem d14 (Ne.symm d7) (Ne.symm d10) (Or.inr (Or.inl rfl)))
+      (tri_ne_of_mem d14 (Ne.symm d7) d13 (Or.inr (Or.inl rfl)))
+      (tri_ne_of_mem d14 (Ne.symm d7) d13 (Or.inr (Or.inl rfl)))
+      (tri_ne_of_mem d12 d10 d11 (Or.inr (Or.inr rfl)))
+  -- the support of `a`
+  have hsa : supp n N a = {tri v a b, tri v a b', tri y a b', tri y a b} :=
+    supp_eq_quad h4a (tri_mem_supp2 hv ha hb V1) (tri_mem_supp2 hv ha hb'lt V2)
+      (tri_mem_supp2 hylt ha hb'lt Y2) (tri_mem_supp2 hylt ha hb Y1)
+      (tri_ne_of_mem (Ne.symm d4) (Ne.symm d8) (Ne.symm d11) (Or.inr (Or.inr rfl)))
+      (tri_ne_of_mem (Ne.symm d5) (Ne.symm d9) (Ne.symm d12) (Or.inl rfl))
+      (tri_ne_of_mem (Ne.symm d5) (Ne.symm d9) (Ne.symm d12) (Or.inl rfl))
+      (tri_ne_of_mem (Ne.symm d5) (Ne.symm d9) (Ne.symm d15) (Or.inl rfl))
+      (tri_ne_of_mem (Ne.symm d5) (Ne.symm d9) (Ne.symm d15) (Or.inl rfl))
+      (tri_ne_of_mem d12 (Ne.symm d6) d11 (Or.inr (Or.inr rfl)))
+  -- the support of `b`
+  have hsb : supp n N b = {tri v a b, tri v a' b, tri y a' b, tri y a b} :=
+    supp_eq_quad h4b (tri_mem_supp3 hv ha hb V1) (tri_mem_supp3 hv ha'lt hb V4)
+      (tri_mem_supp3 hylt ha'lt hb Y4) (tri_mem_supp3 hylt ha hb Y1)
+      (tri_ne_of_mem (Ne.symm d3) (Ne.symm d7) (Ne.symm d10) (Or.inr (Or.inl rfl)))
+      (tri_ne_of_mem (Ne.symm d5) (Ne.symm d9) (Ne.symm d12) (Or.inl rfl))
+      (tri_ne_of_mem (Ne.symm d5) (Ne.symm d9) (Ne.symm d12) (Or.inl rfl))
+      (tri_ne_of_mem (Ne.symm d5) (Ne.symm d14) (Ne.symm d12) (Or.inl rfl))
+      (tri_ne_of_mem (Ne.symm d5) (Ne.symm d14) (Ne.symm d12) (Or.inl rfl))
+      (tri_ne_of_mem d9 d7 d6 (Or.inr (Or.inl rfl)))
+  -- the support of `a'`
+  have hsa' : supp n N a' = {tri v a' b', tri v a' b, tri y a' b, tri y a' b'} :=
+    supp_eq_quad h4a' (tri_mem_supp2 hv ha'lt hb'lt V3) (tri_mem_supp2 hv ha'lt hb V4)
+      (tri_mem_supp2 hylt ha'lt hb Y4) (tri_mem_supp2 hylt ha'lt hb'lt Y3)
+      (tri_ne_of_mem (Ne.symm d2) d10 d11 (Or.inr (Or.inr rfl)))
+      (tri_ne_of_mem (Ne.symm d5) (Ne.symm d14) (Ne.symm d15) (Or.inl rfl))
+      (tri_ne_of_mem (Ne.symm d5) (Ne.symm d14) (Ne.symm d15) (Or.inl rfl))
+      (tri_ne_of_mem (Ne.symm d5) (Ne.symm d14) (Ne.symm d12) (Or.inl rfl))
+      (tri_ne_of_mem (Ne.symm d5) (Ne.symm d14) (Ne.symm d12) (Or.inl rfl))
+      (tri_ne_of_mem d15 (Ne.symm d13) (Ne.symm d11) (Or.inr (Or.inr rfl)))
+  -- the three coefficient products
+  have Pa := (mass_four hsol ha h4a
+    (tri_ne_of_mem (Ne.symm d4) (Ne.symm d8) (Ne.symm d11) (Or.inr (Or.inr rfl)))
+    (tri_ne_of_mem (Ne.symm d5) (Ne.symm d9) (Ne.symm d12) (Or.inl rfl))
+    (tri_ne_of_mem (Ne.symm d5) (Ne.symm d9) (Ne.symm d12) (Or.inl rfl))
+    (tri_ne_of_mem (Ne.symm d5) (Ne.symm d9) (Ne.symm d15) (Or.inl rfl))
+    (tri_ne_of_mem (Ne.symm d5) (Ne.symm d9) (Ne.symm d15) (Or.inl rfl))
+    (tri_ne_of_mem d12 (Ne.symm d6) d11 (Or.inr (Or.inr rfl))) hsa).2
+  have Pb := (mass_four hsol hb h4b
+    (tri_ne_of_mem (Ne.symm d3) (Ne.symm d7) (Ne.symm d10) (Or.inr (Or.inl rfl)))
+    (tri_ne_of_mem (Ne.symm d5) (Ne.symm d9) (Ne.symm d12) (Or.inl rfl))
+    (tri_ne_of_mem (Ne.symm d5) (Ne.symm d9) (Ne.symm d12) (Or.inl rfl))
+    (tri_ne_of_mem (Ne.symm d5) (Ne.symm d14) (Ne.symm d12) (Or.inl rfl))
+    (tri_ne_of_mem (Ne.symm d5) (Ne.symm d14) (Ne.symm d12) (Or.inl rfl))
+    (tri_ne_of_mem d9 d7 d6 (Or.inr (Or.inl rfl))) hsb).2
+  have Pa' := (mass_four hsol ha'lt h4a'
+    (tri_ne_of_mem (Ne.symm d2) d10 d11 (Or.inr (Or.inr rfl)))
+    (tri_ne_of_mem (Ne.symm d5) (Ne.symm d14) (Ne.symm d15) (Or.inl rfl))
+    (tri_ne_of_mem (Ne.symm d5) (Ne.symm d14) (Ne.symm d15) (Or.inl rfl))
+    (tri_ne_of_mem (Ne.symm d5) (Ne.symm d14) (Ne.symm d12) (Or.inl rfl))
+    (tri_ne_of_mem (Ne.symm d5) (Ne.symm d14) (Ne.symm d12) (Or.inl rfl))
+    (tri_ne_of_mem d15 (Ne.symm d13) (Ne.symm d11) (Or.inr (Or.inr rfl))) hsa').2
+  -- the ±1 facts
+  have pmy := mass_four_pm hsol hylt h4y
+  have pma := mass_four_pm hsol ha h4a
+  have pma' := mass_four_pm hsol ha'lt h4a'
+  have qY1 := pmy _ (tri_mem_supp hylt ha hb Y1)
+  have qY2 := pmy _ (tri_mem_supp hylt ha hb'lt Y2)
+  have qY3 := pmy _ (tri_mem_supp hylt ha'lt hb'lt Y3)
+  have qY4 := pmy _ (tri_mem_supp hylt ha'lt hb Y4)
+  have qV1 := pma _ (tri_mem_supp2 hv ha hb V1)
+  have qV2 := pma _ (tri_mem_supp2 hv ha hb'lt V2)
+  have qV3 := pma' _ (tri_mem_supp2 hv ha'lt hb'lt V3)
+  have qV4 := pma' _ (tri_mem_supp2 hv ha'lt hb V4)
+  -- condition (ii) at the pair {v, y}
+  have hUlt : pair v y < 2 ^ n := pair_lt hv hylt
+  have hUpos : 0 < pair v y := Nat.pos_of_ne_zero pair_ne_zero
+  have hyU : (pair v y).testBit y = true := mem_pair_iff.mpr (Or.inr rfl)
+  have hhalf := corr_bit_half hyU hUlt (condII_corr hsol.2.2.1 hUpos hUlt)
+  have hsub : supp n N y ⊆ (range (2 ^ n)).filter (fun S => S.testBit y = true) := by
+    intro S hS
+    obtain ⟨k1, k2, k3⟩ := mem_supp.mp hS
+    exact mem_filter.mpr ⟨mem_range.mpr k1, k2⟩
+  have hvanish : ∀ S ∈ (range (2 ^ n)).filter (fun S => S.testBit y = true),
+      S ∉ supp n N y → N S * N (S ^^^ pair v y) = 0 := by
+    intro S hS hnot
+    rw [mem_filter, mem_range] at hS
+    have h0 : N S = 0 := by
+      by_contra hne
+      exact hnot (mem_supp.mpr ⟨hS.1, hS.2, hne⟩)
+    rw [h0, zero_mul]
+  rw [← Finset.sum_subset hsub hvanish, hsy,
+    Finset.sum_insert (by
+      simp only [Finset.mem_insert, Finset.mem_singleton]
+      push_neg
+      exact ⟨tri_ne_of_mem d15 (Ne.symm d8) (Ne.symm d11) (Or.inr (Or.inr rfl)),
+        tri_ne_of_mem d14 (Ne.symm d7) (Ne.symm d10) (Or.inr (Or.inl rfl)),
+        tri_ne_of_mem d14 (Ne.symm d7) (Ne.symm d10) (Or.inr (Or.inl rfl))⟩),
+    Finset.sum_insert (by
+      simp only [Finset.mem_insert, Finset.mem_singleton]
+      push_neg
+      exact ⟨tri_ne_of_mem d14 (Ne.symm d7) d13 (Or.inr (Or.inl rfl)),
+        tri_ne_of_mem d14 (Ne.symm d7) d13 (Or.inr (Or.inl rfl))⟩),
+    Finset.sum_insert (by
+      simp only [Finset.mem_singleton]
+      exact tri_ne_of_mem d12 d10 d11 (Or.inr (Or.inr rfl))),
+    Finset.sum_singleton,
+    tri_xor_pair d9 d12 (Ne.symm d1) (Ne.symm d2) d5,
+    tri_xor_pair d9 d15 (Ne.symm d1) (Ne.symm d4) d5,
+    tri_xor_pair d14 d15 (Ne.symm d3) (Ne.symm d4) d5,
+    tri_xor_pair d14 d12 (Ne.symm d3) (Ne.symm d2) d5] at hhalf
+  exact eps_kill (pm_mul qV1 qY1) (pm_mul qV2 qY2) (pm_mul qV3 qY3) (pm_mul qV4 qY4)
+    (by linear_combination Pa) (by linear_combination Pb) (by linear_combination Pa')
+    (by linear_combination hhalf)
+
+
+/-! ## The `(8, 4^10)` branch of `δ = 0` -/
+
+/-- **The `(8, 4^10)` sub-case is impossible.**  If at most one vertex `v` of a cubic
+solution has mass different from 4, take any support triple at `v`: `octa_eight` closes it
+into an octahedron whose rim and antipode all have mass 4, and `octa_kill` contradicts
+condition (ii).  (The mass of `v` is never used.) -/
+theorem eleven_delta_zero_eight {N : ℕ → ℤ} (hsol : IsSol 11 N) (hcub : Cubic 11 N)
+    {v : ℕ} (hv : v < 11) (hexc : ∀ w, w < 11 → w ≠ v → mass 11 N w = 4) : False := by
+  obtain ⟨S, hS⟩ := supp_nonempty hsol hv
+  obtain ⟨a, b, ha, hb, hav, hbv, hab, rfl⟩ := supp_tri_of_mem hcub hS
+  have hF : N (tri v a b) ≠ 0 := (mem_supp.mp hS).2.2
+  obtain ⟨a', b', y, ha'lt, hb'lt, hylt, hD, hO⟩ :=
+    octa_eight' hsol hcub hv ha hb hexc hav hbv hab hF
+  exact octa_kill hsol hv ha hb ha'lt hb'lt hylt (hexc a ha hav) (hexc b hb hbv)
+    (hexc a' ha'lt (Ne.symm hD.2.2.1)) (hexc y hylt (Ne.symm hD.2.2.2.2.1)) hD hO
+
+/-- **Reduction of the `δ = 0` case.**  A cubic solution on eleven variables must have the
+degree sequence `(6, 6, 4^9)`: the `(8, 4^10)` alternative is closed. -/
+theorem eleven_delta_zero_reduce {N : ℕ → ℤ} (hsol : IsSol 11 N) (hcub : Cubic 11 N) :
+    ∃ v w, v < 11 ∧ w < 11 ∧ v ≠ w ∧ mass 11 N v = 6 ∧ mass 11 N w = 6 ∧
+      ∀ z, z < 11 → z ≠ v → z ≠ w → mass 11 N z = 4 := by
+  rcases eleven_degree_split hsol hcub with ⟨v, hv, _, hexc⟩ | h
+  · exact (eleven_delta_zero_eight hsol hcub hv hexc).elim
+  · exact h
+
 end R3

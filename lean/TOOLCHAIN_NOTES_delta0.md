@@ -33,3 +33,12 @@
   a metavariable); use `h.elim`.
 * `rcases (h : x = a) with rfl` substitutes **`a := x`** here (the later-bound variable
   survives), so after the `rcases` refer to `x`, not to `a`.
+* A python heredoc longer than ~100 lines fails in this shell ("unexpected EOF while looking
+  for matching `''"), even with a quoted delimiter.  Write the Lean chunk to `C:\tmp\x.lean`
+  with the Write tool, then splice it:
+  `grep -v '^end R3$' R3/DeltaZero.lean > /c/tmp/dz.tmp && cat /c/tmp/x.lean >> /c/tmp/dz.tmp && cp /c/tmp/dz.tmp R3/DeltaZero.lean`
+  (keep the chunk file ending in `end R3`, and `cp R3/DeltaZero.lean /c/tmp/dz.bak` first).
+* `Finset.sum_nbij' i j hi hj left_inv right_inv h` leaves *unbeta-reduced* goals like
+  `(fun S => S ^^^ U) ((fun S => S ^^^ U) S) = S`; open each with `show … ` before rewriting.
+* `linear_combination h` is the cheap way to match a `mass_four` coefficient product against
+  a differently-associated product of the same factors.

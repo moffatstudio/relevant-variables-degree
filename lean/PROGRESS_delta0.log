@@ -10,3 +10,7 @@
 2026-09-13 task26 rot2: chunk 3 accepted - Octa, octa_eight (half-octahedron closure: a support triple at the mass-8 vertex forces the full 6-vertex octahedron and the five other links).
 2026-09-13 task26 rot2: chunk 4 accepted - cubic_sum_mass, eleven_degree_split (masses are (8,4^10) or (6,6,4^9)).
 2026-09-13 task26 rot2: chunk 5 accepted - Dist6, octa_eight', linkIs_rot, link_v_nbrs, link_not_mem, octa_v_triple.
+2026-09-13 task26 rot2: chunk 6b accepted - tri_mem_supp2/3, pm_mul, eps_kill, octa_kill
+  (CondII at the pair {v,y} kills any octahedron whose rim a,b,a' and antipode y have mass 4).
+2026-09-13 task26 rot2: chunk 7 accepted - eleven_delta_zero_eight (the (8,4^10) sub-case is
+  closed) and eleven_delta_zero_reduce (delta=0 at n=11 forces the degree sequence (6,6,4^9)).
