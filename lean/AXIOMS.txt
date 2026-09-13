@@ -152,3 +152,7 @@
 'R3.supp_tri_of_mem' depends on axioms: [propext, Classical.choice, Quot.sound]
 'R3.tri_distinct' depends on axioms: [propext, Classical.choice, Quot.sound]
 'R3.tri_xor_pair' depends on axioms: [propext, Quot.sound]
+'R3.excess_nonneg' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.cubic_of_excess_le_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.F_eleven' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.F_eleven_and_twelve' depends on axioms: [propext, Classical.choice, Quot.sound]

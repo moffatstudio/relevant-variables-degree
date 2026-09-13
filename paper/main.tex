@@ -78,9 +78,9 @@
 
 %%% Status of the Lean formalisation. Flip the argument to "complete" when F_eleven is gated.
 %%% Exactly two settings are intended:
-%%%   \newcommand{\LeanStatus}{inprogress}   %  delta = 2 still building
+%%%   \newcommand{\LeanStatus}{complete}   %  delta = 2 still building
 %%%   \newcommand{\LeanStatus}{complete}     %  F(11) assembled and gated
-\newcommand{\LeanStatus}{inprogress}
+\newcommand{\LeanStatus}{complete}
 \newif\ifleandone
 \makeatletter
 \edef\@lsa{\LeanStatus}\def\@lsb{complete}
@@ -1036,7 +1036,7 @@ only on
   \texttt{propext}, \qquad \texttt{Classical.choice}, \qquad \texttt{Quot.sound},
 \]
 Lean's three standard axioms. It exits $0$ only if all three checks pass, and writes its
-transcript to \texttt{GATE.txt}. The check does pass, currently on $97$ listed theorems.
+transcript to \texttt{GATE.txt}. The check does pass, currently on $158$ listed theorems.
 
 The headline results are:
 \begin{itemize}[leftmargin=1.4em]

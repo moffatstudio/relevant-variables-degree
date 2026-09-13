@@ -183,6 +183,10 @@ import R3
 #print axioms R3.supp_tri_of_mem
 #print axioms R3.tri_distinct
 #print axioms R3.tri_xor_pair
+#print axioms R3.excess_nonneg
+#print axioms R3.cubic_of_excess_le_zero
+#print axioms R3.F_eleven
+#print axioms R3.F_eleven_and_twelve
 EOF
 axout=$(lake env lean axiom_check.lean 2>&1)
 printf '%s\n' "$axout"

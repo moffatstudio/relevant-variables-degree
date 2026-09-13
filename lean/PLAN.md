@@ -1,3 +1,6 @@
+> **STATUS 2026-09-13: COMPLETE.** `R3.F_eleven : F 11` and `R3.F_twelve : F 12` are both
+> gated (GATE: PASS, 158 theorems, standard axioms only). See `CERTIFICATE.md`.
+
 # Lean certificate plan for F(11)  (task 14c, 2026-09-13)
 
 ## Assessment of the routes

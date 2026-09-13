@@ -83,3 +83,18 @@ triangle `a,b,c`, so it is not cubic, so it is `j`; then `{i,j,a,b,c}` is closed
   factor it into a named lemma (`mem_of_triangle_eq`) applied twice.  `eleven_delta_four`
   carries `set_option maxHeartbeats 1000000 in`.
 - `R3/WIP.lean` is empty scratch (NOT imported) and must stay free of banned constructs.
+
+## DONE: F_eleven gated 2026-09-13T23:12:01Z (task 31)
+
+`R3/Eleven.lean` supplies `R3.F_eleven : F 11` and `R3.F_eleven_and_twelve : F 11 ∧ F 12`.
+`bash lean/gate.sh` → **GATE: PASS**, 158 audited theorems, axioms `[propext,
+Classical.choice, Quot.sound]` only, no `sorry` / `native_decide`. Wall time 4m31s.
+See `lean/CERTIFICATE.md` for the full certificate (statement, axioms, toolchain, rerun).
+
+The Lean side of R3 ≤ 10 is complete: F(11) and F(12) are both machine-checked from the
+frozen `R3/Statement.lean`. The only remaining gap is on paper — the Fourier-granularity
+reduction from "degree-3, 11 relevant variables" to F(11), in `FINITE_STATEMENT.md`.
+
+CAUTION: a second lane was editing `lean/` at the same time (its own `Eleven.lean` and six
+extra `gate.sh` entries). Those were reconciled away; if another `Eleven.lean` appears,
+the gated version is the one whose lemmas are `excess_nonneg` / `cubic_of_excess_le_zero`.
