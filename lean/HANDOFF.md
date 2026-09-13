@@ -1,59 +1,52 @@
-# HANDOFF — Lean R3 certificate (task 18, agent starting 2026-09-13 ~15:00Z)
+# HANDOFF — Lean R3 certificate (end of task 18, 2026-09-13)
 
-## State at start of this run
-`bash lean/gate.sh` PASS: lake build ok, no laundering, 23 theorems on
-[propext, Classical.choice, Quot.sound].  Top theorem `R3.twelve_link_cycle` /
-`R3.twelve_link_struct` (the latter lives in R3/Octahedron.lean, which is written but
-**not yet imported** by R3.lean and never compiled by a previous agent).
+## State: GREEN.  **F(12) is machine-checked.**
 
-## My decomposition of F(12)  (IMPORTANT — differs from PLAN.md, and is much cheaper)
+`bash lean/gate.sh` → GATE: PASS.  `lake build` ok (7224 jobs), no laundering constructs,
+31 listed theorems all on `[propext, Classical.choice, Quot.sound]`.
 
-PLAN.md Step 3 asks for "two vertex-disjoint octahedra".  **Step 4 does not need that.**
-Step 4 only needs: *there is a set A of vertices such that no support triple crosses
-between A and its complement, and both sides contain a support triple.*
+Top theorem: **`R3.F_twelve : F 12`** — no coefficient vector satisfies the frozen finite
+statement on 12 variables, i.e. no degree-3 Boolean function has 12 relevant variables,
+i.e. **R_3 ≤ 11**, from `R3/Statement.lean` (untouched) with no `sorry`, no `native_decide`.
 
-So the chain is:
+## What this run added
 
-1. `octahedron_closure` (R3/Octahedron.lean).  Statement:
-   ```
-   theorem octahedron_closure {N} (hsol : IsSol 12 N) {v} (hv : v < 12) :
-     ∃ A : Finset ℕ, A.card = 6 ∧ A ⊆ range 12 ∧ v ∈ A ∧
-       ∀ S, S < 2^12 → N S ≠ 0 →
-         (∀ j, S.testBit j = true → j ∈ A) ∨ (∀ j, S.testBit j = true → j ∉ A)
-   ```
-   Proof (topology-free, all on the `Edge`/`LinkIs` relation of Octahedron.lean):
-   - link(v) = 4-cycle a-b-c-d  (`twelve_link_struct`).
-   - link(a) contains edges b-v and v-d, so it is b-v-d-e (`edge_through`).
-   - e ≠ c: else face {a,c,b} exists and link(b) would contain the triangle a-v-c
-     (`edge_no_triangle`).
-   - link(b): has edges v-a, v-c (from link v) and a-e (from face {a,e,b}); `edge_through`
-     gives cycle a-v-c-x and the a-e edge forces x = e.  So link(b) = a-v-c-e.
-   - link(d): edges v-c, v-a, a-e  ⇒ link(d) = a-v-c-e.
-   - link(c): edges v-b, v-d (link v), b-e (face {b,e,c}) ⇒ link(c) = b-v-d-e.
-   - link(e): edges a-d, a-b (faces {a,d,e},{a,e,b}), b-c (face {b,c,e}) ⇒ link(e) = d-a-b-c.
-   - A := {v,a,b,c,d,e}; every w ∈ A has a link cycle with all four vertices in A, so every
-     support triple meeting A lies inside A.
-2. `F_twelve` (R3/Twelve.lean or Octahedron.lean).  Take v = 0, get A.  A.card = 6 < 12 so
-   there is w < 12 with w ∉ A; CondIII + `twelve_card_three` give support triples
-   S0 ∋ (some vertex of A, via CondIII at v) inside A and T0 ∋ w outside A.
-   Put U := S0 ||| T0.  For any S,T < 2^12 with S ^^^ T = U and N S * N T ≠ 0, the closure
-   forces {S,T} = {S0,T0} (one side of A each; every vertex of S0 is in U ∩ A and not in T,
-   hence in S; card 3 = card 3 gives S = S0).  So CondII at U is `2 * N S0 * N T0 ≠ 0`.
-   Sum manipulation: `Finset.sum_subset` (outer, s = {S0,T0}) + `Finset.sum_eq_single_of_mem`
-   (inner).
+`R3/Octahedron.lean` (Step 3 of R3_upper_bound.md, topology-free):
+`card_quad_le`, `edge_symm`, `edge_rot`, `edge_rev`, `edge_mem`, `edge_nbr`,
+`edge_no_triangle`, `edge_through`, `twelve_link_struct`, `edge_pq/qr/rs/sp`,
+`tri_swap/tri_rotl/tri_rotr`, `link_sixth`, `link_of_three_faces`, `no_triangle_at`,
+`closure_of_links`, **`octahedron_closure`**.
 
-## In progress right now
-Writing R3/Octahedron.lean: moving `edge_no_triangle` / `edge_through` from WIP.lean into it
-(they compile there with `unfold Edge; omega` after `clear * -`), adding `tri_swap12`,
-`tri_rotate`, then `octahedron_closure`.
+`R3/Final.lean` (Step 4): `xor_cancel_left`, **`no_crossing_split`** (general `n`),
+**`F_twelve`**.
 
-## Next three concrete steps
-1. `lake env lean R3/Octahedron.lean` clean, add `import R3.Octahedron` to R3.lean (root-file
-   trap: a file not imported there is NEVER checked).
-2. Prove `F_twelve`.
-3. Add both to gate.sh's `#print axioms` list and rerun `bash gate.sh`.
+**Design decision worth keeping.**  PLAN.md's Step 3 asked for "two vertex-disjoint
+octahedra".  Step 4 does not need that.  `octahedron_closure` exports only: *every vertex `v`
+lies in a 6-set `A` such that no support triple crosses between `A` and its complement.*
+The second octahedron is never constructed; the vertex outside `A` needed for Step 4 comes
+from `CondIII` plus `A.card = 6 < 12`.  This cut the work roughly in half and the same
+statement is what F(11) will reuse.
 
-## Gotchas (also in TOOLCHAIN_NOTES.md)
-- `clear * - h1 h2` before every `omega` on `Edge` goals; omega is exponential in the number
-  of disequalities in context.
-- `Finset.card_insert_of_notMem` (not `_of_not_mem`).
+## Next work: F(11).  Read `lean/PLAN_F11.md` — it is the detailed route.
+
+**First step for the successor (already scoped, ~3-5 h, purely mechanical):**
+generalise the closure chain in `R3/Octahedron.lean` from the literal `12` to a general `n`,
+replacing the implicit "all masses are 4" (which is what `n = 12` buys) by explicit
+`mass n N w = 4` hypotheses on the six vertices involved.  `no_crossing_split` is already
+general, so once the closure is general, the delta = 0 case of F(11) reduces to the pigeonhole
+question stated in PLAN_F11.md Step 3, and delta = 4 reduces to the L1..L4 link
+classification (PLAN_F11.md Step 1).
+
+Remaining-hours estimate: F(12) **done**.  F(11): 30-50 agent-hours, the uncertainty being
+whether route 1 of PLAN_F11.md Step 3 (a closure lemma needing only four of the six vertices
+to have mass 4) works; if it does not, add 20 more.
+
+## Discipline notes for the successor
+- `R3/WIP.lean` is scratch and is NOT imported by `R3.lean`; keep unfinished proofs there.
+- Every new file must get an `import R3.<File>` line in `R3.lean` or `lake build` never
+  checks it.  Add every new theorem to gate.sh's `#print axioms` list.
+- `lean/PROGRESS.log` gets one line the moment a lemma type-checks.
+- New gotchas from this run are appended to `TOOLCHAIN_NOTES.md`; the two that cost the most
+  time were (a) heartbeats are per *declaration*, so long tactic proofs must be split into
+  top-level lemmas, and (b) `omega` is exponential in the number of `≠` hypotheses in
+  context, so `clear * - <what it needs>` before every one.

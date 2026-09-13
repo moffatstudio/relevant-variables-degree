@@ -4,3 +4,5 @@ import R3.Mass
 import R3.Link
 import R3.Twelve
 import R3.Cycle
+import R3.Octahedron
+import R3.Final

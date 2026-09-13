@@ -24,25 +24,32 @@ the frozen `IsSol n N`.
 | Link.lean | card_xor_two_pow, **mass_four_link** (Lemma 2(a) first half: four distinct link sets of size <= 2, xor 0, coefficients ±1 with product 1), **mass_four_even_degree** (every j lies in 0/2/4 of the four sets) | PROVED |
 | Twelve.lean | **twelve_mass_four**, **twelve_card_three** (n = 12: all masses 4, all terms cubic = Step 1 of R3_upper_bound.md), twelve_coeff_pm, twelve_link_card_two, twelve_link | PROVED |
 | Cycle.lean | pair bitmasks, exists_pair_of_card_two, **four_pairs_cycle** (four distinct pairs with xor 0 form a 4-cycle), **twelve_link_cycle** (n = 12: every vertex link is a 4-cycle = Step 2 of R3_upper_bound.md) | PROVED |
+| Octahedron.lean | tri bitmasks, `Edge`/`Cyc`/`LinkIs`, twelve_link_struct, the 4-cycle combinatorics (edge_nbr, edge_no_triangle, edge_through, edge_rot/rev), link_sixth, link_of_three_faces, no_triangle_at, closure_of_links, **octahedron_closure** (Step 3 of R3_upper_bound.md, topology-free) | PROVED |
+| Final.lean | xor_cancel_left, **F_twelve : F 12** (Step 4: the disjoint-sum contradiction). R_3 <= 11 machine-checked from the frozen statement. | PROVED |
 
-Top certified theorem: `R3.twelve_link_cycle` — in any 12-variable solution, at every vertex v
-there are four distinct vertices p,q,r,s such that every support set at v, with v removed, is
-one of the pairs pq, qr, rs, sp.  Axioms: [propext, Classical.choice, Quot.sound].
+Top certified theorem: **`R3.F_twelve : F 12`** — there is no coefficient vector satisfying the
+frozen finite statement on 12 variables, i.e. no degree-3 Boolean function has 12 relevant
+variables, i.e. **R_3 <= 11**.  Axioms: [propext, Classical.choice, Quot.sound].
 
 ## Not proved (planned, in order)
 
-1. **F(12) Step 3 (closure to two octahedra)**, topology-free version: from `twelve_link_cycle`
+**F(12) is DONE (2026-09-13).**  Items 1 and 2 below are superseded; they are kept only to
+record that the delivered Step 3 proves *less* than "two disjoint octahedra" on purpose:
+`octahedron_closure` exports only the non-crossing property of the six-vertex set, which is
+all Step 4 needs and is much cheaper.  For F(11) see **PLAN_F11.md**.
+
+1. ~~**F(12) Step 3 (closure to two octahedra)**~~, topology-free version: from `twelve_link_cycle`
    at v with cycle a-b-c-d, show link(a) = b-v-d-x with x ≠ c and that the closure forces the
    octahedron {v,a,b,c,d,x} (8 triples), then that the remaining 8 triples form a second
    octahedron on the other 6 vertices.  Next lemma to attack:
    `twelve_pair_in_two`: for n = 12 and v < 12, every pair {v,x} lies in exactly 0 or 2
    support sets (immediate from `twelve_link_cycle` + `pair_eq_iff`), then
    `octahedron_closure`.  Estimate 6-10 agent-hours (bitmask bookkeeping dominates).
-2. **F(12) Step 4 (disjoint sum)**: with the support known to be two vertex-disjoint octahedra,
+2. ~~**F(12) Step 4 (disjoint sum)**~~: with the support known to be two vertex-disjoint octahedra,
    CondII at U = S ∪ T (S in oct_1, T in oct_2) has exactly the two terms (S,T),(T,S), giving
    2 n_S n_T = 0, contradiction.  Needs a lemma computing the U-sum from an explicit support.
    Estimate 4-6 agent-hours.  Together 1+2 give **F(12)**, i.e. R_3 <= 11 machine-checked.
-3. **F(11)**: the hand proof's delta = 4, 2, 0 case split.  delta = 0 again needs closed-surface
+3. **F(11)**: see PLAN_F11.md for the current, detailed route.  Sketch: the hand proof's delta = 4, 2, 0 case split.  delta = 0 again needs closed-surface
    reasoning (chi = 3 / chi = 4 with a singular vertex): a topology-free replacement must be
    found first (likely: a bounded closure search from a mass-4 vertex, certified by `decide` on
    a canonical structure list, with the completeness argument done by hand).  Not attempted.
@@ -50,5 +57,5 @@ one of the pairs pq, qr, rs, sp.  Axioms: [propext, Classical.choice, Quot.sound
 
 ## Gate
 `bash lean/gate.sh` — lake build, laundering grep (sorry/admit/axiom/native_decide/unsafe/
-implemented_by/extern) over R3/, `#print axioms` for all 23 listed theorems; writes GATE.txt
+implemented_by/extern) over R3/, `#print axioms` for all 30 listed theorems; writes GATE.txt
 and AXIOMS.txt.  Last result: see GATE.txt.

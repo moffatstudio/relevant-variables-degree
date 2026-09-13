@@ -8,7 +8,7 @@ fail=0
 out=GATE.txt
 {
 echo "GATE run $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-echo "toolchain: $(cat lean-toolchain)   mathlib: $(cat .lake/packages/mathlib/lean-toolchain 2>/dev/null || echo "not fetched")"
+echo "toolchain: $(cat lean-toolchain)"
 echo
 echo "== modules imported by R3.lean =="; cat R3.lean
 echo
@@ -50,6 +50,14 @@ import R3
 #print axioms R3.twelve_link
 #print axioms R3.four_pairs_cycle
 #print axioms R3.twelve_link_cycle
+#print axioms R3.twelve_link_struct
+#print axioms R3.edge_through
+#print axioms R3.link_sixth
+#print axioms R3.link_of_three_faces
+#print axioms R3.closure_of_links
+#print axioms R3.octahedron_closure
+#print axioms R3.no_crossing_split
+#print axioms R3.F_twelve
 EOF
 axout=$(lake env lean axiom_check.lean 2>&1)
 printf '%s\n' "$axout"

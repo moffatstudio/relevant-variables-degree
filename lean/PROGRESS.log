@@ -1,0 +1,5 @@
+2026-09-13T15:06:49Z R3/Octahedron.lean twelve_link_struct : n=12, at every v the support is v + edges of a 4-cycle p-q-r-s (repackaged twelve_link_cycle)
+2026-09-13T15:26:03Z R3/Octahedron.lean edge_nbr/edge_no_triangle/edge_through/edge_rot/edge_rev/edge_symm/edge_mem : 4-cycle combinatorics (nbrs of a vertex, triangle-free, cycle through a vertex is x-y-z-w, dihedral invariance)
+2026-09-13T15:46:01Z R3/Octahedron.lean link_sixth, link_of_three_faces, no_triangle_at, closure_of_links, octahedron_closure : n=12, every v lies in a 6-set A with no support triple crossing A (Step 3, topology-free)
+2026-09-13T15:52:43Z R3/Final.lean xor_cancel_left, F_twelve : F 12 -- no degree-3 Boolean function has 12 relevant variables, i.e. R_3 <= 11 (Step 4)
+2026-09-13T15:58:47Z R3/Final.lean no_crossing_split : general n -- a solution whose support never crosses a set A, with a nonzero coefficient on each side, does not exist (F(11) groundwork); F_twelve now a 15-line corollary

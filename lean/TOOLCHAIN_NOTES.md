@@ -44,3 +44,26 @@
   all exist under these names; there is no `Finset.card_eq_four` (proved locally).
 - `subst x` (variable form) is deterministic; `subst h` with `h : x = y` and both sides
   variables eliminates one of them and you cannot rely on which.
+
+## 2026-09-13 (task 18, the F(12) run)
+- `set_option foo in` and a `/-- doc -/` cannot both precede a declaration in either order:
+  `/-- doc -/ set_option x in lemma` is a parse error ("unexpected token 'set_option';
+  expected 'lemma'").  Use a plain `--` comment when you need `set_option ... in`.
+- **Heartbeats are per declaration, and a long tactic proof shares one budget.**  A 200-line
+  `theorem` that calls `tauto`/`omega` twenty times will die at `maxHeartbeats` even though
+  every individual call is fast.  The fix is not a bigger limit (4000000 still died) but
+  splitting the theorem into top-level lemmas: `octahedron_closure` only compiled after being
+  cut into `link_sixth`, `link_of_three_faces`, `no_triangle_at`, `closure_of_links`.
+- For an iff between two 8-fold disjunctions of equalities (`Edge p q r s u t ↔
+  Edge q p s r u t`) `tauto` succeeds in seconds and `omega` times out at 1000000 heartbeats —
+  the opposite of the usual advice.  Prove the two dihedral generators (`edge_rot`, `edge_rev`)
+  once with `tauto` and get every other instance by `Iff.trans`, which is free.
+- Conversely, for *deriving* a fact from such a disjunction (`edge_nbr`, `edge_no_triangle`)
+  `omega` is the right tool, provided you `clear * - <the 5-8 facts it needs>` first.
+- `omega` treats each `a ≠ b` as a disjunction and is exponential in their number.  Fifteen
+  disequalities in context made `¬(v = a ∨ v = b ∨ v = c ∨ v = d ∨ v = e)` time out; with
+  `clear * - n1 n2 n3 n4 n5` it is instant.  Pass pairwise-distinctness into a lemma as ONE
+  conjunction and destructure it, so each `omega` can keep exactly the conjuncts it needs.
+- Provide small combinatorial witnesses as closed terms, not tactics: `edge_pq p q r s :=
+  Or.inl ⟨rfl, rfl⟩` costs nothing, `by simp [Edge]` costs heartbeats every time it is used.
+- `lake env lean R3/File.lean` remains the fast iteration loop (~1.5 min/file here).

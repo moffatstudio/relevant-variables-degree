@@ -1,4 +1,4 @@
-GATE run 2026-09-13T14:57:09Z
+GATE run 2026-09-13T16:02:14Z
 toolchain: leanprover/lean4:v4.23.0   mathlib: leanprover/lean4:v4.23.0
 
 == modules imported by R3.lean ==
@@ -8,12 +8,52 @@ import R3.Mass
 import R3.Link
 import R3.Twelve
 import R3.Cycle
+import R3.Octahedron
+import R3.Final
 
 == lake build ==
-Build completed successfully (7222 jobs).
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: R3/Octahedron.lean:113:75: unused variable `hrs`
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+Build completed successfully (7224 jobs).
 ok    lake build exit 0
 
 == laundering scan (sorry/admit/axiom/native_decide/unsafe/implemented_by/extern) ==
 ok    none found
 
 == axiom audit ==
+'R3.evalF_sq' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.linkVal_mem' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.two_dvd_mass' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.four_le_mass' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.sum_mass_le' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.mass_four_pm' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.mass_four_card' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.mass_four' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.mass_le_eight' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.mass_cases' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.card_mass_ne_four_le_two' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.nine_mass_four' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.exists_mass_four' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.bookkeeping' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.mass_four_link' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.mass_four_even_degree' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.twelve_mass_four' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.twelve_card_three' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.twelve_coeff_pm' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.twelve_link_card_two' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.twelve_link' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.four_pairs_cycle' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.twelve_link_cycle' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.twelve_link_struct' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.edge_through' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.link_sixth' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.link_of_three_faces' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.closure_of_links' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.octahedron_closure' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.no_crossing_split' depends on axioms: [propext, Classical.choice, Quot.sound]
+'R3.F_twelve' depends on axioms: [propext, Classical.choice, Quot.sound]
+ok    all listed theorems use only [propext, Classical.choice, Quot.sound]
+
+GATE: PASS
