@@ -1,0 +1,29 @@
+== Table 1 (exact-certified LP bounds on bs) ==
+d=1: b(d)=1  (scanned b<= 2; uncertified: none)
+d=2: b(d)=3  (scanned b<= 8; uncertified: none)
+d=3: b(d)=6  (scanned b<= 18; uncertified: none)
+d=4: b(d)=10  (scanned b<= 32; uncertified: none)
+d=5: b(d)=15  (scanned b<= 50; uncertified: none)
+d=6: b(d)=21  (scanned b<= 72; uncertified: none)
+d=7: b(d)=29  (scanned b<= 98; uncertified: none)
+d=8: b(d)=38  (scanned b<= 128; uncertified: none)
+Wellens Table 1: [1, 3, 6, 10, 15, 21, 29, 38]
+recomputed     : [1, 3, 6, 10, 15, 21, 29, 38]
+
+== Table 2 (Lemma 6 recursion, exact) ==
+d=1: W<= 1/2 = 0.5000 (Wellens-convention 0.5000)  R_d <= 1  vs NS 1  beats NS: False
+d=2: W<= 1 = 1.0000 (Wellens-convention 1.0000)  R_d <= 4  vs NS 4  beats NS: False
+d=3: W<= 3/2 = 1.5000 (Wellens-convention 1.5000)  R_d <= 12  vs NS 12  beats NS: False
+d=4: W<= 2 = 2.0000 (Wellens-convention 2.0000)  R_d <= 32  vs NS 32  beats NS: False
+d=5: W<= 5/2 = 2.5000 (Wellens-convention 2.5000)  R_d <= 80  vs NS 80  beats NS: False
+d=6: W<= 3 = 3.0000 (Wellens-convention 3.0000)  R_d <= 192  vs NS 192  beats NS: False
+d=7: W<= 7/2 = 3.5000 (Wellens-convention 3.5000)  R_d <= 448  vs NS 448  beats NS: False
+d=8: W<= 63/16 = 3.9375 (Wellens-convention 3.9375)  R_d <= 1008  vs NS 1024  beats NS: True
+
+== How small would bs(d) need to be for Lemma 6 to beat d/2 at degree d? ==
+d=3: Lemma 6 beats NS iff bs-bound at degree 3 is <= 3 (certified LP bound 6)
+d=4: Lemma 6 beats NS iff bs-bound at degree 4 is <= 5 (certified LP bound 10)
+d=5: Lemma 6 beats NS iff bs-bound at degree 5 is <= 8 (certified LP bound 15)
+d=6: Lemma 6 beats NS iff bs-bound at degree 6 is <= 14 (certified LP bound 21)
+d=7: Lemma 6 beats NS iff bs-bound at degree 7 is <= 23 (certified LP bound 29)
+d=8: Lemma 6 beats NS iff bs-bound at degree 8 is <= 39 (certified LP bound 38)

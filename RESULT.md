@@ -1,5 +1,7 @@
 # Relevant variables of degree-3 Boolean functions: R_3 = 10, and NS is never tight
 
+**Correction 2026-09-15.** `R_3 = 10` is due to Tarannikov–Kirienko (IACR ePrint 2000/050, Thm 11, `p(4) = 10`). The dictionary `R_d = p(d+1)` via `f -> f·χ_[n]` is Krotov–Valyuzhenich 2024, Lemma 1. Non-attainment of Nisan–Szegedy for `d >= 8` follows from Wellens, arXiv:1903.08214, Table 2 (`R_8 <= 1008`; re-derived exactly in `referee/wellens_check/`). New here: Theorem A for `4 <= d <= 7`, Lemma A, and a new proof of `R_3 = 10` with a Lean-checked finite core. The `v1.0` text below overstated novelty; `paper/paper.pdf` is corrected.
+
 **Status 2026-09-14.** `paper/paper.pdf` is the preprint of record for release `v1.0`. Two results:
 `R_d <= d 2^{d-1} - 1` for every `d >= 3` (the Nisan–Szegedy bound is never attained), and `R_3 = 10`
 exactly. Both hand proofs passed independent referee rounds; the exhaustive search independently
@@ -23,7 +25,7 @@ proved that the number of relevant variables is at most `d 2^{d-1}`; for `d = 3`
 Xi_3 = ((s+t)/2) Xi_2(x) + ((s-t)/2) Xi_2(y),    Xi_2(a,b,c,d) = ((a+b)/2) c + ((a-b)/2) d
 ```
 
-has degree 3 and 10 relevant variables, so `10 <= R_3 <= 12`. The gap is closed here.
+has degree 3 and 10 relevant variables, so Nisan–Szegedy alone gives `10 <= R_3 <= 12`. Tarannikov–Kirienko closed the gap in 2000, in resilient-function language; we close it again by a different route.
 
 ## 2. Results
 
@@ -34,7 +36,7 @@ minimal influence is a character times the indicator of an affine subspace. Refe
 (`referee/ns_lemmaA.py`, `referee/out_ns_lemmaA.txt`). Specialised to `d = 3` this gives
 `R_3 <= 11` (`proofs/R3_upper_bound.md`, referee verdict PASS in `referee/REPORT_r3.md`).
 
-**Theorem B (R_3 = 10) [proof, refereed] — `proofs/R3_equals_10.md`.** No degree-3 Boolean function
+**Theorem B (R_3 = 10; Tarannikov–Kirienko 2000, new proof) [proof, refereed] — `proofs/R3_equals_10.md`.** No degree-3 Boolean function
 has 11 relevant variables; with `Xi_3`, `R_3 = 10`. The proof works with the vertex masses
 `m_v = sum_{S ∋ v} n_S^2` of the integer coefficient vector `N = 4 f^`, shows `m_v ∈ {4,6,8}` for
 `n >= 11`, classifies the link of each mass-4 vertex as a 4-cycle, and closes the resulting term

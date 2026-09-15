@@ -91,8 +91,8 @@
 
 \begin{document}
 
-\title[The Nisan--Szegedy bound is never tight, and $R_3=10$]
-{The Nisan--Szegedy bound on relevant variables\\ is never tight, and $R_3 = 10$}
+\title[The Nisan--Szegedy bound is never tight]
+{The Nisan--Szegedy bound on relevant variables\\ is never tight}
 
 \author{Andrew Moffat}
 \thanks{The mathematics in this paper was developed with AI assistance (Claude).
@@ -114,9 +114,12 @@ every $d \ge 3$. The proof shows that in a hypothetical extremal function every 
 a character times the indicator of an affine subspace, that every vertex link is the facet
 complex of a cross-polytope, and that the resulting term hypergraph splits into at least two
 cross-polytope boundaries on disjoint variable sets, which no Boolean function admits.
-For $d \ge 8$ non-attainment already follows from Wellens' explicit bounds; the new range is
-$3 \le d \le 7$. Second, we determine $R_3$ exactly: $R_3 = 10$, attained by the Chiarelli--Hatami--Saks
-function $\XiC_3$. Consequently $R_1 = 1$, $R_2 = 4$, $R_3 = 10$, and $22 \le R_4 \le 31$.
+For $d = 3$ this already follows from the value $R_3 = 10$, proved by Tarannikov and Kirienko in
+2000 in the language of resilient functions, and for $d \ge 8$ from Wellens' explicit bounds; the
+new cases are $4 \le d \le 7$, where we obtain $R_4 \le 31$, $R_5 \le 79$, $R_6 \le 191$ and
+$R_7 \le 447$. Second, we give a new, Fourier-analytic proof of $R_3 = 10$, the value attained by
+the Chiarelli--Hatami--Saks function $\XiC_3$. Hence $R_1 = 1$, $R_2 = 4$, $R_3 = 10$, and
+$22 \le R_4 \le 31$.
 The value $R_3 = 10$ is confirmed independently by an exhaustive canonical-form search over
 a finite reformulation of the problem. The finite reformulation itself has been formalised in
 Lean~4 and machine-checked on the three standard axioms, with no \texttt{native\_decide}:
@@ -172,13 +175,19 @@ measure $W(f) = \sum_{i \in R(f)} 2^{-\deg_i f}$ \cite[Table~2]{Wel19} gives onl
 which is \eqref{eq:ns}, for $d \le 7$, but $W \le 3.9375$ for $d = 8$, so that
 $R_8 \le 1008 < 8 \cdot 2^7$; for $d \ge 9$ the uniform bound $R_d \le 4.416 \cdot 2^d$ is
 already below $d\,2^{d-1}$. So \eqref{eq:ns} was known not to be attained for $d \ge 8$, while
-for $3 \le d \le 7$ it was still the best published upper bound; and the exact values of $R_d$ have not
-been recorded anywhere for any $d \ge 3$: the problem page \cite{TaoOP44a} lists
-$10 \le R_3 \le 12$ and states that exact values are not known.
+for $3 \le d \le 7$ it is the best bound this line of work gives. The case $d = 3$ was, however,
+settled long ago in a different literature. Multiplying by the parity $\chi_{[n]}$ turns a
+Boolean function of degree $d$ with $n$ relevant variables into an $(n-d-1)$-resilient function
+that depends nonlinearly on all $n$ variables (Remark~\ref{rem:resilient}), and Tarannikov and
+Kirienko \cite{TK00} proved in 2000 that for $d = 3$ such a function has at most $10$ variables;
+hence $R_3 = 10$. Krotov and Valyuzhenich \cite{KV24} state this in the language of degree. In
+the same resilient-function language, Tarannikov, Korolev and Botev \cite{TKB01} reproved
+\eqref{eq:ns} and recorded that $3 \cdot 2^{d-1} - 2$ variables are attainable.
 
 \subsection{Results}
-We settle the tightness of \eqref{eq:ns} for every $d$ (new for $3 \le d \le 7$; for $d \ge 8$
-it follows from \cite{Wel19}), with one uniform structural proof, and determine $R_3$.
+We settle the tightness of \eqref{eq:ns} for every $d$ by one uniform structural argument (the
+cases $d = 3$ and $d \ge 8$ were known \cite{TK00,Wel19}; the cases $4 \le d \le 7$ are new), and
+give a new proof of $R_3 = 10$.
 
 \begin{theorem}\label{thm:main-ns}
 For every $d \ge 3$, no Boolean function of degree $d$ has $d\,2^{d-1}$ relevant variables.
@@ -188,7 +197,7 @@ Hence
 \]
 \end{theorem}
 
-\begin{theorem}\label{thm:main-r3}
+\begin{theorem}[Tarannikov--Kirienko \cite{TK00}]\label{thm:main-r3}
 $R_3 = 10$. That is, a Boolean function of degree $3$ has at most $10$ relevant variables, and
 $10$ is attained by the Chiarelli--Hatami--Saks function $\XiC_3$.
 \end{theorem}
@@ -202,7 +211,7 @@ is Boolean of degree $2$ with $4 = 2 \cdot 2^1$ relevant variables. So the Nisan
 is attained exactly for $d \in \{1,2\}$.
 
 Combining the two theorems with \eqref{eq:chslower} and \eqref{eq:ns}, the exact state of
-knowledge for small $d$ is now
+knowledge for small $d$ is
 \[
   R_1 = 1, \qquad R_2 = 4, \qquad R_3 = 10, \qquad 22 \le R_4 \le 31,
 \]
@@ -257,12 +266,31 @@ Chiarelli--Hatami--Saks \cite{CHS20} and Wellens \cite{Wel19,Wel22} beat $d\,2^{
 $d$, and Wellens' Table~2 \cite{Wel19} already does so at $d = 8$ ($R_8 \le 1008$). Non-attainment
 of \eqref{eq:ns} for $d \ge 8$ is therefore not new; what is new there is only the uniform
 structural proof. Neither paper states an exact value of $R_3$ or $R_4$ or improves
-\eqref{eq:ns} for $3 \le d \le 7$. A literature sweep carried out for this project found no paper,
-preprint, thesis or problem-tracker entry recording an exact value of $R_d$ for any $d \ge 3$.
-The acknowledgements of \cite{CHS20} thank Avishay Tal for sharing exhaustive-search code for
-Boolean functions on few variables, but no results of such a search are reported there. To the
-best of our knowledge, Theorem~\ref{thm:main-r3}, Theorem~\ref{thm:main-ns} for $3 \le d \le 7$, and
-Lemma~\ref{lem:A} are new.
+\eqref{eq:ns} for $3 \le d \le 7$.
+
+The exact value $R_3 = 10$ is older than all of this. It is Theorem~11 of Tarannikov and Kirienko
+\cite{TK00}, in the form $p(4) = 10$, where $p(k)$ is the least integer such that every
+$(n-k)$-resilient Boolean function depends nonlinearly on at most $p(k)$ variables.
+Remark~\ref{rem:resilient} gives the dictionary $R_d = p(d+1)$, which is Lemma~1 of Krotov and
+Valyuzhenich \cite{KV24}; they record that a Boolean function of degree at most $3$ has at most
+$10$ essential variables. Tarannikov, Korolev and Botev \cite{TKB01} proved
+$p(k) \le (k-1)\,2^{k-2}$, which is \eqref{eq:ns} again, without excluding equality. Our proof of
+Theorem~\ref{thm:main-r3} is independent of that literature, and its finite core has been
+machine-checked (Section~\ref{sec:lean}). An earlier version of this manuscript (release v1.0)
+missed \cite{TK00,TKB01,KV24} and the small-degree table of \cite{Wel19}, and claimed
+Theorem~\ref{thm:main-r3} and the cases $d = 3$ and $d \ge 8$ of Theorem~\ref{thm:main-ns} as new.
+To the best of our knowledge, Theorem~\ref{thm:main-ns} for $4 \le d \le 7$ and
+Lemma~\ref{lem:A} are new, as is the proof of Theorem~\ref{thm:main-r3} given here.
+
+\begin{remark}[Degree and resiliency]\label{rem:resilient}
+For $f\colon \{-1,1\}^n \to \{-1,1\}$ put $f' := f \cdot \chi_{[n]}$, so that
+$\Fhat{f'}(S) = \Fhat{f}([n] \setminus S)$ for every $S \subseteq [n]$. By the Xiao--Massey
+characterisation \cite{XM88}, $f'$ is $t$-resilient if and only if $\Fhat{f'}(S) = 0$ for all
+$|S| \le t$. Hence $\deg f \le d$ if and only if $f'$ is $(n-d-1)$-resilient. Moreover $x_i$ is
+irrelevant for $f$ if and only if $\Fhat{f}(T) = 0$ for all $T \ni i$, if and only if
+$\Fhat{f'}(S) = 0$ for all $S \not\ni i$, if and only if $f' = x_i\, g$ with $g$ independent of
+$x_i$, that is, $f'$ depends linearly on $x_i$. Therefore $R_d = p(d+1)$ for every $d$.
+\end{remark}
 
 \subsection{Organisation}
 Section~\ref{sec:prelim} fixes notation and collects the standard facts we use.
@@ -1110,11 +1138,11 @@ frozen and why it is reproduced verbatim in Appendix~\ref{app:leanstmt}.
 \section{Concluding remarks and open problems}\label{sec:open}
 
 \subsection{The state of the small-degree values}
-We now know
+Thus
 \[
   R_1 = 1, \qquad R_2 = 4, \qquad R_3 = 10, \qquad 22 \le R_4 \le 31,
 \]
-where $R_4 \ge 22 = 3 \cdot 2^3 - 2$ comes from $\XiC_4$ and $R_4 \le 31 = 4 \cdot 2^3 - 1$ from
+where $R_3 = 10$ is due to \cite{TK00}, $R_4 \ge 22 = 3 \cdot 2^3 - 2$ comes from $\XiC_4$ and $R_4 \le 31 = 4 \cdot 2^3 - 1$ from
 Theorem~\ref{thm:main-ns}. Determining $R_4$ is the obvious next question. The gap is wide, and
 the hypergraph in question has $64$ terms rather than $16$, so a direct repetition of
 Appendix~\ref{app:cases} is not realistic; a new structural input is needed.
@@ -1160,7 +1188,9 @@ $2^{2-d}$. Does a structure theorem at the first few influence levels imply
 The exhaustive search of Section~\ref{sec:comput} found exactly one orbit at $n = 10$, namely
 $\XiC_3$, under the group generated by permutations of variables, negation of variables and the
 global sign. So, computationally, the extremal degree-$3$ function is unique up to those
-symmetries. We have no proof of this by hand.
+symmetries. This agrees with the resilient-function classification used by Krotov and
+Valyuzhenich, who also note that the degree-$3$ function with $10$ essential variables is unique
+\cite{KV24}; that classification is computational too. We have no proof of uniqueness by hand.
 
 \begin{question}
 Prove without computer search that $\XiC_3$ is, up to permutation and negation of variables and
@@ -1835,6 +1865,12 @@ Boolean function},
 Combinatorica \textbf{40} (2020), 237--244.
 \texttt{arXiv:1801.08564}.
 
+\bibitem{KV24}
+D.~S.~Krotov and A.~A.~Valyuzhenich,
+\emph{On degree-$3$ and $(n-4)$-correlation-immune perfect colorings of $n$-cubes},
+Discrete Math. \textbf{347} (2024), no.~10, 114138.
+\texttt{arXiv:2311.05566}.
+
 \bibitem{NS94}
 N.~Nisan and M.~Szegedy,
 \emph{On the degree of Boolean functions as real polynomials},
@@ -1852,6 +1888,17 @@ functions).
 \url{https://teorth.github.io/optimizationproblems/constants/44a.html}.
 Accessed 2026-09-09.
 
+\bibitem{TK00}
+Yu.~Tarannikov and D.~Kirienko,
+\emph{Spectral analysis of high order correlation immune functions},
+IACR Cryptology ePrint Archive, Report 2000/050 (2000).
+
+\bibitem{TKB01}
+Yu.~Tarannikov, P.~Korolev and A.~Botev,
+\emph{Autocorrelation coefficients and correlation immunity of Boolean functions},
+in: Advances in Cryptology -- ASIACRYPT 2001, Lecture Notes in Comput. Sci. \textbf{2248},
+Springer, 2001, pp.~460--479.
+
 \bibitem{Wel19}
 J.~Wellens,
 \emph{A tighter bound on the number of relevant variables in a bounded degree Boolean
@@ -1864,6 +1911,11 @@ J.~Wellens,
 functions},
 Discrete Analysis \textbf{2022}:19.
 \texttt{arXiv:2005.00566}.
+
+\bibitem{XM88}
+G.-Z.~Xiao and J.~L.~Massey,
+\emph{A spectral characterization of correlation-immune combining functions},
+IEEE Trans. Inform. Theory \textbf{34} (1988), 569--571.
 
 \end{thebibliography}
 

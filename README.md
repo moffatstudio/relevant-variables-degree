@@ -1,10 +1,12 @@
-# The Nisan–Szegedy bound on relevant variables is never tight, and R_3 = 10
+# The Nisan–Szegedy bound on relevant variables is never tight (with a new proof of R_3 = 10)
 
 [![verify](https://github.com/moffatstudio/relevant-variables-degree/actions/workflows/verify.yml/badge.svg)](https://github.com/moffatstudio/relevant-variables-degree/actions/workflows/verify.yml) [![lean](https://github.com/moffatstudio/relevant-variables-degree/actions/workflows/lean.yml/badge.svg)](https://github.com/moffatstudio/relevant-variables-degree/actions/workflows/lean.yml)
 
 Andrew Moffat, 13 September 2026 (Lean certificate completed 14 September 2026). Paper: [`paper/paper.pdf`](paper/paper.pdf) (source [`paper/main.tex`](paper/main.tex), build instructions [`paper/BUILD.md`](paper/BUILD.md)). Preprint, not peer-reviewed. Intended for math.CO (cross-list cs.CC); MSC 06E30, 68Q06, 05D05. Not yet on arXiv.
 
-Let `R_d` be the maximum number of relevant variables of a Boolean function `f : {-1,1}^n -> {-1,1}` of real multilinear degree `d`. Nisan and Szegedy proved `R_d <= d 2^{d-1}`, which gives `R_3 <= 12`. This repository holds everything needed to check two results: that the Nisan–Szegedy bound is **never** attained for `d >= 3`, and that `R_3 = 10` exactly. It contains the paper, the hand proofs, the complete search and every raw log, the reports of the independent referee rounds (including the errors they caught), and a Lean 4 project certifying the structural half of the argument. Nothing was removed to tidy the story.
+Let `R_d` be the maximum number of relevant variables of a Boolean function `f : {-1,1}^n -> {-1,1}` of real multilinear degree `d`. Nisan and Szegedy proved `R_d <= d 2^{d-1}`, which gives `R_3 <= 12`. This repository holds everything needed to check two results: that the Nisan–Szegedy bound is **never** attained for `d >= 3`, and that `R_3 = 10` exactly.
+
+> **Prior art (corrected 2026-09-15).** `R_3 = 10` was first proved by Tarannikov and Kirienko (IACR ePrint 2000/050, Theorem 11, stated as `p(4) = 10` for resilient functions). The translation `R_d = p(d+1)`, via `f -> f·χ_[n]`, is Lemma 1 of Krotov–Valyuzhenich (Discrete Math. 347 (2024) 114138). Non-attainment for `d >= 8` already follows from Wellens (arXiv:1903.08214, Table 2: `R_8 <= 1008`), re-derived exactly in [`referee/wellens_check/`](referee/wellens_check/). What is new here: non-attainment for `4 <= d <= 7`, Lemma A, and a new proof of `R_3 = 10` whose finite core is machine-checked. The `v1.0` paper claimed more than this; the current `paper/paper.pdf` gives the corrected account. It contains the paper, the hand proofs, the complete search and every raw log, the reports of the independent referee rounds (including the errors they caught), and a Lean 4 project certifying the structural half of the argument. Nothing was removed to tidy the story.
 
 ## Check it in a few minutes
 
@@ -20,8 +22,8 @@ The `n = 11` search itself, whose verdict `F(11) = 0 solutions` is what gives `R
 
 | Claim | Where | Tier |
 |---|---|---|
-| **NS never tight.** For every `d >= 3`, `R_d <= d 2^{d-1} - 1`; in particular `R_3 <= 11`. Lemma A: a minimal-influence derivative is a character times the indicator of an affine subspace | `proofs/NS_never_tight.md`, `proofs/R3_upper_bound.md` | **Proof**, refereed (`referee/REPORT_ns.md`, `referee/REPORT_r3.md`). Lemma A additionally brute-forced for `m = 2, 3` (343M instances) |
-| **R_3 = 10.** No degree-3 Boolean function has 11 relevant variables; the CHS function `Xi_3` has 10 | `proofs/R3_equals_10.md` | **Proof**, refereed with fixes applied (`referee/REPORT_r3_round2c.md`) |
+| **NS never tight.** For every `d >= 3`, `R_d <= d 2^{d-1} - 1`; in particular `R_3 <= 11`. New only for `4 <= d <= 7` (`d = 3`: Tarannikov–Kirienko 2000; `d >= 8`: Wellens 2019). Lemma A: a minimal-influence derivative is a character times the indicator of an affine subspace | `proofs/NS_never_tight.md`, `proofs/R3_upper_bound.md` | **Proof**, refereed (`referee/REPORT_ns.md`, `referee/REPORT_r3.md`). Lemma A additionally brute-forced for `m = 2, 3` (343M instances) |
+| **R_3 = 10** (first proved by Tarannikov–Kirienko 2000; new proof here). No degree-3 Boolean function has 11 relevant variables; the CHS function `Xi_3` has 10 | `proofs/R3_equals_10.md` | **Proof**, refereed with fixes applied (`referee/REPORT_r3_round2c.md`) |
 | **`F(11)` has no solution** — an independent complete search confirming `R_3 <= 10` without using the hand proof's link classification | `search/` | **Audited computation.** Complete orbit-reduced search using only E1–E3 of the frozen statement; every pruning rule justified in `search/README.md`; `n = 10` sanity check recovers `Xi_3` uniquely; residual trust caveats stated there |
 | **`F(12)` and `F(11)`** — the finite statement itself, no solution on 12 or 11 variables, hence `R_3 <= 10` | `lean/R3/Final.lean` (`F_twelve`), `lean/R3/Eleven.lean` (`F_eleven`, `F_eleven_and_twelve`) | **Machine-checked in Lean 4 / Mathlib.** 158 theorems total on the road to these two, zero `sorry`, standard axioms only, no `native_decide` |
 
