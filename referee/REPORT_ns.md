@@ -28,5 +28,9 @@ d >= 9, so for 3 <= d <= 8 this is a genuine improvement by one, and the non-att
 (minimal-influence derivative = character x indicator of a codim-(d-1) affine subspace, no homogeneity needed) is the reusable
 content; check Wellens' small-d remarks and the Fourier-sparsity structure literature for overlap.
 
+CORRECTION (2026-09-15, raised by the VibeMathed curator, verified against arXiv:1903.08214v2): Wellens' Table 2 bounds
+W(f) <= 3.9375 at d = 8, so R_8 <= 1008 < 8 * 2^7; non-attainment was already known for every d >= 8. The genuinely new
+range is 3 <= d <= 7. The paper's introduction and related-work section were corrected accordingly.
+
 Presentational fixes requested (all applied 2026-09-13): rewrite the CS step; state the pairs-from-facets fact; cite granularity
 and the 2^{-k} support bound; note deg f = d is forced.

@@ -114,7 +114,8 @@ every $d \ge 3$. The proof shows that in a hypothetical extremal function every 
 a character times the indicator of an affine subspace, that every vertex link is the facet
 complex of a cross-polytope, and that the resulting term hypergraph splits into at least two
 cross-polytope boundaries on disjoint variable sets, which no Boolean function admits.
-Second, we determine $R_3$ exactly: $R_3 = 10$, attained by the Chiarelli--Hatami--Saks
+For $d \ge 8$ non-attainment already follows from Wellens' explicit bounds; the new range is
+$3 \le d \le 7$. Second, we determine $R_3$ exactly: $R_3 = 10$, attained by the Chiarelli--Hatami--Saks
 function $\XiC_3$. Consequently $R_1 = 1$, $R_2 = 4$, $R_3 = 10$, and $22 \le R_4 \le 31$.
 The value $R_3 = 10$ is confirmed independently by an exhaustive canonical-form search over
 a finite reformulation of the problem. The finite reformulation itself has been formalised in
@@ -165,15 +166,19 @@ Writing
 the current state of the art is $3/2 \le C_{44} \le 4.394$; this is entry~44a on Tao's
 optimisation problems page \cite{TaoOP44a}.
 
-The improved constants of \cite{CHS20,Wel22} are asymptotic. For small $d$ they are worse than
-\eqref{eq:ns}: the Chiarelli--Hatami--Saks optimisation attains its minimum at $d = 12$, and
-Wellens' bound beats $d\,2^{d-1}$ only from roughly $d \ge 9$ on. For $d \le 8$, therefore,
-\eqref{eq:ns} is still the best published upper bound, and the exact values of $R_d$ have not
+The improved constants of \cite{CHS20,Wel22} are asymptotic, but the recursion behind them also
+gives explicit bounds for fixed $d$. Wellens' table of bounds on the Chiarelli--Hatami--Saks
+measure $W(f) = \sum_{i \in R(f)} 2^{-\deg_i f}$ \cite[Table~2]{Wel19} gives only $W \le d/2$,
+which is \eqref{eq:ns}, for $d \le 7$, but $W \le 3.9375$ for $d = 8$, so that
+$R_8 \le 1008 < 8 \cdot 2^7$; for $d \ge 9$ the uniform bound $R_d \le 4.416 \cdot 2^d$ is
+already below $d\,2^{d-1}$. So \eqref{eq:ns} was known not to be attained for $d \ge 8$, while
+for $3 \le d \le 7$ it was still the best published upper bound; and the exact values of $R_d$ have not
 been recorded anywhere for any $d \ge 3$: the problem page \cite{TaoOP44a} lists
 $10 \le R_3 \le 12$ and states that exact values are not known.
 
 \subsection{Results}
-We settle the tightness of \eqref{eq:ns} for every $d$, and determine $R_3$.
+We settle the tightness of \eqref{eq:ns} for every $d$ (new for $3 \le d \le 7$; for $d \ge 8$
+it follows from \cite{Wel19}), with one uniform structural proof, and determine $R_3$.
 
 \begin{theorem}\label{thm:main-ns}
 For every $d \ge 3$, no Boolean function of degree $d$ has $d\,2^{d-1}$ relevant variables.
@@ -248,14 +253,16 @@ is on paper, not in Lean.
 
 \subsection{Related work and novelty}
 Nisan and Szegedy \cite{NS94} do not discuss whether \eqref{eq:ns} is tight for $d \ge 3$.
-Chiarelli--Hatami--Saks \cite{CHS20} and Wellens \cite{Wel19,Wel22} beat $d\,2^{d-1}$ only for
-large $d$, and neither states an exact value of $R_3$ or $R_4$ nor addresses tightness at small
-$d$; Wellens' Table~1 tabulates linear-programming bounds on block sensitivity, not on the
-number of relevant variables. A literature sweep carried out for this project found no paper,
+Chiarelli--Hatami--Saks \cite{CHS20} and Wellens \cite{Wel19,Wel22} beat $d\,2^{d-1}$ for large
+$d$, and Wellens' Table~2 \cite{Wel19} already does so at $d = 8$ ($R_8 \le 1008$). Non-attainment
+of \eqref{eq:ns} for $d \ge 8$ is therefore not new; what is new there is only the uniform
+structural proof. Neither paper states an exact value of $R_3$ or $R_4$ or improves
+\eqref{eq:ns} for $3 \le d \le 7$. A literature sweep carried out for this project found no paper,
 preprint, thesis or problem-tracker entry recording an exact value of $R_d$ for any $d \ge 3$.
 The acknowledgements of \cite{CHS20} thank Avishay Tal for sharing exhaustive-search code for
 Boolean functions on few variables, but no results of such a search are reported there. To the
-best of our knowledge, Theorems~\ref{thm:main-ns} and \ref{thm:main-r3} are new.
+best of our knowledge, Theorem~\ref{thm:main-r3}, Theorem~\ref{thm:main-ns} for $3 \le d \le 7$, and
+Lemma~\ref{lem:A} are new.
 
 \subsection{Organisation}
 Section~\ref{sec:prelim} fixes notation and collects the standard facts we use.
@@ -1847,9 +1854,9 @@ Accessed 2026-09-09.
 
 \bibitem{Wel19}
 J.~Wellens,
-\emph{Relationships between the number of inputs and other complexity measures of Boolean
-functions},
-preprint, \texttt{arXiv:1903.08214} (2019). Superseded by \cite{Wel22}.
+\emph{A tighter bound on the number of relevant variables in a bounded degree Boolean
+function},
+preprint, \texttt{arXiv:1903.08214} (2019).
 
 \bibitem{Wel22}
 J.~Wellens,
